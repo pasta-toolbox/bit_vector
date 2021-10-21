@@ -1,0 +1,65 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+	"major": 3,
+	"minor": 19,
+	"patch": 0
+    },
+    "configurePresets": [
+	{
+            "name": "default",
+            "displayName": "Default",
+            "description": "Default build options",
+	    "hidden": true,
+            "generator": "Ninja",
+	    "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+		"CMAKE_CXX_FLAGS": "-Wall -Wextra -pedantic -fdiagnostics-color=always",
+		"CMAKE_CXX_FLAGS_RELEASE": "-DNDEBUG -march=native -O3",
+		"CMAKE_CXX_FLAGS_RELWITHDEBUG": "-DDEBUG -g -march=native -O3",
+		"CMAKE_CXX_FLAGS_DEBUG": "-DDEBUG -O0 -g -ggdb"
+            }
+	},
+	{
+	    "name": "release",
+	    "displayName": "Release",
+	    "inherits": "default",
+            "binaryDir": "${sourceDir}/build",
+	    "cacheVariables": {
+		"CMAKE_BUILD_TYPE": "Release"
+	    }
+	},
+	{
+	    "name": "relwithdeb",
+	    "displayName": "ReleaseWithDebugInfo",
+	    "inherits": "default",
+            "binaryDir": "${sourceDir}/build_with_debug_info",
+	    "cacheVariables": {
+		"CMAKE_BUILD_TYPE": "RelWithDebug"
+	    }
+	},
+	{
+	    "name": "debug",
+	    "displayName": "Debug",
+	    "inherits": "default",
+            "binaryDir": "${sourceDir}/debug",
+	    "cacheVariables": {
+		"CMAKE_BUILD_TYPE": "Debug"
+	    }
+	}
+    ],
+    "buildPresets": [
+	{
+	    "name": "release",
+	    "configurePreset": "release"
+	},
+	{
+	    "name": "relwithdeb",
+	    "configurePreset": "relwithdeb"
+	},
+	{
+	    "name": "debug",
+	    "configurePreset": "debug"
+	}
+    ]
+}

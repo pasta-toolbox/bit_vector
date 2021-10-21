@@ -29,8 +29,6 @@
 
 #include <tlx/container/simple_vector.hpp>
 
-#include "container/support/bit_vector_rank_select.hpp"
-
 namespace pasta {
 
   /*!
@@ -73,20 +71,32 @@ namespace pasta {
      * \param data Pointer to the 64-bit word that contains the bit.
      * \param position Position of the bit within the 64-bit word.
      */
-    BitAccess(uint64_t * const data, size_t const position) noexcept;
+    BitAccess(uint64_t * const data, size_t const position) noexcept
+      : data_(data), position_(position) { }
+
     /*!
      * \brief User-defined conversion function to bool.
      *
      * Used for read access to a single bit.
      *
      */
-    operator bool() const noexcept;
+    operator bool() const noexcept {
+      uint8_t const offset = uint64_t(position_) & uint64_t(0b111111);
+      return (data_[position_ >> 6] >> offset) & 1ULL;
+    }
+
     /*!
      * \brief Assignment operator to set a bit within the bit vector.
      * \param value Value the bit should be written to.
      * \return This after the bit has been written.
      */
-    BitAccess& operator=(bool const value) noexcept;
+    BitAccess& operator=(bool const value) noexcept {
+      // https://graphics.stanford.edu/~seander/bithacks.html
+      // (ConditionalSetOrClearBitsWithoutBranching)
+      uint64_t const mask = 1ULL << (uint64_t(position_) & uint64_t(0b111111));
+      data_[position_ >> 6] = (data_[position_ >> 6] & ~mask) | (-value & mask);
+      return *this;
+    }
 
     /*!
      * \brief Computes the distance to another \c BitAccess instance.
@@ -97,7 +107,9 @@ namespace pasta {
      * \param other The \c BitAccess instance the distance is computed to.
      * \return The distance between \c this and the other \c BitAccess instance.
      */
-    int64_t distance(BitAccess const& other) const noexcept;
+    int64_t distance(BitAccess const& other) const noexcept {
+      return position_ - other.position_;
+    }
 
     /*!
      * \brief Comparison of two \c BitAccess instances for equality.
@@ -110,7 +122,9 @@ namespace pasta {
      * \return \c true if both instances refer to the same position in the same
      * \c BitVector and \c false otherwise.
      */
-    friend bool operator == (BitAccess const& a, BitAccess const& b) noexcept;
+    friend bool operator == (BitAccess const& a, BitAccess const& b) noexcept {
+      return a.position_ == b.position_ && a.data_ == b.data_;
+    }
 
     /*!
      * \brief Comparison of two \c BitAccess instances for inequality.
@@ -123,7 +137,9 @@ namespace pasta {
      * \return \c true if both instances refer to different position or
      * different \c BitVector and \c false otherwise.
      */
-    friend bool operator != (BitAccess const& a, BitAccess const& b) noexcept;
+    friend bool operator != (BitAccess const& a, BitAccess const& b) noexcept {
+      return a.position_ != b.position_ || a.data_ != b.data_;
+    }
 
   private:
    /*!
@@ -157,9 +173,6 @@ namespace pasta {
    * \c std::vector<bool>).
    */
   class BitVector {
-
-  public:
-    using RankSelectSupport = BitVectorRankSelect;
   
   private:
     //! Forward declaration.
@@ -198,31 +211,53 @@ namespace pasta {
        * \param data Pointer to the beginning of the \c BitVector.
        * \param position Position the iterator is pointing at.
        */
-      Iterator(uint64_t * const data, size_t const positon) noexcept;
+      Iterator(uint64_t * const data, size_t const position) noexcept
+	: bit_access_(data, position) { }
 
       /*!
        * \brief Iterator is dereferenceable. Obtain value it is pointing at.
        * \return Reference to the bit the iterator points at.
        */
+      reference operator * () noexcept {
+	return bit_access_;
+      }
 
-      reference operator * () noexcept;
       /*!
        * \brief Iterator is dereferenceable. Obtain value it is pointing at.
        * \return Pointer to the bit the iterator points at.
        */
-      pointer operator -> () noexcept;
+      pointer operator -> () noexcept {
+	return &bit_access_;
+      }
 
       //! Prefix increment.
-      Iterator& operator ++ () noexcept;
+      Iterator& operator ++ () noexcept {
+	++bit_access_.position_;
+	return *this;
+      }
+
       //! Postfix increment.
-      Iterator operator ++ (int32_t) noexcept;
+      Iterator operator ++ (int32_t) noexcept {
+	auto tmp = *this;
+	++(*this);
+	return tmp;
+      }
 
       //! Iterator comparison equality.
-      friend bool operator == (Iterator const& a, Iterator const& b) noexcept;
+      friend bool operator == (Iterator const& a, Iterator const& b) noexcept {
+	return a.bit_access_ == b.bit_access_;
+      }
+
       //! Iterator comparison inequality.
-      friend bool operator != (Iterator const& a, Iterator const& b) noexcept;
+      friend bool operator != (Iterator const& a, Iterator const& b) noexcept {
+	return a.bit_access_ != b.bit_access_;
+      }
+
       //! Iterator distance computation.
-      friend differece_type operator - (Iterator const& a, Iterator const& b) noexcept;
+      friend differece_type
+      operator - (Iterator const& a, Iterator const& b) noexcept {
+	return a.bit_access_.distance(b.bit_access_);
+      }
 
     private:
       BitAccess bit_access_;
@@ -240,7 +275,10 @@ namespace pasta {
      * number of bits.
      * \param size Number of bits the bit vector contains.
      */
-    BitVector(size_t const size) noexcept;
+    BitVector(size_t const size) noexcept : bit_size_(size),
+					    size_((bit_size_>> 6) + 1),
+					    data_(size_),
+					    raw_data_(data_.data()) { }
 
     /*!
      * \brief Constructor. Creates a bit vector that holds a specific, fixed
@@ -249,33 +287,48 @@ namespace pasta {
      * \param init_value Value all bits initially are set to. Either 0
      *  (\c false) or 1 (\c true).
      */
-    BitVector(size_t const size, bool const init_value) noexcept;
+    BitVector(size_t const size, bool const init_value) noexcept
+      : BitVector(size) {
+      uint64_t const fill_value = init_value ? ~(0ULL) : 0ULL;
+      std::fill_n(raw_data_, size_, fill_value);
+    }
 
     /*!
      * \brief Access operator to read/write to a bit of the bit vector.
      * \param index Index of the bit to be read/write to in the bit vector.
      * \return \c BitAccess that allows to access to a single bit.
      */
-    BitAccess operator [] (size_t const index) noexcept;
+    BitAccess operator [] (size_t const index) noexcept {
+      return BitAccess(raw_data_, index);
+    }
 
     /*!
      * \brief Access operator to read to a bit of the bit vector.
      * \param index Index of the bit to be read to in the bit vector.
      * \return \c BitAccess that allows to read access to a single bit.
      */
-    BitAccess operator [] (size_t const index) const noexcept;
+    BitAccess operator [] (size_t const index) const noexcept {
+      return BitAccess(raw_data_, index);
+    }
 
     /*!
      * \brief Resize the bit vector to contain size bits.
      * \param size Number of bits the resized bit vector contains.
      */
-    void resize(size_t const size) noexcept;
-    
+    void resize(size_t const size) noexcept  {
+      bit_size_ = size;
+      size_ = (bit_size_ >> 6) + 1;
+      data_.resize(size_);
+      raw_data_ = data_.data();
+    }
+
     /*!
      * \brief Get iterator representing the first element of the \c BitVector.
      * \return Iterator representing the first element of the \c BitVector.
      */
-    Iterator begin() noexcept;
+    Iterator begin() noexcept {
+      return Iterator(raw_data_, 0);
+    }
 
     /*!
      * \brief Get iterator representing the end of the \c BitVector.
@@ -284,7 +337,9 @@ namespace pasta {
      * memory address. It should never be accessed directly.
      * \return Iterator representing the end of the \c BitVector.
      */
-    Iterator end() noexcept;
+    Iterator end() noexcept {
+      return Iterator(raw_data_, bit_size_);
+    }
 
     /*!
      * \brief Direct access to the raw data of the bit vector.
@@ -293,7 +348,9 @@ namespace pasta {
      * detailed description can be found at the top of this file.
      * \return \c std::span<uint64_t> pointing to the bit vector's raw data.
      */
-    std::span<uint64_t> data() noexcept;
+    std::span<uint64_t> data() noexcept {
+      return std::span{raw_data_, size_};
+    }
 
     /*!
      * \brief Direct access to the raw data of the bit vector.
@@ -302,17 +359,25 @@ namespace pasta {
      * detailed description can be found at the top of this file.
      * \return \c std::span<uint64_t> pointing to the bit vector's raw data.
      */
-    std::span<uint64_t> data() const noexcept;
+    std::span<uint64_t> data() const noexcept {
+      return std::span{raw_data_, size_};
+    }
 
     /*!
      * \brief Get the size of the bit vector in bits.
      * \return Size of the bit vector in bits.
      */
-    size_t size() const noexcept;
+    size_t size() const noexcept {
+      return bit_size_;
+    }
 
     //! formatted output of the \c BitVector
-    friend std::ostream& operator << (std::ostream& os, BitVector const& bv);
-
+    friend std::ostream& operator << (std::ostream& os, BitVector const& bv) {
+      for (size_t i = 0; i < bv.bit_size_; ++i) {
+	os << (bv[i] ? "1" : "0");
+      }
+      return os;
+    }
 
   }; // class BitVector
 

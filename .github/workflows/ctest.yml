@@ -1,4 +1,4 @@
-name: CMake
+name: pasta::bit_vector CI
 
 on:
   push:

@@ -13,6 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Prepare build environment
+      run: sudo apt-get install ninja-build
+
     - name: Configure CMake
       run: cmake --preset=relwithdeb -DPASTA_BIT_VECTOR_BUILD_TESTS=On
 

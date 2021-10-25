@@ -26,24 +26,59 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(pasta_bit_vector)
 
 # Options when compiling pasta::bit_vector
+## Build tests
 option(PASTA_BIT_VECTOR_BUILD_TESTS
   "Build pasta::bit_vector's tests." OFF)
+## Build benchmark tools
+option(PASTA_BIT_VECTOR_BUILD_BENCHMAKRS
+  "Build pasta::bit_vector's benchmarks." OFF)
 
 # Add tlx subdirectory only, if it has not been added by another project already
 if(NOT TARGET tlx)
   add_subdirectory(extlib/tlx)
 endif()
 
-# 
+# Add pasta::utils subdirectory only, if it has not been added by another
+# project already
+if (NOT TARGET pasta_utils)
+  add_subdirectory(extlib/utils)
+endif()
+
+# pasta::bit_vector interface definitions
 add_library(pasta_bit_vector INTERFACE)
 target_include_directories(pasta_bit_vector INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${TLX_INCLUDE_DIRS})
+target_link_libraries(pasta_bit_vector INTERFACE
+  pasta_utils)
 
 # Optional test
 if(PASTA_BIT_VECTOR_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
+endif()
+
+# Optional benchmarks
+
+if(PASTA_BIT_VECTOR_BUILD_BENCHMAKRS)
+  find_library(SDSL_LIBRARY sdsl
+    PATHS ${SDSL_DIR})
+
+  if(SDSL_LIBRARY)
+    add_executable(bit_vector_benchmark
+      benchmarks/bit_vector_benchmark.cpp)
+
+    target_link_libraries(bit_vector_benchmark PUBLIC
+      pasta_bit_vector
+      tlx
+      sdsl
+      pasta_utils
+      pasta_memory_monitor)
+  else()
+    message(SEND_ERROR
+      "SDSL-lite not found, please install the library or disable the\
+       benchmark construction")
+  endif()
 endif()
 
 ################################################################################

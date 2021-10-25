@@ -1,6 +1,7 @@
 # pasta::Bit_Vector
 
-![pasta::bit_vector CI](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml/badge.svg)
+[![pasta::bit_vector CI](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml/badge.svg)](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml)
+[![codecov](https://codecov.io/gh/pasta-toolbox/bit_vector/branch/main/graph/badge.svg?token=2QD6ME44SU)](https://codecov.io/gh/pasta-toolbox/bit_vector)
 
 This header-only library contains a highly tuned (uncompressed) bit vector implementation with rank and select support.
 The rank and select support has a space overhead of only ~3%.

@@ -32,6 +32,9 @@ option(PASTA_BIT_VECTOR_BUILD_TESTS
 ## Build benchmark tools
 option(PASTA_BIT_VECTOR_BUILD_BENCHMAKRS
   "Build pasta::bit_vector's benchmarks." OFF)
+## Build pasta::bit_vector with code coverage options
+option(PASTA_BIT_VECTOR_COVERAGE_REPORTING
+  "Enable coverage reporting for pasta::bit_vector" OFF)
 
 # Add tlx subdirectory only, if it has not been added by another project already
 if(NOT TARGET tlx)
@@ -44,13 +47,28 @@ if (NOT TARGET pasta_utils)
   add_subdirectory(extlib/utils)
 endif()
 
+# Optional code coverage (library compile options are only set if coverage
+# reporting is enabled
+add_library(pasta_bit_vector_coverage_config INTERFACE)
+if(PASTA_BIT_VECTOR_COVERAGE_REPORTING)
+  target_compile_options(pasta_bit_vector_coverage_config INTERFACE
+    -fprofile-arcs
+    -ftest-coverage)
+  target_link_libraries(pasta_bit_vector_coverage_config INTERFACE
+    gcov)
+  set(COVERAGE_LCOV_EXCLUDES
+    "extlib/*"
+    "tests/*")
+endif()
+
 # pasta::bit_vector interface definitions
 add_library(pasta_bit_vector INTERFACE)
 target_include_directories(pasta_bit_vector INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${TLX_INCLUDE_DIRS})
 target_link_libraries(pasta_bit_vector INTERFACE
-  pasta_utils)
+  pasta_utils
+  pasta_bit_vector_coverage_config)
 
 # Optional test
 if(PASTA_BIT_VECTOR_BUILD_TESTS)

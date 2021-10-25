@@ -1,3 +1,6 @@
 [submodule "extlib/tlx"]
 	path = extlib/tlx
 	url = https://github.com/tlx/tlx
+[submodule "extlib/utils"]
+	path = extlib/utils
+	url = git@github.com:pasta-toolbox/utils

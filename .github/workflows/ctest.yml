@@ -16,10 +16,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Checkout submodules
-      run: git submodule update --init --recursive
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.PRIVATE_SUBMODULE_ACCESS }}
+        submodules: true
 
     - name: Prepare build environment
       run: |

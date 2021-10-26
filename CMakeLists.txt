@@ -56,9 +56,6 @@ if(PASTA_BIT_VECTOR_COVERAGE_REPORTING)
     -ftest-coverage)
   target_link_libraries(pasta_bit_vector_coverage_config INTERFACE
     gcov)
-  set(COVERAGE_LCOV_EXCLUDES
-    "extlib/*"
-    "tests/*")
 endif()
 
 # pasta::bit_vector interface definitions

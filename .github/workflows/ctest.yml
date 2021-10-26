@@ -42,7 +42,7 @@ jobs:
     - name: Run gcovr
       run: |
         mkdir ${{github.workspace}}/coverage
-        gcovr -r . --xml-pretty | tee ${{github.workspace}}/coverage/coverage.xml
+        gcovr -r . -e extlib/ -e tests/ --xml-pretty | tee ${{github.workspace}}/coverage/coverage.xml
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v2

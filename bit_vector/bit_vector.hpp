@@ -178,6 +178,8 @@ namespace pasta {
     //! Forward declaration.
     friend class BitVectorRank;
     //! Forward declaration.
+    friend class FlattenedBitVectorRank;
+    //! Forward declaration.
     friend class BitVectorRankSelect;
 
     //! Size of the bit vector in bits.

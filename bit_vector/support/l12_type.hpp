@@ -47,7 +47,7 @@ namespace pasta {
      * \param _l2 Values of the three L2-block entries ( as\c std::array).
      */
     L12Entry(uint32_t const _l1, std::array<uint16_t, 3> const _l2)
-      : l1(_l1), l2_values(0ULL |((uint32_t(0b1111111111) & _l2[2]) << 20) |
+      : l1(_l1), l2_values(((uint32_t(0b1111111111) & _l2[2]) << 20) |
 			   ((uint32_t(0b1111111111) & _l2[1]) << 10) |
 			   (uint32_t(0b1111111111) & _l2[0])) { }
 

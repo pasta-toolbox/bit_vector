@@ -177,6 +177,128 @@ public:
     }
 
     {
+      LOG << LOG_PREFIX << "Creating PaStA bit vector";
+
+      pasta::Timer timer;
+      pasta::MemoryMonitor& mem_monitor = pasta::MemoryMonitor::instance();
+      mem_monitor.reset();
+      pasta::BitVector bv(bit_size_, 0);
+
+      size_t const bv_construction_time = timer.get_and_reset();
+      auto const bv_construction_mem = mem_monitor.get_and_reset();
+
+      LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
+      for (size_t i = 0; i < bit_size_; ++i) {
+	bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
+      }
+
+      size_t const bv_set_bits_time = timer.get_and_reset();
+      auto const bv_set_bits_mem = mem_monitor.get_and_reset();
+
+      pasta::FlattenedBitVectorRank bvrs(bv);
+
+      size_t const rs_construction_time = timer.get_and_reset();
+      LOG << LOG_PREFIX << "Preparing queries";
+      timer.reset();
+      auto const rs_construction_mem = mem_monitor.get_and_reset();
+
+      std::uniform_int_distribution<> rank_dist(0, bit_size_ - 1);
+      std::vector<size_t> rank_positions(query_count_);
+
+      tlx::Aggregate<size_t> rank_query_properties;
+      for (auto& pos : rank_positions) {
+	pos = rank_dist(gen);
+	rank_query_properties.add(pos);
+      }
+
+      size_t const zero_bits = bvrs.rank0(bit_size_);
+      size_t const one_bits = bvrs.rank1(bit_size_);
+
+      std::vector<size_t> select0_positions(query_count_ / 2);
+      std::vector<size_t> select1_positions(query_count_ / 2 +
+					    ((query_count_ % 2 == 0) ? 0 : 1));
+      std::uniform_int_distribution<> select0_dist(1, zero_bits);
+      std::uniform_int_distribution<> select1_dist(1, one_bits);
+
+      tlx::Aggregate<size_t> select0_query_properties;
+      tlx::Aggregate<size_t> select1_query_properties;
+      for (auto& pos : select0_positions) {
+	pos = select0_dist(gen);
+	select0_query_properties.add(pos);
+      }
+      for (auto& pos : select1_positions) {
+	pos = select1_dist(gen);
+	select1_query_properties.add(pos);
+      }
+
+      LOG << LOG_PREFIX << "Benchmarking queries";
+      timer.reset();
+      mem_monitor.reset();
+
+      for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
+	[[maybe_unused]]
+	size_t const result = bvrs.rank0(rank_positions[i]);
+	PASTA_DO_NOT_OPTIMIZE(result);
+      }
+      for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
+	   ++i) {
+	[[maybe_unused]]
+	size_t const result = bvrs.rank1(rank_positions[i]);
+	PASTA_DO_NOT_OPTIMIZE(result);
+      }
+
+      size_t const rank_query_time = timer.get_and_reset();
+
+      // for (auto const pos : select0_positions) {
+      // 	[[maybe_unused]]
+      // 	size_t const result = bvrs.select0(pos);
+      // 	PASTA_DO_NOT_OPTIMIZE(result);
+      // }
+      // for (auto const pos : select1_positions) {
+      // 	[[maybe_unused]]
+      // 	size_t const result = bvrs.select1(pos);
+      // 	PASTA_DO_NOT_OPTIMIZE(result);
+      // }
+
+      size_t const select_query_time = timer.get_and_reset();
+      auto const rs_query_mem = mem_monitor.get_and_reset();
+
+      LOG << LOG_PREFIX << "Query stats";
+      LOG << LOG_PREFIX << "Rank positions min/max/avg:"
+	  << rank_query_properties.min() << " / "
+	  << rank_query_properties.max() << " / "
+	  << rank_query_properties.avg();
+
+      LOG << LOG_PREFIX << "Select0 rank min/max/avg:"
+	  << select0_query_properties.min() << " / "
+	  << select0_query_properties.max() << " / "
+	  << select0_query_properties.avg();
+
+      LOG << LOG_PREFIX << "Select1 rank min/max/avg:"
+	  << select1_query_properties.min() << " / "
+	  << select1_query_properties.max() << " / "
+	  << select1_query_properties.avg();
+
+      LOG << LOG_PREFIX << "Finished PaStA bit vector benchmark";
+
+      std::cout << "RESULT "
+                << "algo=flat_popcount_bv_uncompressed "
+                << "bit_size=" << bit_size_ << " "
+                << "fill_percentage=" << fill_percentage_ << " "
+                << "bv_construction_time=" << bv_construction_time << " "
+                << "bv_construction_mem=" << bv_construction_mem.cur_peak << " "
+                << "bv_set_bits_time=" << bv_set_bits_time << " "
+                << "bv_set_bits_mem=" << bv_set_bits_mem.cur_peak << " "
+                << "rs_construction_time=" << rs_construction_time << " "
+                << "rs_construction_mem=" << rs_construction_mem.cur_peak << " "
+                << "query_count=" << query_count_ << " "
+                << "rank_query_time=" << rank_query_time << " "
+                << "select_query_time=" << select_query_time << " "
+                << "rs_query_mem=" << rs_query_mem.cur_peak << " "
+                << "\n";
+    }
+
+    {
       LOG << LOG_PREFIX << "Creating SDLS bit vector";
 
       pasta::Timer timer;

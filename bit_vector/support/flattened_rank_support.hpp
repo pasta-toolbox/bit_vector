@@ -33,6 +33,53 @@ namespace pasta {
     std::array<uint16_t, 7> l2;
   }; // struct L12Type
 
+  /*
+   * We store the L1-information of 8 L2-blocks in 40 bits and the
+   * corresponding seven L2-information in 12 bits each. Using 12 bits
+   * allows us to store the prefix sum of the popcounts in the 512-bit
+   * L2-blocks. All this can be stored in 128 bits. To be precise 124 bits
+   * would suffice, but the additional 4 bits allow for faster access and
+   * result in exactly the same overhead the non-flat popcount rank and
+   * select data structure has.
+   *
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * | 8bit | 8bit | 8bit | 8bit | 8bit | 8bit |...| 8bit | 8bit | 40 bit |
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * | 3 * 12-bit integer | 3 * 12 bit integer |...| 12 bit int. | L1-info|
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * |   8  | 4/4  |   8  |   8  | 4/4  |  8   |...|  8   | 4/0  | 40 Bit |
+   * +------+------+------+------+------+------+---+------+------+--------+
+   *
+   * The order of the 12-bit integers should remain the same (as they occur
+   * in the bit vector). This helps us to determine the correct block later
+   * on. To this end, we have to split
+   */
+  struct L12TypeI {
+    __uint128_t data;
+
+    L12TypeI() = default;
+
+    L12TypeI(uint64_t const _l1, std::array<uint16_t, 7>& _l2)
+      : data(((__uint128_t{0b111111111111} & _l2[6]) << 116) |
+	     ((__uint128_t{0b111111111111} & _l2[5]) << 104) |
+	     ((__uint128_t{0b111111111111} & _l2[4]) << 92) |
+	     ((__uint128_t{0b111111111111} & _l2[3]) << 80) |
+	     ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
+	     ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
+	     ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
+	     ((__uint128_t{0xFFFFFFFFFF} & _l1)))  { }
+    inline uint16_t operator[](size_t const index) const {
+      return (data >> ((12 * index) + 44) &  uint16_t(0b111111111111));
+    }
+
+    inline uint64_t l1() const {
+      return uint64_t{0xFFFFFFFFFF} & data;
+    }
+
+  };
+
+  static_assert(sizeof(L12TypeI) == 16);
+
   struct FlattenedRankSelectConfig {
     static constexpr size_t L2_BIT_SIZE = 512;
     static constexpr size_t L1_BIT_SIZE = 8 * L2_BIT_SIZE;
@@ -46,7 +93,7 @@ namespace pasta {
     size_t data_size_;
     uint64_t const* data_;
 
-    tlx::SimpleVector<L12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+    tlx::SimpleVector<L12TypeI, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
   public:
     FlattenedBitVectorRank() = default;
@@ -72,8 +119,8 @@ namespace pasta {
       __builtin_prefetch(&data_[offset], 0, 0);
       --l2_pos;
 
-      size_t result = l12_[l1_pos].l1 +
-	((l2_pos >= 0) ? l12_[l1_pos].l2[l2_pos] : 0);
+      size_t result = l12_[l1_pos].l1() +
+	((l2_pos >= 0) ? l12_[l1_pos][l2_pos] : 0);
       index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
       for (size_t i = 0; i < index / 64; ++i) {
 	result += std::popcount(data_[offset++]);
@@ -102,7 +149,7 @@ namespace pasta {
 	  l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
 	  data += 8;
 	}
-	l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
+	l12_[l12_pos++] = L12TypeI(l1_entry, l2_entries);
 	l1_entry += l2_entries.back() + popcount<8>(data);
 	data += 8;
       }
@@ -114,7 +161,7 @@ namespace pasta {
       while (data < data_end) {
 	l2_entries[l2_pos] += popcount<1>(data++);
       }
-      l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
+      l12_[l12_pos++] = L12TypeI(l1_entry, l2_entries);
     }
   }; // class FlattenedBitVectorRank
 

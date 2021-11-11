@@ -32,7 +32,7 @@
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_rank.hpp"
 #include "bit_vector/support/bit_vector_rank_select.hpp"
-#include "bit_vector/support/flattened_rank_support.hpp"
+#include "bit_vector/support/bit_vector_flat_rank_support.hpp"
 #include "utils/do_not_optimize.hpp"
 // #include "util/git_commit.hpp"
 #include "utils/memory_monitor.hpp"
@@ -195,7 +195,7 @@ public:
       size_t const bv_set_bits_time = timer.get_and_reset();
       auto const bv_set_bits_mem = mem_monitor.get_and_reset();
 
-      pasta::FlattenedBitVectorRank bvrs(bv);
+      pasta::BitVectorFlatRank bvrs(bv);
 
       size_t const rs_construction_time = timer.get_and_reset();
       LOG << LOG_PREFIX << "Preparing queries";

@@ -66,6 +66,73 @@ namespace pasta {
     uint32_t l2_values;
   } TLX_ATTRIBUTE_PACKED; // struct L12Entry
   
+  /*!
+   * \brief Struct used to store L1- and L2-blocks for \c BitVectorFlatRank and
+   * \c BitVectorFlatRankSelect.
+   *
+   * We store the L1-information of 8 L2-blocks in 40 bits and the
+   * corresponding seven L2-information in 12 bits each. Using 12 bits
+   * allows us to store the prefix sum of the popcounts in the 512-bit
+   * L2-blocks. All this can be stored in 128 bits. To be precise 124 bits
+   * would suffice, but the additional 4 bits allow for faster access and
+   * result in exactly the same overhead the non-flat popcount rank and
+   * select data structure has.
+   *
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * | 8bit | 8bit | 8bit | 8bit | 8bit | 8bit |...| 8bit | 8bit | 40 bit |
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * | 3 * 12-bit integer | 3 * 12 bit integer |...| 12 bit int. | L1-info|
+   * +------+------+------+------+------+------+---+------+------+--------+
+   * |   8  | 4/4  |   8  |   8  | 4/4  |  8   |...|  8   | 4/0  | 40 Bit |
+   * +------+------+------+------+------+------+---+------+------+--------+
+   *
+   * The order of the 12-bit integers should remain the same (as they occur
+   * in the bit vector). This helps us to determine the correct block later
+   * on. To this end, we have to split
+   */
+  struct BigL12Type {
+    //! Constructor. Empty constructor required for \c tlx::SimpleVector.
+    BigL12Type() = default;
+
+    /*!
+     * \brief Constructor. Setting all values and packing the L2-block entries.
+     * \param _l1 Value of the L1-block entry.
+     * \param _l2 Values of the three L2-block entries ( as\c std::array).
+     */
+    BigL12Type(uint64_t const _l1, std::array<uint16_t, 7>& _l2)
+      : data(((__uint128_t{0b111111111111} & _l2[6]) << 116) |
+	     ((__uint128_t{0b111111111111} & _l2[5]) << 104) |
+	     ((__uint128_t{0b111111111111} & _l2[4]) << 92) |
+	     ((__uint128_t{0b111111111111} & _l2[3]) << 80) |
+	     ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
+	     ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
+	     ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
+	     ((__uint128_t{0xFFFFFFFFFF} & _l1))) { }
+
+    /*!
+     * \brief Access operator used to access the L2-block entries individually.
+     * \param index The index (0 to 6) of the L2-block.
+     * \return Popcount of the corresponding L2-block.
+     */
+    inline uint16_t operator[](size_t const index) const {
+      return (data >> ((12 * index) + 44) &  uint16_t(0b111111111111));
+    }
+
+    /*!
+     * \brief Get the L1-value of the L12-block.
+     * \returns L1-value of the L12-block.
+     */
+    inline uint64_t l1() const {
+      return uint64_t{0xFFFFFFFFFF} & data;
+    }
+
+    //! All data of the \c BigL12Type packed into 128 bits.
+    __uint128_t data;
+  } TLX_ATTRIBUTE_PACKED;; // struct BigL12Type
+
+  //! Check that BigL12Type requires only 128 bits
+  static_assert(sizeof(BigL12Type) == 16);
+
 } // namespace pasta
 
 /******************************************************************************/

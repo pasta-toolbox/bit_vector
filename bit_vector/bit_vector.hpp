@@ -178,7 +178,7 @@ namespace pasta {
     //! Forward declaration.
     friend class BitVectorRank;
     //! Forward declaration.
-    friend class FlattenedBitVectorRank;
+    friend class BitVectorFlatRank;
     //! Forward declaration.
     friend class BitVectorRankSelect;
 

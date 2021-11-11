@@ -23,7 +23,7 @@
 #include <tlx/die.hpp>
 
 #include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/flattened_rank_support.hpp"
+#include "bit_vector/support/bit_vector_flat_rank_support.hpp"
 
 template<typename TestFunction>
 void run_test(TestFunction test_config) {
@@ -50,7 +50,7 @@ int32_t main() {
       bv[i] = 1;
     }
 
-    pasta::FlattenedBitVectorRank bvr(bv);
+    pasta::BitVectorFlatRank bvr(bv);
 
     die_unequal((N/K), bvr.rank1(N));
     for(size_t i = 1; i <= N/K; ++i) {

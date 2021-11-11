@@ -1,5 +1,5 @@
 /*******************************************************************************
- * bit_vector/flattened_rank_support.hpp
+ * bit_vector/bit_vector_flat_rank_support.hpp
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
@@ -24,61 +24,10 @@
 #include <emmintrin.h>
 
 #include "bit_vector/bit_vector.hpp"
+#include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/popcount.hpp"
 
 namespace pasta {
-
-  struct L12Type {
-    uint64_t l1 : 40;
-    std::array<uint16_t, 7> l2;
-  }; // struct L12Type
-
-  /*
-   * We store the L1-information of 8 L2-blocks in 40 bits and the
-   * corresponding seven L2-information in 12 bits each. Using 12 bits
-   * allows us to store the prefix sum of the popcounts in the 512-bit
-   * L2-blocks. All this can be stored in 128 bits. To be precise 124 bits
-   * would suffice, but the additional 4 bits allow for faster access and
-   * result in exactly the same overhead the non-flat popcount rank and
-   * select data structure has.
-   *
-   * +------+------+------+------+------+------+---+------+------+--------+
-   * | 8bit | 8bit | 8bit | 8bit | 8bit | 8bit |...| 8bit | 8bit | 40 bit |
-   * +------+------+------+------+------+------+---+------+------+--------+
-   * | 3 * 12-bit integer | 3 * 12 bit integer |...| 12 bit int. | L1-info|
-   * +------+------+------+------+------+------+---+------+------+--------+
-   * |   8  | 4/4  |   8  |   8  | 4/4  |  8   |...|  8   | 4/0  | 40 Bit |
-   * +------+------+------+------+------+------+---+------+------+--------+
-   *
-   * The order of the 12-bit integers should remain the same (as they occur
-   * in the bit vector). This helps us to determine the correct block later
-   * on. To this end, we have to split
-   */
-  struct L12TypeI {
-    __uint128_t data;
-
-    L12TypeI() = default;
-
-    L12TypeI(uint64_t const _l1, std::array<uint16_t, 7>& _l2)
-      : data(((__uint128_t{0b111111111111} & _l2[6]) << 116) |
-	     ((__uint128_t{0b111111111111} & _l2[5]) << 104) |
-	     ((__uint128_t{0b111111111111} & _l2[4]) << 92) |
-	     ((__uint128_t{0b111111111111} & _l2[3]) << 80) |
-	     ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
-	     ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
-	     ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
-	     ((__uint128_t{0xFFFFFFFFFF} & _l1)))  { }
-    inline uint16_t operator[](size_t const index) const {
-      return (data >> ((12 * index) + 44) &  uint16_t(0b111111111111));
-    }
-
-    inline uint64_t l1() const {
-      return uint64_t{0xFFFFFFFFFF} & data;
-    }
-
-  };
-
-  static_assert(sizeof(L12TypeI) == 16);
 
   struct FlattenedRankSelectConfig {
     static constexpr size_t L2_BIT_SIZE = 512;
@@ -88,27 +37,45 @@ namespace pasta {
     static constexpr size_t L2_WORD_SIZE = L2_BIT_SIZE / (sizeof(uint64_t) * 8);
   }; // struct FlattenedRankSelectConfig
 
-  class FlattenedBitVectorRank{
+  class BitVectorFlatRank{
 
     size_t data_size_;
     uint64_t const* data_;
 
-    tlx::SimpleVector<L12TypeI, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+    tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
   public:
-    FlattenedBitVectorRank() = default;
+    //! Default constructor w/o parameter.
+    BitVectorFlatRank() = default;
 
-    FlattenedBitVectorRank(BitVector const& bv)
+    /*!
+     * \brief Constructor. Creates the auxiliary information for efficient rank
+     * queries.
+     * \param bv \c BitVector the rank structure is created for.
+     */
+    BitVectorFlatRank(BitVector const& bv)
       : data_size_(bv.size_),
 	data_(bv.data_.data()),
 	l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
       init();
     }
 
+    /*!
+     * \brief Computes rank of zeros.
+     * \param index Index the rank of zeros is computed for.
+     * \return Number of zeros (rank) before position \c index.
+     */
+    [[nodiscard("rank0 computed but not used")]]
     size_t rank0(size_t const index) const {
       return index - rank1(index);
     }
 
+    /*!
+     * \brief Computes rank of ones.
+     * \param index Index the rank of ones is computed for.
+     * \return Number of ones (rank) before position \c index.
+     */
+    [[nodiscard("rank1 computed but not used")]]
     size_t rank1(size_t index) const {
       size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
       __builtin_prefetch(&l12_[l1_pos], 0, 0);
@@ -132,8 +99,19 @@ namespace pasta {
       return result;
     }
 
+    /*!
+     * \brief Estimate for the space usage.
+     * \return Number of bytes used by this data structure.
+     */
+    [[nodiscard("space useage computed but not used")]]
+    size_t space_useage() const {
+      return l12_.size() * sizeof(BigL12Type) + sizeof(*this);
+    }
+
   private:
 
+    //! Function used for initializing data structure to reduce LOCs of
+    //! constructor.
     void init() {
       size_t l12_pos = 0;
       uint64_t l1_entry = 0ULL;
@@ -149,7 +127,7 @@ namespace pasta {
 	  l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
 	  data += 8;
 	}
-	l12_[l12_pos++] = L12TypeI(l1_entry, l2_entries);
+	l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
 	l1_entry += l2_entries.back() + popcount<8>(data);
 	data += 8;
       }
@@ -161,9 +139,9 @@ namespace pasta {
       while (data < data_end) {
 	l2_entries[l2_pos] += popcount<1>(data++);
       }
-      l12_[l12_pos++] = L12TypeI(l1_entry, l2_entries);
+      l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
     }
-  }; // class FlattenedBitVectorRank
+  }; // class BitVectorFlatRank
 
 } // namespace pasta
 

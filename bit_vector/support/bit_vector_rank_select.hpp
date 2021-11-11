@@ -144,7 +144,7 @@ namespace pasta {
     [[nodiscard("select0 computed but not used")]]
     size_t select0(size_t rank) const {
       Array<uint64_t> const& l0 = rank_.l0_;
-      Array<L12Entry> const& l12 = rank_.l12_;
+      Array<L12Type> const& l12 = rank_.l12_;
 
       size_t l0_pos = 0;
       while (l0_pos + 1 < l0.size() &&
@@ -207,7 +207,7 @@ namespace pasta {
     [[nodiscard("select1 computed but not used")]]
     size_t select1(size_t rank) const {
       Array<uint64_t> const& l0 = rank_.l0_;
-      Array<L12Entry> const& l12 = rank_.l12_;
+      Array<L12Type> const& l12 = rank_.l12_;
 
       size_t l0_pos = 0;
       while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
@@ -272,7 +272,7 @@ namespace pasta {
   private:
     //! Function used initializing data structure to reduce LOCs of constructor.
     void init() {
-      Array<L12Entry> const& l12 = rank_.l12_;
+      Array<L12Type> const& l12 = rank_.l12_;
 
       size_t const l12_end = rank_.l12_.size();
       size_t next_sample0_value = 1;
@@ -307,7 +307,7 @@ namespace pasta {
       samples0_pos_[0] = 0;
       samples1_pos_[0] = 0;
     }
-  }; // class bitVectorRankSelect
+  }; // class BitVectorRankSelect
 
   //! \}
   

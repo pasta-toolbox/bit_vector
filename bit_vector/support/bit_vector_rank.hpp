@@ -103,7 +103,7 @@ namespace pasta {
     tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
 
     //! Array containing the information about the L1- and L2-blocks.
-    tlx::SimpleVector<L12Entry, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+    tlx::SimpleVector<L12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
   public:
     //! Default constructor w/o parameter.
@@ -128,15 +128,13 @@ namespace pasta {
     // Default move assignment.
     BitVectorRank& operator = (BitVectorRank&& other) = default;
 
-    //BitVectorRank(BitVector::Iterator begin, BitVector::Iterator end);
-
     //! Destructor. Deleting manually created arrays.
     ~BitVectorRank() = default;
 
     /*!
      * \brief Computes rank of zeros.
      * \param index Index the rank of zeros is computed for.
-     * \return Numbers of zeros (rank) before position \c index.
+     * \return Number of zeros (rank) before position \c index.
      */
     [[nodiscard("rank0 computed but not used")]]
     size_t rank0(size_t const index) const {
@@ -183,12 +181,13 @@ namespace pasta {
     [[nodiscard("space usage computed but not used")]]
     size_t space_usage() const {
       return l0_.size() * sizeof(uint64_t)
-        + l12_.size() * sizeof(L12Entry)
+        + l12_.size() * sizeof(L12Type)
         + sizeof(*this);
     }
 
   private:
-    //! Function used initializing data structure to reduce LOCs of constructor.
+    //! Function used for initializing data structure to reduce LOCs of
+    //! constructor.
     void init() {
       l0_[0] = 0;
 
@@ -208,7 +207,7 @@ namespace pasta {
 	  data += 8;
 	  new_l1_entry += l2_entries[i];
 	}
-	l12_[l12_pos++] = L12Entry(l1_entry, l2_entries);
+	l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
 	new_l1_entry += popcount<8>(data);
 	data += 8;
 	l1_entry = new_l1_entry;
@@ -231,7 +230,7 @@ namespace pasta {
       while (data < data_end) {
 	l2_entries[l2_pos] += popcount<1>(data++);
       }
-      l12_[l12_pos++] = L12Entry(l1_entry, l2_entries);
+      l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
 
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
 		     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {

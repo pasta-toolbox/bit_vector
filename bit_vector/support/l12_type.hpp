@@ -35,18 +35,16 @@ namespace pasta {
    * corresponding L2-block entries (each requiring 10 bits). Note that 2 bits
    * are still unused.
    */
-  struct L12Entry {
-    /*!
-     *\brief Constructor. Empty constructor required for \c tlx::SimpleVector.
-     */
-    L12Entry() = default;
+  struct L12Type {
+    //! Constructor. Empty constructor required for \c tlx::SimpleVector.
+    L12Type() = default;
 
     /*!
      * \brief Constructor. Setting all values and packing the L2-block entries.
      * \param _l1 Value of the L1-block entry.
      * \param _l2 Values of the three L2-block entries ( as\c std::array).
      */
-    L12Entry(uint32_t const _l1, std::array<uint16_t, 3> const _l2)
+    L12Type(uint32_t const _l1, std::array<uint16_t, 3> const _l2)
       : l1(_l1), l2_values(((uint32_t(0b1111111111) & _l2[2]) << 20) |
 			   ((uint32_t(0b1111111111) & _l2[1]) << 10) |
 			   (uint32_t(0b1111111111) & _l2[0])) { }
@@ -65,7 +63,10 @@ namespace pasta {
     //! Packed L2-block values.
     uint32_t l2_values;
   } TLX_ATTRIBUTE_PACKED; // struct L12Entry
-  
+
+  //! Check that L12Type requires only 64 bits
+  static_assert(sizeof(L12Type) == 8);
+
   /*!
    * \brief Struct used to store L1- and L2-blocks for \c BitVectorFlatRank and
    * \c BitVectorFlatRankSelect.

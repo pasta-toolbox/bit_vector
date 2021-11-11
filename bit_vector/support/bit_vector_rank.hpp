@@ -44,6 +44,8 @@
 
 #include <tlx/container/simple_vector.hpp>
 
+#include <utils/debug_asserts.hpp>
+
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/popcount.hpp"
@@ -98,6 +100,8 @@ namespace pasta {
     size_t data_size_;
     //! Pointer to the data of the bit vector.
     uint64_t const * data_;
+    //! Size of the bit vector in bits (only used for debug asserts)
+    size_t const bit_size_;
 
     //! Array containing the number of set bits in the L0-blocks.
     tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
@@ -117,6 +121,7 @@ namespace pasta {
     BitVectorRank(BitVector const& bv)
       : data_size_(bv.size_),
 	data_(bv.data_.data()),
+	bit_size_(bv.size()),
 	l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
 	l12_((data_size_ / PopcntRankSelectConfig::L1_WORD_SIZE) + 1) {
       init();
@@ -138,6 +143,7 @@ namespace pasta {
      */
     [[nodiscard("rank0 computed but not used")]]
     size_t rank0(size_t const index) const {
+      PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
       return index - rank1(index);
     }
 
@@ -148,6 +154,7 @@ namespace pasta {
      */
     [[nodiscard("rank1 computed but not used")]]
     size_t rank1(size_t index) const {
+      PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
       size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
       __builtin_prefetch(&l12_[l1_pos], 0, 0);
       size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
@@ -164,6 +171,8 @@ namespace pasta {
       }
 
       index %= PopcntRankSelectConfig::L2_BIT_SIZE;
+      PASTA_ASSERT(index < 512, "Trying to access bits that should be covered "
+		   "in an L1-block");
       for (size_t i = 0; i < index / 64; ++i) {
 	result += std::popcount(data_[offset++]);
       }

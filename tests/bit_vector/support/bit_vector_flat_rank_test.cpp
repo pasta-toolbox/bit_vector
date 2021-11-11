@@ -27,16 +27,19 @@
 
 template<typename TestFunction>
 void run_test(TestFunction test_config) {
-  for(size_t n = 2; n <= 32; n += 10) {
-    size_t const vector_size = 1ULL << n;
-    if (n == 32) {
-      test_config(vector_size, 1ULL << 2);
-      continue;
-    }
-    for(size_t k = 0; k <= 4; ++k) {
-      size_t const set_every_kth = 1ULL << k;
-      if (k < n) { // if k > 0 this testing doesn't make any sense
-	test_config(vector_size, set_every_kth);
+  std::vector<size_t> offsets = { 0, 7, 723, 1347 };
+  for (size_t n = 2; n <= 32; n += 10) {
+    for (auto const offset : offsets) {
+      size_t const vector_size = (1ULL << n) + offset;
+      if (n == 32) {
+	test_config(vector_size, 1ULL << 2);
+	continue;
+      }
+      for (size_t k = 0; k <= 4; ++k) {
+	size_t const set_every_kth = 1ULL << k;
+	if (k < n) { // if k > n this testing doesn't make any sense
+	  test_config(vector_size, set_every_kth);
+	}
       }
     }
   }

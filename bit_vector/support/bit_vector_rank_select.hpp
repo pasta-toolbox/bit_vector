@@ -157,9 +157,13 @@ namespace pasta {
       }
       rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
 
-      size_t l1_pos =
-	samples0_[((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
-		  samples0_pos_[l0_pos]];
+      size_t const sample_pos =
+	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
+	samples0_pos_[l0_pos];
+      size_t l1_pos = (sample_pos >= samples0_.size()) ?
+	(l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
+		   PopcntRankSelectConfig::L1_WORD_SIZE)) :
+	samples0_[sample_pos];
       l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
 	PopcntRankSelectConfig::L1_BIT_SIZE;
       size_t const l0_block_end =
@@ -210,7 +214,7 @@ namespace pasta {
       Array<L12Type> const& l12 = rank_.l12_;
 
       size_t l0_pos = 0;
-      while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
+      while (l0[l0_pos + 1] < rank) {
 	++l0_pos;
       }
       if (l0_pos == l0.size()) [[unlikely]] {
@@ -218,9 +222,18 @@ namespace pasta {
       }
       rank -= l0[l0_pos];
 
-      size_t l1_pos =
-	samples1_[((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
-		  samples1_pos_[l0_pos]];
+      // size_t const sample_pos = std::min(
+      // 	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
+      // 	samples1_pos_[l0_pos], samples1_.size() - 1);
+      // size_t l1_pos = samples1_[sample_pos];
+
+      size_t const sample_pos =
+	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
+	samples1_pos_[l0_pos];
+      size_t l1_pos = (sample_pos >= samples1_.size()) ?
+	(l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
+		   PopcntRankSelectConfig::L1_WORD_SIZE)) :
+	samples1_[sample_pos];
       l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
 	PopcntRankSelectConfig::L1_BIT_SIZE;
       size_t const l0_block_end =
@@ -228,16 +241,14 @@ namespace pasta {
 			  (PopcntRankSelectConfig::L0_WORD_SIZE /
 			   PopcntRankSelectConfig::L1_WORD_SIZE)),
 			 l12.size()) - 1;
-      while (l1_pos < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+      while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
 	++l1_pos;
       }
       rank -= l12[l1_pos].l1;
-
       size_t l2_pos = 0;
       while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
 	rank -= l12[l1_pos][l2_pos++];
       }
-
       size_t const last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
 	(PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
       size_t additional_words = 0;
@@ -248,7 +259,8 @@ namespace pasta {
 	++additional_words;
 	rank -= popcount;
       }
-      return (PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
+      return //(PopcntRankSelectConfig::L0_BIT_SIZE * l0_pos) +
+	(PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
 	(PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
 	(additional_words * 64) +
 	pasta::select1_reverse(data_[last_pos + additional_words],
@@ -277,7 +289,9 @@ namespace pasta {
       size_t const l12_end = rank_.l12_.size();
       size_t next_sample0_value = 1;
       size_t next_sample1_value = 1;
-      for (size_t l12_pos = 0, l0_pos = 0; l12_pos < l12_end; ++l12_pos) {
+      size_t l12_pos = 0;
+      size_t l0_pos = 0;
+      for (; l12_pos < l12_end; ++l12_pos) {
 	if (l12_pos %
 	    (PopcntRankSelectConfig::L0_WORD_SIZE /
 	     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {

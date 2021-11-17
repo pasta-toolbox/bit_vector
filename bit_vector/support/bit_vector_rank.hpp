@@ -122,7 +122,7 @@ namespace pasta {
       : data_size_(bv.size_),
 	data_(bv.data_.data()),
 	bit_size_(bv.size()),
-	l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
+	l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 2),
 	l12_((data_size_ / PopcntRankSelectConfig::L1_WORD_SIZE) + 1) {
       init();
     }
@@ -224,6 +224,7 @@ namespace pasta {
 	if (l12_pos %
 	    (PopcntRankSelectConfig::L0_WORD_SIZE /
 	     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
+	  std::cout << "l12_pos " << l12_pos << '\n';
 	  l0_[l0_pos] = (l0_[l0_pos - 1] + l1_entry);
 	  ++l0_pos;
 	  l1_entry = 0;
@@ -243,10 +244,14 @@ namespace pasta {
 
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
 		     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
+	std::cout << "l12_pos " << l12_pos << '\n';
 	l0_[l0_pos] += (l0_[l0_pos - 1] + l1_entry);
 	++l0_pos;
 	l1_entry = 0;
       }
+      // Append sentinel (max uint64_t value) to l0_, as this makes some
+      // loop-conditions in during select queries easier
+      l0_[l0_pos] = std::numeric_limits<uint64_t>::max();
     }
   }; // class BitVectorRank
 

@@ -23,6 +23,8 @@
 #include <immintrin.h>
 #include <emmintrin.h>
 
+#include <numeric>
+
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/popcount.hpp"
@@ -139,6 +141,8 @@ namespace pasta {
       while (data < data_end) {
 	l2_entries[l2_pos] += popcount<1>(data++);
       }
+      std::partial_sum(l2_entries.begin(), l2_entries.end(),
+		       l2_entries.begin());
       l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
     }
   }; // class BitVectorFlatRank

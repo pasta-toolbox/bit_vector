@@ -129,7 +129,7 @@ namespace pasta {
 
     //! All data of the \c BigL12Type packed into 128 bits.
     __uint128_t data;
-  } TLX_ATTRIBUTE_PACKED;; // struct BigL12Type
+  } TLX_ATTRIBUTE_PACKED; // struct BigL12Type
 
   //! Check that BigL12Type requires only 128 bits
   static_assert(sizeof(BigL12Type) == 16);

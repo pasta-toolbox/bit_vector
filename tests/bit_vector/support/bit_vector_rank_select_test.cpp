@@ -27,8 +27,7 @@
 
 template<typename TestFunction>
 void run_test(TestFunction test_config) {
-  std::vector<size_t> offsets = { // 0,
-    723 };
+  std::vector<size_t> offsets = { 0, 723 };
   for (size_t n = 2; n <= 32; n += 10) {
     for (auto const offset : offsets) {
       size_t const vector_size = (1ULL << n) + offset;

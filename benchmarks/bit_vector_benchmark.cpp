@@ -33,6 +33,7 @@
 #include "bit_vector/support/bit_vector_rank.hpp"
 #include "bit_vector/support/bit_vector_rank_select.hpp"
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
+#include "bit_vector/support/bit_vector_flat_rank_select.hpp"
 #include "utils/do_not_optimize.hpp"
 // #include "util/git_commit.hpp"
 #include "utils/memory_monitor.hpp"
@@ -195,7 +196,7 @@ public:
       size_t const bv_set_bits_time = timer.get_and_reset();
       auto const bv_set_bits_mem = mem_monitor.get_and_reset();
 
-      pasta::BitVectorFlatRank bvrs(bv);
+      pasta::BitVectorFlatRankSelect bvrs(bv);
 
       size_t const rs_construction_time = timer.get_and_reset();
       LOG << LOG_PREFIX << "Preparing queries";
@@ -249,16 +250,16 @@ public:
 
       size_t const rank_query_time = timer.get_and_reset();
 
-      // for (auto const pos : select0_positions) {
-      // 	[[maybe_unused]]
-      // 	size_t const result = bvrs.select0(pos);
-      // 	PASTA_DO_NOT_OPTIMIZE(result);
-      // }
-      // for (auto const pos : select1_positions) {
-      // 	[[maybe_unused]]
-      // 	size_t const result = bvrs.select1(pos);
-      // 	PASTA_DO_NOT_OPTIMIZE(result);
-      // }
+      for (auto const pos : select0_positions) {
+	[[maybe_unused]]
+	size_t const result = bvrs.select0(pos);
+	PASTA_DO_NOT_OPTIMIZE(result);
+      }
+      for (auto const pos : select1_positions) {
+	[[maybe_unused]]
+	size_t const result = bvrs.select1(pos);
+	PASTA_DO_NOT_OPTIMIZE(result);
+      }
 
       size_t const select_query_time = timer.get_and_reset();
       auto const rs_query_mem = mem_monitor.get_and_reset();

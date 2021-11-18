@@ -121,10 +121,10 @@ namespace pasta {
      */
     BitVectorRank(BitVector const& bv)
       : data_size_(bv.size_),
-	data_(bv.data_.data()),
-	bit_size_(bv.size()),
-	l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 2),
-	l12_((data_size_ / PopcntRankSelectConfig::L1_WORD_SIZE) + 1) {
+        data_(bv.data_.data()),
+        bit_size_(bv.size()),
+        l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 2),
+        l12_((data_size_ / PopcntRankSelectConfig::L1_WORD_SIZE) + 1) {
       init();
     }
 
@@ -159,27 +159,27 @@ namespace pasta {
       size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
       __builtin_prefetch(&l12_[l1_pos], 0, 0);
       size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
-	PopcntRankSelectConfig::L2_BIT_SIZE;
+        PopcntRankSelectConfig::L2_BIT_SIZE;
       size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
-	(l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
+        (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
       __builtin_prefetch(&data_[offset], 0, 0);
 
       size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
-	l12_[l1_pos].l1;
+        l12_[l1_pos].l1;
 
       for (size_t i = 0; i < l2_pos; ++i) {
-	result += l12_[l1_pos][i];
+        result += l12_[l1_pos][i];
       }
 
       index %= PopcntRankSelectConfig::L2_BIT_SIZE;
       PASTA_ASSERT(index < 512, "Trying to access bits that should be covered "
-		   "in an L1-block");
+                   "in an L1-block");
       for (size_t i = 0; i < index / 64; ++i) {
-	result += std::popcount(data_[offset++]);
+        result += std::popcount(data_[offset++]);
       }
       if (index %= 64; index > 0) [[likely]] {
-	uint64_t const remaining = data_[offset] << (64 - index);
-	result += std::popcount(remaining);
+        uint64_t const remaining = data_[offset] << (64 - index);
+        result += std::popcount(remaining);
       }
       return result;
     }
@@ -211,44 +211,44 @@ namespace pasta {
       // For each full L12-Block
       std::array<uint16_t, 3> l2_entries = { 0, 0, 0 };
       while (data + 32 <= data_end) {
-	uint32_t new_l1_entry = l1_entry;
-	for (size_t i = 0; i < 3; ++i) {
-	  l2_entries[i] = popcount<8>(data);
-	  data += 8;
-	  new_l1_entry += l2_entries[i];
-	}
-	l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
-	new_l1_entry += popcount<8>(data);
-	data += 8;
-	l1_entry = new_l1_entry;
+        uint32_t new_l1_entry = l1_entry;
+        for (size_t i = 0; i < 3; ++i) {
+          l2_entries[i] = popcount<8>(data);
+          data += 8;
+          new_l1_entry += l2_entries[i];
+        }
+        l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
+        new_l1_entry += popcount<8>(data);
+        data += 8;
+        l1_entry = new_l1_entry;
 
-	if (l12_pos %
-	    (PopcntRankSelectConfig::L0_WORD_SIZE /
-	     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
-	  std::cout << "l12_pos " << l12_pos << '\n';
-	  l0_[l0_pos] = (l0_[l0_pos - 1] + l1_entry);
-	  ++l0_pos;
-	  l1_entry = 0;
-	}
+        if (l12_pos %
+            (PopcntRankSelectConfig::L0_WORD_SIZE /
+             PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
+          std::cout << "l12_pos " << l12_pos << '\n';
+          l0_[l0_pos] = (l0_[l0_pos - 1] + l1_entry);
+          ++l0_pos;
+          l1_entry = 0;
+        }
       }
 
       // For the last not full L12-Block
       size_t l2_pos = 0;
       while (data + 8 <= data_end) {
-	l2_entries[l2_pos++] = popcount<8>(data);
-	data += 8;
+        l2_entries[l2_pos++] = popcount<8>(data);
+        data += 8;
       }
       while (data < data_end) {
-	l2_entries[l2_pos] += popcount<1>(data++);
+        l2_entries[l2_pos] += popcount<1>(data++);
       }
       l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
 
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
-		     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
-	std::cout << "l12_pos " << l12_pos << '\n';
-	l0_[l0_pos] += (l0_[l0_pos - 1] + l1_entry);
-	++l0_pos;
-	l1_entry = 0;
+                     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
+        std::cout << "l12_pos " << l12_pos << '\n';
+        l0_[l0_pos] += (l0_[l0_pos - 1] + l1_entry);
+        ++l0_pos;
+        l1_entry = 0;
       }
       // Append sentinel (max uint64_t value) to l0_, as this makes some
       // loop-conditions in during select queries easier

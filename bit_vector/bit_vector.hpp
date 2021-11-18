@@ -216,14 +216,14 @@ namespace pasta {
        * \param position Position the iterator is pointing at.
        */
       Iterator(uint64_t * const data, size_t const position) noexcept
-	: bit_access_(data, position) { }
+        : bit_access_(data, position) { }
 
       /*!
        * \brief Iterator is dereferenceable. Obtain value it is pointing at.
        * \return Reference to the bit the iterator points at.
        */
       reference operator * () noexcept {
-	return bit_access_;
+        return bit_access_;
       }
 
       /*!
@@ -231,36 +231,36 @@ namespace pasta {
        * \return Pointer to the bit the iterator points at.
        */
       pointer operator -> () noexcept {
-	return &bit_access_;
+        return &bit_access_;
       }
 
       //! Prefix increment.
       Iterator& operator ++ () noexcept {
-	++bit_access_.position_;
-	return *this;
+        ++bit_access_.position_;
+        return *this;
       }
 
       //! Postfix increment.
       Iterator operator ++ (int32_t) noexcept {
-	auto tmp = *this;
-	++(*this);
-	return tmp;
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
       }
 
       //! Iterator comparison equality.
       friend bool operator == (Iterator const& a, Iterator const& b) noexcept {
-	return a.bit_access_ == b.bit_access_;
+        return a.bit_access_ == b.bit_access_;
       }
 
       //! Iterator comparison inequality.
       friend bool operator != (Iterator const& a, Iterator const& b) noexcept {
-	return a.bit_access_ != b.bit_access_;
+        return a.bit_access_ != b.bit_access_;
       }
 
       //! Iterator distance computation.
       friend differece_type
       operator - (Iterator const& a, Iterator const& b) noexcept {
-	return a.bit_access_.distance(b.bit_access_);
+        return a.bit_access_.distance(b.bit_access_);
       }
 
     private:
@@ -280,9 +280,9 @@ namespace pasta {
      * \param size Number of bits the bit vector contains.
      */
     BitVector(size_t const size) noexcept : bit_size_(size),
-					    size_((bit_size_>> 6) + 1),
-					    data_(size_),
-					    raw_data_(data_.data()) { }
+                                            size_((bit_size_>> 6) + 1),
+                                            data_(size_),
+                                            raw_data_(data_.data()) { }
 
     /*!
      * \brief Constructor. Creates a bit vector that holds a specific, fixed
@@ -378,7 +378,7 @@ namespace pasta {
     //! formatted output of the \c BitVector
     friend std::ostream& operator << (std::ostream& os, BitVector const& bv) {
       for (size_t i = 0; i < bv.bit_size_; ++i) {
-	os << (bv[i] ? "1" : "0");
+        os << (bv[i] ? "1" : "0");
       }
       return os;
     }

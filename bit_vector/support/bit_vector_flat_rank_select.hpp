@@ -76,8 +76,8 @@ namespace pasta {
      */
     BitVectorFlatRankSelect(BitVector const& bv)
       : rank_(bv),
-	data_size_(bv.size_),
-	data_(bv.data_.data()) {
+        data_size_(bv.size_),
+        data_(bv.data_.data()) {
       init();
     }
 
@@ -121,45 +121,45 @@ namespace pasta {
       size_t const l12_end = l12.size();
 
       size_t const sample_pos = ((rank - 1) /
-				 FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
+                                 FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
       size_t l1_pos = (sample_pos >= samples0_.size()) ? samples0_.back() :
-	samples0_[sample_pos];
+        samples0_[sample_pos];
       l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
-	FlattenedRankSelectConfig::L1_BIT_SIZE;
+        FlattenedRankSelectConfig::L1_BIT_SIZE;
 
       while (l1_pos + 1 < l12_end &&
-	     ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-	     l12[l1_pos + 1].l1() < rank) {
-	++l1_pos;
+             ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+             l12[l1_pos + 1].l1() < rank) {
+        ++l1_pos;
       }
       rank -= (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-	l12[l1_pos].l1();
+        l12[l1_pos].l1();
 
       size_t l2_pos = 0;
       // TODO Do we need the < 7 conditione?
       while (l2_pos < 7 && FlattenedRankSelectConfig::L1_BIT_SIZE -
-	     l12[l1_pos][l2_pos] < rank) {
-	++l2_pos;
+             l12[l1_pos][l2_pos] < rank) {
+        ++l2_pos;
       }
       rank -= (l2_pos > 0) ?
-	(FlattenedRankSelectConfig::L1_BIT_SIZE - l12[l1_pos][l2_pos -1]) : 0;
+        (FlattenedRankSelectConfig::L1_BIT_SIZE - l12[l1_pos][l2_pos -1]) : 0;
       size_t const last_pos =
-	(FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-	(FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
+        (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+        (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
       size_t additional_words = 0;
       size_t popcount = 0;
 
       while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos +
-						  additional_words)) < rank) {
-	++additional_words;
-	rank -= popcount;
+                                                  additional_words)) < rank) {
+        ++additional_words;
+        rank -= popcount;
       }
 
       return (FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-	(FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-	(additional_words * 64) +
-	pasta::select1_reverse(~data_[last_pos + additional_words],
-			       popcount - rank + 1);
+        (FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
+        (additional_words * 64) +
+        pasta::select1_reverse(~data_[last_pos + additional_words],
+                               popcount - rank + 1);
     }
 
     /*!
@@ -173,14 +173,14 @@ namespace pasta {
       size_t const l12_end = l12.size();
 
       size_t const sample_pos = ((rank - 1) /
-				 FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
+                                 FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
       size_t l1_pos = (sample_pos >= samples1_.size()) ? samples1_.back() :
-	samples1_[sample_pos];
+        samples1_[sample_pos];
       l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
-	FlattenedRankSelectConfig::L1_BIT_SIZE;
+        FlattenedRankSelectConfig::L1_BIT_SIZE;
 
       while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
-	++l1_pos;
+        ++l1_pos;
       }
       rank -= l12[l1_pos].l1();
       size_t l2_pos = 0;
@@ -190,22 +190,22 @@ namespace pasta {
       }
       rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
       size_t const last_pos =
-	(FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-	(FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
+        (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+        (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
       size_t additional_words = 0;
       size_t popcount = 0;
 
       while ((popcount = pasta::popcount<1>(data_ + last_pos +
-					    additional_words)) < rank) {
-	++additional_words;
-	rank -= popcount;
+                                            additional_words)) < rank) {
+        ++additional_words;
+        rank -= popcount;
       }
       return //(FlattenedRankSelectConfig::L0_BIT_SIZE * l0_pos) +
-	(FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-	(FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-	(additional_words * 64) +
-	pasta::select1_reverse(data_[last_pos + additional_words],
-			       popcount - rank + 1);
+        (FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
+        (FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
+        (additional_words * 64) +
+        pasta::select1_reverse(data_[last_pos + additional_words],
+                               popcount - rank + 1);
     }
 
     /*!
@@ -228,22 +228,22 @@ namespace pasta {
       size_t next_sample0_value = 1;
       size_t next_sample1_value = 1;
       for (size_t l12_pos = 0; l12_pos < l12_end; ++l12_pos) {
-	if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-	    l12[l12_pos].l1() >= next_sample0_value) {
-	  samples0_.push_back(l12_pos - 1);
-	  next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
-	}
-	if (l12[l12_pos].l1() >= next_sample1_value) {
-	  samples1_.push_back(l12_pos - 1);
-	  next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
-	}
+        if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+            l12[l12_pos].l1() >= next_sample0_value) {
+          samples0_.push_back(l12_pos - 1);
+          next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+        }
+        if (l12[l12_pos].l1() >= next_sample1_value) {
+          samples1_.push_back(l12_pos - 1);
+          next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+        }
       }
       // Add at least one entry.
       if (samples0_.size() == 0) {
-	samples0_.push_back(0);
+        samples0_.push_back(0);
       }
       if (samples1_.size() == 0) {
-	samples1_.push_back(0);
+        samples1_.push_back(0);
       }
     }
   }; // class BitVectorFlatRankSelect

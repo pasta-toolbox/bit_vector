@@ -89,8 +89,8 @@ namespace pasta {
      */
     BitVectorFlatRank(BitVector const& bv)
       : data_size_(bv.size_),
-	data_(bv.data_.data()),
-	l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
+        data_(bv.data_.data()),
+        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
       init();
     }
 
@@ -114,21 +114,21 @@ namespace pasta {
       size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
       __builtin_prefetch(&l12_[l1_pos], 0, 0);
       int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
-			FlattenedRankSelectConfig::L2_BIT_SIZE);
+                        FlattenedRankSelectConfig::L2_BIT_SIZE);
       size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
-	(l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
+        (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
       __builtin_prefetch(&data_[offset], 0, 0);
       --l2_pos;
 
       size_t result = l12_[l1_pos].l1() +
-	((l2_pos >= 0) ? l12_[l1_pos][l2_pos] : 0);
+        ((l2_pos >= 0) ? l12_[l1_pos][l2_pos] : 0);
       index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
       for (size_t i = 0; i < index / 64; ++i) {
-	result += std::popcount(data_[offset++]);
+        result += std::popcount(data_[offset++]);
       }
       if (index %= 64; index > 0) [[likely]] {
-	uint64_t const remaining = data_[offset] << (64 - index);
-	result += std::popcount(remaining);
+        uint64_t const remaining = data_[offset] << (64 - index);
+        result += std::popcount(remaining);
       }
       return result;
     }
@@ -155,26 +155,26 @@ namespace pasta {
 
       std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
       while (data + 64 <= data_end) {
-	l2_entries[0] = popcount<8>(data);
-	data += 8;
-	for (size_t i = 1; i < 7; ++i) {
-	  l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
-	  data += 8;
-	}
-	l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
-	l1_entry += l2_entries.back() + popcount<8>(data);
-	data += 8;
+        l2_entries[0] = popcount<8>(data);
+        data += 8;
+        for (size_t i = 1; i < 7; ++i) {
+          l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
+          data += 8;
+        }
+        l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
+        l1_entry += l2_entries.back() + popcount<8>(data);
+        data += 8;
       }
       size_t l2_pos = 0;
       while (data + 8 <= data_end) {
-	l2_entries[l2_pos++] = popcount<8>(data);
-	data += 8;
+        l2_entries[l2_pos++] = popcount<8>(data);
+        data += 8;
       }
       while (data < data_end) {
-	l2_entries[l2_pos] += popcount<1>(data++);
+        l2_entries[l2_pos] += popcount<1>(data++);
       }
       std::partial_sum(l2_entries.begin(), l2_entries.end(),
-		       l2_entries.begin());
+                       l2_entries.begin());
       l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
     }
   }; // class BitVectorFlatRank

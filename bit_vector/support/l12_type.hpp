@@ -46,8 +46,8 @@ namespace pasta {
      */
     L12Type(uint32_t const _l1, std::array<uint16_t, 3> const _l2)
       : l1(_l1), l2_values(((uint32_t(0b1111111111) & _l2[2]) << 20) |
-			   ((uint32_t(0b1111111111) & _l2[1]) << 10) |
-			   (uint32_t(0b1111111111) & _l2[0])) { }
+                           ((uint32_t(0b1111111111) & _l2[1]) << 10) |
+                           (uint32_t(0b1111111111) & _l2[0])) { }
 
     /*!
      * \brief Access operator used to access the L2-block entries individually.
@@ -102,13 +102,13 @@ namespace pasta {
      */
     BigL12Type(uint64_t const _l1, std::array<uint16_t, 7>& _l2)
       : data(((__uint128_t{0b111111111111} & _l2[6]) << 116) |
-	     ((__uint128_t{0b111111111111} & _l2[5]) << 104) |
-	     ((__uint128_t{0b111111111111} & _l2[4]) << 92) |
-	     ((__uint128_t{0b111111111111} & _l2[3]) << 80) |
-	     ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
-	     ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
-	     ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
-	     ((__uint128_t{0xFFFFFFFFFF} & _l1))) { }
+             ((__uint128_t{0b111111111111} & _l2[5]) << 104) |
+             ((__uint128_t{0b111111111111} & _l2[4]) << 92) |
+             ((__uint128_t{0b111111111111} & _l2[3]) << 80) |
+             ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
+             ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
+             ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
+             ((__uint128_t{0xFFFFFFFFFF} & _l1))) { }
 
     /*!
      * \brief Access operator used to access the L2-block entries individually.

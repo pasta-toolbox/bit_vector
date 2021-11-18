@@ -103,10 +103,10 @@ void direct_access_test() {
 
     for (size_t k = 2; k < 7; ++k) {
       for (size_t i = 0; i < N; ++i) {
-	bv[i] = (i % k == 0);
+        bv[i] = (i % k == 0);
       }
       for (size_t i = 0; i < N; ++i) {
-	die_unequal(bool { bv[i] }, (i%k == 0));
+        die_unequal(bool { bv[i] }, (i%k == 0));
       }
     }
   }
@@ -119,15 +119,15 @@ void direct_access_test() {
       // Write the k-th Fibonacci number to the bit vector
       uint64_t v = fib[k];
       for (size_t i = 0; i < 64; ++i) {
-	bv[i] = (v & 1ULL);
-	v >>= 1ULL;
+        bv[i] = (v & 1ULL);
+        v >>= 1ULL;
       }
 
       // Read the k-th Fibonacci number from the bit vector
       v = fib[k];
       for (size_t i = 0; i < 64; ++i) {
-	die_unequal(bool { bv[i] }, v & 1ULL);
-	v >>= 1ULL;
+        die_unequal(bool { bv[i] }, v & 1ULL);
+        v >>= 1ULL;
       }
     }
   }
@@ -190,10 +190,10 @@ void iterator_test() {
 
     for (size_t k = 2; k < 7; ++k) {
       for (auto it = bv.begin(); it != bv.end(); ++it) {
-	*it = ((bv.end() - it) % k == 0);
+        *it = ((bv.end() - it) % k == 0);
       }
       for (auto it = bv.begin(); it != bv.end(); ++it) {
-	die_unequal(bool { *it }, ((bv.end() - it)  % k == 0));
+        die_unequal(bool { *it }, ((bv.end() - it)  % k == 0));
       }
     }
   }
@@ -206,15 +206,15 @@ void iterator_test() {
       // Write the k-th Fibonacci number to the bit vector
       uint64_t v = fib[k];
       for (auto it = bv.begin(); it != bv.end(); ++it) {
-	*it = (v & 1ULL);
-	v >>= 1ULL;
+        *it = (v & 1ULL);
+        v >>= 1ULL;
       }
 
       // Read the k-th Fibonacci number from the bit vector
       v = fib[k];
       for (auto it = bv.begin(); it != bv.end(); ++it) {
-	die_unequal(bool { *it }, v & 1ULL);
-	v >>= 1ULL;
+        die_unequal(bool { *it }, v & 1ULL);
+        v >>= 1ULL;
       }
     }
   }

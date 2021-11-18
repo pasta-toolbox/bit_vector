@@ -49,7 +49,7 @@ public:
   void run() {
 
     die_verbose_unless(fill_percentage_ <= 100, "-f [--fill_percentage] must "
-		       "be between 0 and 100 inclusive.");
+                       "be between 0 and 100 inclusive.");
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -68,7 +68,7 @@ public:
 
       LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
       for (size_t i = 0; i < bit_size_; ++i) {
-	bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
+        bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
       }
 
       size_t const bv_set_bits_time = timer.get_and_reset();
@@ -86,8 +86,8 @@ public:
 
       tlx::Aggregate<size_t> rank_query_properties;
       for (auto& pos : rank_positions) {
-	pos = rank_dist(gen);
-	rank_query_properties.add(pos);
+        pos = rank_dist(gen);
+        rank_query_properties.add(pos);
       }
 
       size_t const zero_bits = bvrs.rank0(bit_size_);
@@ -95,19 +95,19 @@ public:
 
       std::vector<size_t> select0_positions(query_count_ / 2);
       std::vector<size_t> select1_positions(query_count_ / 2 +
-					    ((query_count_ % 2 == 0) ? 0 : 1));
+                                            ((query_count_ % 2 == 0) ? 0 : 1));
       std::uniform_int_distribution<> select0_dist(1, zero_bits);
       std::uniform_int_distribution<> select1_dist(1, one_bits);
 
       tlx::Aggregate<size_t> select0_query_properties;
       tlx::Aggregate<size_t> select1_query_properties;
       for (auto& pos : select0_positions) {
-	pos = select0_dist(gen);
-	select0_query_properties.add(pos);
+        pos = select0_dist(gen);
+        select0_query_properties.add(pos);
       }
       for (auto& pos : select1_positions) {
-	pos = select1_dist(gen);
-	select1_query_properties.add(pos);
+        pos = select1_dist(gen);
+        select1_query_properties.add(pos);
       }
 
       LOG << LOG_PREFIX << "Benchmarking queries";
@@ -115,28 +115,28 @@ public:
       mem_monitor.reset();
 
       for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
-	[[maybe_unused]]
-	size_t const result = bvrs.rank0(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.rank0(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
-	   ++i) {
-	[[maybe_unused]]
-	size_t const result = bvrs.rank1(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+           ++i) {
+        [[maybe_unused]]
+        size_t const result = bvrs.rank1(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const rank_query_time = timer.get_and_reset();
 
       for (auto const pos : select0_positions) {
-	[[maybe_unused]]
-	size_t const result = bvrs.select0(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.select0(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (auto const pos : select1_positions) {
-	[[maybe_unused]]
-	size_t const result = bvrs.select1(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.select1(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const select_query_time = timer.get_and_reset();
@@ -144,19 +144,19 @@ public:
 
       LOG << LOG_PREFIX << "Query stats";
       LOG << LOG_PREFIX << "Rank positions min/max/avg:"
-	  << rank_query_properties.min() << " / "
-	  << rank_query_properties.max() << " / "
-	  << rank_query_properties.avg();
+          << rank_query_properties.min() << " / "
+          << rank_query_properties.max() << " / "
+          << rank_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select0 rank min/max/avg:"
-	  << select0_query_properties.min() << " / "
-	  << select0_query_properties.max() << " / "
-	  << select0_query_properties.avg();
+          << select0_query_properties.min() << " / "
+          << select0_query_properties.max() << " / "
+          << select0_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select1 rank min/max/avg:"
-	  << select1_query_properties.min() << " / "
-	  << select1_query_properties.max() << " / "
-	  << select1_query_properties.avg();
+          << select1_query_properties.min() << " / "
+          << select1_query_properties.max() << " / "
+          << select1_query_properties.avg();
 
       LOG << LOG_PREFIX << "Finished PaStA bit vector benchmark";
 
@@ -190,7 +190,7 @@ public:
 
       LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
       for (size_t i = 0; i < bit_size_; ++i) {
-	bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
+        bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
       }
 
       size_t const bv_set_bits_time = timer.get_and_reset();
@@ -208,8 +208,8 @@ public:
 
       tlx::Aggregate<size_t> rank_query_properties;
       for (auto& pos : rank_positions) {
-	pos = rank_dist(gen);
-	rank_query_properties.add(pos);
+        pos = rank_dist(gen);
+        rank_query_properties.add(pos);
       }
 
       size_t const zero_bits = bvrs.rank0(bit_size_);
@@ -217,19 +217,19 @@ public:
 
       std::vector<size_t> select0_positions(query_count_ / 2);
       std::vector<size_t> select1_positions(query_count_ / 2 +
-					    ((query_count_ % 2 == 0) ? 0 : 1));
+                                            ((query_count_ % 2 == 0) ? 0 : 1));
       std::uniform_int_distribution<> select0_dist(1, zero_bits);
       std::uniform_int_distribution<> select1_dist(1, one_bits);
 
       tlx::Aggregate<size_t> select0_query_properties;
       tlx::Aggregate<size_t> select1_query_properties;
       for (auto& pos : select0_positions) {
-	pos = select0_dist(gen);
-	select0_query_properties.add(pos);
+        pos = select0_dist(gen);
+        select0_query_properties.add(pos);
       }
       for (auto& pos : select1_positions) {
-	pos = select1_dist(gen);
-	select1_query_properties.add(pos);
+        pos = select1_dist(gen);
+        select1_query_properties.add(pos);
       }
 
       LOG << LOG_PREFIX << "Benchmarking queries";
@@ -237,28 +237,28 @@ public:
       mem_monitor.reset();
 
       for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
-	[[maybe_unused]]
-	size_t const result = bvrs.rank0(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.rank0(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
-	   ++i) {
-	[[maybe_unused]]
-	size_t const result = bvrs.rank1(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+           ++i) {
+        [[maybe_unused]]
+        size_t const result = bvrs.rank1(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const rank_query_time = timer.get_and_reset();
 
       for (auto const pos : select0_positions) {
-	[[maybe_unused]]
-	size_t const result = bvrs.select0(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.select0(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (auto const pos : select1_positions) {
-	[[maybe_unused]]
-	size_t const result = bvrs.select1(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvrs.select1(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const select_query_time = timer.get_and_reset();
@@ -266,19 +266,19 @@ public:
 
       LOG << LOG_PREFIX << "Query stats";
       LOG << LOG_PREFIX << "Rank positions min/max/avg:"
-	  << rank_query_properties.min() << " / "
-	  << rank_query_properties.max() << " / "
-	  << rank_query_properties.avg();
+          << rank_query_properties.min() << " / "
+          << rank_query_properties.max() << " / "
+          << rank_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select0 rank min/max/avg:"
-	  << select0_query_properties.min() << " / "
-	  << select0_query_properties.max() << " / "
-	  << select0_query_properties.avg();
+          << select0_query_properties.min() << " / "
+          << select0_query_properties.max() << " / "
+          << select0_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select1 rank min/max/avg:"
-	  << select1_query_properties.min() << " / "
-	  << select1_query_properties.max() << " / "
-	  << select1_query_properties.avg();
+          << select1_query_properties.min() << " / "
+          << select1_query_properties.max() << " / "
+          << select1_query_properties.avg();
 
       LOG << LOG_PREFIX << "Finished PaStA bit vector benchmark";
 
@@ -312,7 +312,7 @@ public:
 
       LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
       for (size_t i = 0; i < bit_size_; ++i) {
-	bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
+        bv[i] = (static_cast<uint32_t>(rand() % 100) < fill_percentage_);
       }
 
       size_t const bv_set_bits_time = timer.get_and_reset();
@@ -334,8 +334,8 @@ public:
 
       tlx::Aggregate<size_t> rank_query_properties;
       for (auto& pos : rank_positions) {
-	pos = rank_dist(gen);
-	rank_query_properties.add(pos);
+        pos = rank_dist(gen);
+        rank_query_properties.add(pos);
       }
 
       size_t const zero_bits = bvr0.rank(bit_size_);
@@ -343,19 +343,19 @@ public:
 
       std::vector<size_t> select0_positions(query_count_ / 2);
       std::vector<size_t> select1_positions(query_count_ / 2 +
-					    ((query_count_ % 2 == 0) ? 0 : 1));
+                                            ((query_count_ % 2 == 0) ? 0 : 1));
       std::uniform_int_distribution<> select0_dist(1, zero_bits);
       std::uniform_int_distribution<> select1_dist(1, one_bits);
 
       tlx::Aggregate<size_t> select0_query_properties;
       tlx::Aggregate<size_t> select1_query_properties;
       for (auto& pos : select0_positions) {
-	pos = select0_dist(gen);
-	select0_query_properties.add(pos);
+        pos = select0_dist(gen);
+        select0_query_properties.add(pos);
       }
       for (auto& pos : select1_positions) {
-	pos = select1_dist(gen);
-	select1_query_properties.add(pos);
+        pos = select1_dist(gen);
+        select1_query_properties.add(pos);
       }
 
       LOG << LOG_PREFIX << "Benchmarking queries";
@@ -363,28 +363,28 @@ public:
       mem_monitor.reset();
 
       for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
-	[[maybe_unused]]
-	size_t const result = bvr0.rank(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvr0.rank(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
-	   ++i) {
-	[[maybe_unused]]
-	size_t const result = bvr1.rank(rank_positions[i]);
-	PASTA_DO_NOT_OPTIMIZE(result);
+           ++i) {
+        [[maybe_unused]]
+        size_t const result = bvr1.rank(rank_positions[i]);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const rank_query_time = timer.get_and_reset();
 
       for (auto const pos : select0_positions) {
-	[[maybe_unused]]
-	size_t const result = bvs0.select(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvs0.select(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
       for (auto const pos : select1_positions) {
-	[[maybe_unused]]
-	size_t const result = bvs1.select(pos);
-	PASTA_DO_NOT_OPTIMIZE(result);
+        [[maybe_unused]]
+        size_t const result = bvs1.select(pos);
+        PASTA_DO_NOT_OPTIMIZE(result);
       }
 
       size_t const select_query_time = timer.get_and_reset();
@@ -392,19 +392,19 @@ public:
 
       LOG << LOG_PREFIX << "Query stats";
       LOG << LOG_PREFIX << "Rank positions min/max/avg:"
-	  << rank_query_properties.min() << " / "
-	  << rank_query_properties.max() << " / "
-	  << rank_query_properties.avg();
+          << rank_query_properties.min() << " / "
+          << rank_query_properties.max() << " / "
+          << rank_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select0 rank min/max/avg:"
-	  << select0_query_properties.min() << " / "
-	  << select0_query_properties.max() << " / "
-	  << select0_query_properties.avg();
+          << select0_query_properties.min() << " / "
+          << select0_query_properties.max() << " / "
+          << select0_query_properties.avg();
 
       LOG << LOG_PREFIX << "Select1 rank min/max/avg:"
-	  << select1_query_properties.min() << " / "
-	  << select1_query_properties.max() << " / "
-	  << select1_query_properties.avg();
+          << select1_query_properties.min() << " / "
+          << select1_query_properties.max() << " / "
+          << select1_query_properties.avg();
 
       LOG << LOG_PREFIX << "Finished SDSL bit vector benchmark";
 
@@ -441,13 +441,13 @@ int32_t main(int32_t argc, char const * const argv[]) {
   cp.set_author("Florian Kurpicz <florian@kurpicz.org>");
 
   cp.add_bytes('b', "bit_size", bvb.bit_size_, "Size of the bit vector in bits "
-	       "(accepts SI units, default 1024^2.");
+               "(accepts SI units, default 1024^2.");
 
   cp.add_uint('f', "fill_percentage", bvb.fill_percentage_, "Percentage of set "
-	      "bits in the bit vector (default 50%).");
+              "bits in the bit vector (default 50%).");
 
   cp.add_bytes('q', "query_count", bvb.query_count_, "Number of rank and select"
-	       " queries (accepts SI units, default is 10000)");
+               " queries (accepts SI units, default is 10000)");
 
   if (!cp.process(argc, argv)) {
     return -1;

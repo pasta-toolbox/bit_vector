@@ -32,7 +32,7 @@
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_rank.hpp"
 #include "bit_vector/support/bit_vector_rank_select.hpp"
-#include "bit_vector/support/bit_vector_flat_rank_support.hpp"
+#include "bit_vector/support/bit_vector_flat_rank.hpp"
 #include "utils/do_not_optimize.hpp"
 // #include "util/git_commit.hpp"
 #include "utils/memory_monitor.hpp"

@@ -23,7 +23,7 @@
 #include <tlx/die.hpp>
 
 #include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_flat_rank_support.hpp"
+#include "bit_vector/support/bit_vector_flat_rank.hpp"
 
 template<typename TestFunction>
 void run_test(TestFunction test_config) {

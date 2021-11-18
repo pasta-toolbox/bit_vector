@@ -1,5 +1,5 @@
 /*******************************************************************************
- * bit_vector/bit_vector_flat_rank_support.hpp
+ * bit_vector/bit_vector_flat_rank.hpp
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *

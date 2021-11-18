@@ -222,11 +222,6 @@ namespace pasta {
       }
       rank -= l0[l0_pos];
 
-      // size_t const sample_pos = std::min(
-      // 	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
-      // 	samples1_pos_[l0_pos], samples1_.size() - 1);
-      // size_t l1_pos = samples1_[sample_pos];
-
       size_t const sample_pos =
 	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
 	samples1_pos_[l0_pos];

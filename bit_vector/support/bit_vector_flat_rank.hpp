@@ -31,19 +31,51 @@
 
 namespace pasta {
 
+  /*!
+   * \brief Static configuration for \c BitVectorFlatRank and
+   * \c BitVectorFlatRankSelect
+   */
   struct FlattenedRankSelectConfig {
+    //! Bits covered by an L2-block.
     static constexpr size_t L2_BIT_SIZE = 512;
+    //! Bits covered by an L1-block.
     static constexpr size_t L1_BIT_SIZE = 8 * L2_BIT_SIZE;
 
-    static constexpr size_t L1_WORD_SIZE = L1_BIT_SIZE / (sizeof(uint64_t) * 8);
+    //! Number of 64-bit words covered by an L2-block.
     static constexpr size_t L2_WORD_SIZE = L2_BIT_SIZE / (sizeof(uint64_t) * 8);
+    //! Number of 64-bit words covered by an L1-block.
+    static constexpr size_t L1_WORD_SIZE = L1_BIT_SIZE / (sizeof(uint64_t) * 8);
+
+    //! Sample rate of positions for faster select queries.
+    static constexpr size_t SELECT_SAMPLE_RATE = 8192;
   }; // struct FlattenedRankSelectConfig
 
+  //! \addtogroup pasta_bit_vectors
+  //! \{
+
+  /*!
+   * \brief Rank support for \red BitVector that can be used as an alternative
+   * to \ref BitVectorFlatRank for bit vectors up to length 2^40.
+   *
+   * The rank support is an extended and engineered version of the popcount rank
+   * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank
+   * support hovever removes the highest utility array (L0) and also groups
+   * twice as many L2-blocks in a single L1-block. This allows us to store more
+   * information---most importantly the number of ones w.r.t. the beginning of
+   * the L1-block---in the L2-blocks. For the L1/2-block layout see
+   * \ref BigL12Type .
+   */
   class BitVectorFlatRank{
 
+    //! Friend class, using internal information l12_.
+    friend class BitVectorFlatRankSelect;
+
+    //! Size of the bit vector the rank support is constructed for.
     size_t data_size_;
+    //! Pointer to the data of the bit vector.
     uint64_t const* data_;
 
+    //! Array containing the information about the L1- and L2-blocks.
     tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
   public:
@@ -106,7 +138,7 @@ namespace pasta {
      * \return Number of bytes used by this data structure.
      */
     [[nodiscard("space useage computed but not used")]]
-    size_t space_useage() const {
+    size_t space_usage() const {
       return l12_.size() * sizeof(BigL12Type) + sizeof(*this);
     }
 
@@ -146,6 +178,8 @@ namespace pasta {
       l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
     }
   }; // class BitVectorFlatRank
+
+  //! \}
 
 } // namespace pasta
 

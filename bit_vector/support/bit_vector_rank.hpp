@@ -71,6 +71,7 @@ namespace pasta {
     static constexpr size_t L1_WORD_SIZE = L1_BIT_SIZE / (sizeof(uint64_t) * 8);
     //! Number of 64-bit words covered by an L0-block.
     static constexpr size_t L0_WORD_SIZE = L0_BIT_SIZE / (sizeof(uint64_t) * 8);
+
     //! Sample rate of positions for faster select queries.
     static constexpr size_t SELECT_SAMPLE_RATE = 8192;
   }; // struct PopcountRankSelectConfiguration

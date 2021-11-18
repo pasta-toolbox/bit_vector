@@ -55,15 +55,15 @@ namespace pasta {
 
   /*!
    * \brief Rank support for \red BitVector that can be used as an alternative
-   * to \ref BitVectorFlatRank for bit vectors up to length 2^40.
+   * to \ref BitVectorRank for bit vectors up to length 2^40.
    *
    * The rank support is an extended and engineered version of the popcount rank
    * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank
-   * support hovever removes the highest utility array (L0) and also groups
+   * support hoverer removes the highest utility array (L0) and also groups
    * twice as many L2-blocks in a single L1-block. This allows us to store more
    * information---most importantly the number of ones w.r.t. the beginning of
    * the L1-block---in the L2-blocks. For the L1/2-block layout see
-   * \ref BigL12Type .
+   * \ref BigL12Type.
    */
   class BitVectorFlatRank{
 

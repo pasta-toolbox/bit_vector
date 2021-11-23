@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include <immintrin.h>
-#include <emmintrin.h>
-
 #include <numeric>
 
 #include "bit_vector/bit_vector.hpp"

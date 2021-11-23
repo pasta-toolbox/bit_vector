@@ -25,6 +25,9 @@
 #include <limits>
 #include <vector>
 
+#include <immintrin.h>
+#include <emmintrin.h>
+
 #include <tlx/container/simple_vector.hpp>
 
 #include "bit_vector/bit_vector.hpp"
@@ -64,6 +67,8 @@ namespace pasta {
     std::vector<uint32_t> samples0_;
     //! Positions of every \c SELECT_SAMPLE_RATE one.
     std::vector<uint32_t> samples1_;
+
+    static constexpr bool use_intrinsic = true;
 
   public:
     //! Default constructor w/o parameter.
@@ -126,7 +131,6 @@ namespace pasta {
         samples0_[sample_pos];
       l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
         FlattenedRankSelectConfig::L1_BIT_SIZE;
-
       while (l1_pos + 1 < l12_end &&
              ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
              l12[l1_pos + 1].l1() < rank) {
@@ -136,16 +140,72 @@ namespace pasta {
         l12[l1_pos].l1();
 
       size_t l2_pos = 0;
-      // TODO Do we need the < 7 conditione?
-      while (l2_pos < 7 && FlattenedRankSelectConfig::L1_BIT_SIZE -
-             l12[l1_pos][l2_pos] < rank) {
-        ++l2_pos;
+      if constexpr (use_intrinsic) {
+        __m128i value = _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
+        __m128i const shuffle_mask = _mm_setr_epi8(5,6, 7,8, 8,9, 10,11,
+                                                   11,12, 13,14, 14,15, -1,-1);
+        value = _mm_shuffle_epi8(value, shuffle_mask);
+        // The values consisting of a complete upper byte and half a lower byte,
+        // which have to be shifted to the right to obtain the correct value.
+        __m128i const upper_values = _mm_srli_epi16(value, 4);
+        // Mask that covers the last 12 bits of a 16 bit word
+        __m128i const lower_mask = _mm_set1_epi16(uint16_t{0b0000111111111111});
+        // The values consisting of a half upper byte and a complete lower byte,
+        // where we have to mask the lower 12 bytes to obtain the correct value.
+        __m128i const lower_values = _mm_and_si128(value, lower_mask);
+        // Both [upper|lower]_values contain half of the values we want. We
+        // blend them together to obtain all required values in a 128 bit word.
+        value = _mm_blend_epi16(upper_values, lower_values, 0b10101010);
+
+        __m128i const max_ones =
+          _mm_setr_epi16(uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{4 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{9 * FlattenedRankSelectConfig::L2_BIT_SIZE});
+
+        value = _mm_sub_epi16(max_ones, value);
+
+        // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
+
+        // We want to compare the L2-values with the remaining number of bits
+        // (rank) that are remaining
+        //std::cout << "rank " << rank << '\n';
+        __m128i const cmp_value = _mm_set1_epi16(uint16_t{rank});
+        // We now have a 128 bit word, where all consecutive 16 bit words are
+        // either 0 (if values is less equal) or 16_BIT_MAX (if values is
+        //greater than)
+        __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
+
+
+        __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
+                                               14,15, 12,13, 10,11, 8,9);
+        cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
+
+        uint64_t const upper_result = _mm_extract_epi64(cmp_result, 0);
+        uint64_t const lower_result = (upper_result == 0) ?
+          _mm_extract_epi64(cmp_result, 1) : std::numeric_limits<size_t>::max();
+        //lo = (hi == 0) ? lo : std::numeric_limits<size_t>::max();
+        l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16 );
+      } else {
+        while (l2_pos < 7 && (l2_pos + 2) *
+               FlattenedRankSelectConfig::L2_BIT_SIZE -
+               l12[l1_pos][l2_pos] < rank) {
+          ++l2_pos;
+        }
       }
       rank -= (l2_pos > 0) ?
-        (FlattenedRankSelectConfig::L1_BIT_SIZE - l12[l1_pos][l2_pos -1]) : 0;
+        (((l2_pos) * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+         l12[l1_pos][l2_pos - 1]) : 0;
+
+      //std::cout << "rank " << rank << '\n';
       size_t const last_pos =
         (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
         (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
+      //std::cout << "last_pos " << last_pos << '\n';
       size_t additional_words = 0;
       size_t popcount = 0;
 
@@ -184,7 +244,6 @@ namespace pasta {
       }
       rank -= l12[l1_pos].l1();
       size_t l2_pos = 0;
-      // TODO Do we need the < 7 conditione?
       while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
         ++l2_pos;
       }

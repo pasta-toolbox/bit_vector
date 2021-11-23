@@ -225,7 +225,6 @@ namespace pasta {
         if (l12_pos %
             (PopcntRankSelectConfig::L0_WORD_SIZE /
              PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
-          std::cout << "l12_pos " << l12_pos << '\n';
           l0_[l0_pos] = (l0_[l0_pos - 1] + l1_entry);
           ++l0_pos;
           l1_entry = 0;
@@ -245,7 +244,6 @@ namespace pasta {
 
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
                      PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
-        std::cout << "l12_pos " << l12_pos << '\n';
         l0_[l0_pos] += (l0_[l0_pos - 1] + l1_entry);
         ++l0_pos;
         l1_entry = 0;

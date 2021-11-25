@@ -141,7 +141,8 @@ namespace pasta {
 
       size_t l2_pos = 0;
       if constexpr (use_intrinsic) {
-        __m128i value = _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
+        __m128i value =
+          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
         __m128i const shuffle_mask = _mm_setr_epi8(5,6, 7,8, 8,9, 10,11,
                                                    11,12, 13,14, 14,15, -1,-1);
         value = _mm_shuffle_epi8(value, shuffle_mask);
@@ -165,7 +166,7 @@ namespace pasta {
                          uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE},
                          uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
                          uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{9 * FlattenedRankSelectConfig::L2_BIT_SIZE});
+                         std::numeric_limits<int16_t>::max());
 
         value = _mm_sub_epi16(max_ones, value);
 
@@ -185,10 +186,12 @@ namespace pasta {
                                                14,15, 12,13, 10,11, 8,9);
         cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
 
+        // As the values we are comparing with are monotonically increasing, we
+        // do not have to check if values in the lower_result are 0 while not
+        // all in upper_result are not (e.b., 00FF|0FF0, where the left half is
+        // lower_result). This corner case cannot occur.
         uint64_t const upper_result = _mm_extract_epi64(cmp_result, 0);
-        uint64_t const lower_result = (upper_result == 0) ?
-          _mm_extract_epi64(cmp_result, 1) : std::numeric_limits<size_t>::max();
-        //lo = (hi == 0) ? lo : std::numeric_limits<size_t>::max();
+        uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
         l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16 );
       } else {
         while (l2_pos < 7 && (l2_pos + 2) *
@@ -201,11 +204,9 @@ namespace pasta {
         (((l2_pos) * FlattenedRankSelectConfig::L2_BIT_SIZE) -
          l12[l1_pos][l2_pos - 1]) : 0;
 
-      //std::cout << "rank " << rank << '\n';
       size_t const last_pos =
         (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
         (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
-      //std::cout << "last_pos " << last_pos << '\n';
       size_t additional_words = 0;
       size_t popcount = 0;
 
@@ -245,7 +246,8 @@ namespace pasta {
       rank -= l12[l1_pos].l1();
       size_t l2_pos = 0;
       if constexpr (use_intrinsic) {
-        __m128i value = _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
+        __m128i value =
+          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
         __m128i const shuffle_mask = _mm_setr_epi8(5,6, 7,8, 8,9, 10,11,
                                                    11,12, 13,14, 14,15, -1,-1);
         value = _mm_shuffle_epi8(value, shuffle_mask);
@@ -266,24 +268,31 @@ namespace pasta {
         value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 7);
 
         // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
+        // TODO Remove unnecessary second shuffle by ordering the bits correctly
+        //      from the start
+        // TODO Replace/Check the complex l2_pos computation with PEXT on both
+        //      64 bit halves and a few shifts (1 bit from every 16 bit word is
+        //      enough). Correctly shifted this allows us to remove the "/16"
+        //      part
 
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
-        //std::cout << "rank " << rank << '\n';
-        __m128i const cmp_value = _mm_set1_epi16(uint16_t{rank});
+        __m128i const cmp_value = _mm_set1_epi16(uint16_t{rank - 1});
         // We now have a 128 bit word, where all consecutive 16 bit words are
         // either 0 (if values is less equal) or 16_BIT_MAX (if values is
         //greater than)
         __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
 
-
         __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
                                                14,15, 12,13, 10,11, 8,9);
         cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
 
+        // As the values we are comparing with are monotonically increasing, we
+        // do not have to check if values in the lower_result are 0 while not
+        // all in upper_result are not (e.b., 00FF|0FF0, where the left half is
+        // lower_result). This corner case cannot occur.
         uint64_t const upper_result = _mm_extract_epi64(cmp_result, 0);
-        uint64_t const lower_result = (upper_result == 0) ?
-          _mm_extract_epi64(cmp_result, 1) : std::numeric_limits<size_t>::max();
+        uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
         l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16 );
       } else {
         while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {

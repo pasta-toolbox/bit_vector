@@ -163,6 +163,7 @@ namespace pasta {
         data += 8;
       }
       size_t l2_pos = 0;
+      l2_entries = {0, 0, 0, 0, 0, 0, 0};
       while (data + 8 <= data_end) {
         l2_entries[l2_pos++] = popcount<8>(data);
         data += 8;

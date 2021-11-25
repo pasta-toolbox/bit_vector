@@ -72,30 +72,24 @@ int32_t main() {
 
   // Test select
   run_test([](size_t N, size_t K){
-    pasta::BitVector bv(N, 0);
-
-    for (size_t i = 0; i < N; i += K) {
-      bv[i] = 1;
-    }
-
     {
+      pasta::BitVector bv(N, 0);
+      for (size_t i = 0; i < N; i += K) {
+        bv[i] = 1;
+      }
+
       pasta::BitVectorFlatRankSelect bvrs(bv);
       for (size_t i = 1; i <= N/K; ++i) {
         die_unequal(K * (i - 1), bvrs.select1(i));
       }
     }
-
-    for (size_t i = 0; i < N; ++i) {
-      bv[i] = 1;
-    }
-
-    for(size_t i = 0; i < N; i += K) {
-      bv[i] = 0;
-    }
-
     {
-      pasta::BitVectorFlatRankSelect bvrs(bv);
+      pasta::BitVector bv(N, 1);
+      for(size_t i = 0; i < N; i += K) {
+        bv[i] = 0;
+      }
 
+      pasta::BitVectorFlatRankSelect bvrs(bv);
       for (size_t i = 1; i <= N/K; ++i) {
         die_unequal(K * (i - 1), bvrs.select0(i));
       }

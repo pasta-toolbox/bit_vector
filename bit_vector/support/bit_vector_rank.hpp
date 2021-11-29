@@ -48,6 +48,7 @@
 
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/l12_type.hpp"
+#include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
 
 namespace pasta {
@@ -92,9 +93,11 @@ namespace pasta {
    * \c BitVectorRankSelect, which uses this rank support implementation
    * internally.
    */
+  template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
   class BitVectorRank {
 
     //! Friend class, using internal information l0_ and l12_, too.
+    template <OptimizedFor o>
     friend class BitVectorRankSelect;
 
     //! Size of the bit vector the rank support is constructed for.
@@ -230,8 +233,8 @@ namespace pasta {
           l1_entry = 0;
         }
       }
-
       // For the last not full L12-Block
+      l2_entries = {0, 0, 0};
       size_t l2_pos = 0;
       while (data + 8 <= data_end) {
         l2_entries[l2_pos++] = popcount<8>(data);

@@ -47,6 +47,7 @@
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_rank.hpp"
 #include "bit_vector/support/l12_type.hpp"
+#include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
 #include "bit_vector/support/select.hpp"
 
@@ -67,12 +68,13 @@ namespace pasta {
    * structures required by select, we provide a (ever so slightly) more
    * space-efficient rank only data structure in \c BitVectorRank.
    */
+  template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
   class BitVectorRankSelect {
     template <typename T>
     using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
 
     //! Rank structure (requires a strict subset of data structures of select).
-    BitVectorRank rank_;
+    BitVectorRank<optimized_for> rank_;
 
     //! Size of the bit vector the select support is constructed for.
     size_t data_size_;

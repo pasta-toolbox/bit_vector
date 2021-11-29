@@ -29,6 +29,8 @@
 
 #include <tlx/container/simple_vector.hpp>
 
+#include "bit_vector/support/optimized_for.hpp"
+
 namespace pasta {
 
   /*!
@@ -176,10 +178,12 @@ namespace pasta {
   
   private:
     //! Forward declaration.
+    template <OptimizedFor o>
     friend class BitVectorRank;
     //! Forward declaration.
     friend class BitVectorFlatRank;
     //! Forward declaration.
+    template <OptimizedFor o>
     friend class BitVectorRankSelect;
     //! Forward declaration.
     friend class BitVectorFlatRankSelect;

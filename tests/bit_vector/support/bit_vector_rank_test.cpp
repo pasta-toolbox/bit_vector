@@ -54,7 +54,7 @@ int32_t main() {
       bv[i] = 1;
     }
 
-    pasta::BitVectorRank bvr(bv);
+    pasta::BitVectorRank<> bvr(bv);
 
     die_unequal(set_ones, bvr.rank1(N));
     for (size_t i = 1; i <= N/K; ++i) {

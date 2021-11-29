@@ -49,6 +49,10 @@ namespace pasta {
    * select support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. Similar
    * to the \ref BitVectorFlatRank support, the highest utility array (L0) is
    * removed. For more details see \ref BitVectorFlatRank and \ref BigL12Type.
+   *
+   * \tparam use_intrinsic Set \c true if intrinsic functions should be used to
+   * find L2-block where the select query has to search the last 512 bits.
+   * Currently slower than simple loop.
    */
   class BitVectorFlatRankSelect {
     template <typename T>
@@ -69,7 +73,6 @@ namespace pasta {
     std::vector<uint32_t> samples1_;
 
     static constexpr bool use_intrinsic = true;
-
   public:
     //! Default constructor w/o parameter.
     BitVectorFlatRankSelect() = default;
@@ -159,14 +162,14 @@ namespace pasta {
         value = _mm_blend_epi16(upper_values, lower_values, 0b10101010);
 
         __m128i const max_ones =
-          _mm_setr_epi16(uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+          _mm_setr_epi16(uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
                          uint16_t{4 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         std::numeric_limits<int16_t>::max(),
                          uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         std::numeric_limits<int16_t>::max());
+                         uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
+                         uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE});
 
         value = _mm_sub_epi16(max_ones, value);
 
@@ -248,8 +251,8 @@ namespace pasta {
       if constexpr (use_intrinsic) {
         __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
-        __m128i const shuffle_mask = _mm_setr_epi8(5,6, 7,8, 8,9, 10,11,
-                                                   11,12, 13,14, 14,15, -1,-1);
+        __m128i const shuffle_mask = _mm_setr_epi8(10,11, 8,9, 7,8, 5,6,
+                                                   -1,1, 14,15, 13,14, 11,12);
         value = _mm_shuffle_epi8(value, shuffle_mask);
         // The values consisting of a complete upper byte and half a lower byte,
         // which have to be shifted to the right to obtain the correct value.
@@ -261,19 +264,15 @@ namespace pasta {
         __m128i const lower_values = _mm_and_si128(value, lower_mask);
         // Both [upper|lower]_values contain half of the values we want. We
         // blend them together to obtain all required values in a 128 bit word.
-        value = _mm_blend_epi16(upper_values, lower_values, 0b10101010);
+        value = _mm_blend_epi16(upper_values, lower_values, 0b01010101);
         // To circumvent that the last value is a zero and thus the comparison
         // fails in the next step, we add a maximum value to this. As intrinsics
         // only consider signed integers, we have to add a signed 16 bit max!
-        value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 7);
+        value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
 
         // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
         // TODO Remove unnecessary second shuffle by ordering the bits correctly
         //      from the start
-        // TODO Replace/Check the complex l2_pos computation with PEXT on both
-        //      64 bit halves and a few shifts (1 bit from every 16 bit word is
-        //      enough). Correctly shifted this allows us to remove the "/16"
-        //      part
 
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
@@ -283,9 +282,9 @@ namespace pasta {
         //greater than)
         __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
 
-        __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
-                                               14,15, 12,13, 10,11, 8,9);
-        cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
+        // __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
+        //                                        14,15, 12,13, 10,11, 8,9);
+        // cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
 
         // As the values we are comparing with are monotonically increasing, we
         // do not have to check if values in the lower_result are 0 while not

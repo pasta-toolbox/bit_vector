@@ -115,10 +115,9 @@ namespace pasta {
       size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
         (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
       __builtin_prefetch(&data_[offset], 0, 0);
-      --l2_pos;
 
       size_t result = l12_[l1_pos].l1() +
-        ((l2_pos >= 0) ? l12_[l1_pos][l2_pos] : 0);
+        ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
       index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
       for (size_t i = 0; i < index / 64; ++i) {
         result += std::popcount(data_[offset++]);

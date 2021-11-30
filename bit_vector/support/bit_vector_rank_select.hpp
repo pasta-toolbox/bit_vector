@@ -67,6 +67,9 @@ namespace pasta {
    * Since the rank data structures used by rank are a strict subset of the data
    * structures required by select, we provide a (ever so slightly) more
    * space-efficient rank only data structure in \c BitVectorRank.
+   *
+   * \tparam OptimizedFor Compile time option to optimize data structure for
+   * either 0, 1, or no specific type of query.
    */
   template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
   class BitVectorRankSelect {
@@ -186,7 +189,7 @@ namespace pasta {
 
       size_t l2_pos = 0;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while (l1_pos + 1 < l0_block_end &&
+        while (l1_pos < l0_block_end &&
                ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
                l12[l1_pos + 1].l1 < rank) {
           ++l1_pos;

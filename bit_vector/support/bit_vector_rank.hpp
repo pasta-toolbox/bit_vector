@@ -92,6 +92,9 @@ namespace pasta {
    * *Note* that rank support is also provided in addition to select support by
    * \c BitVectorRankSelect, which uses this rank support implementation
    * internally.
+   *
+   * \tparam OptimizedFor Compile time option to optimize data structure for
+   * either 0, 1, or no specific type of query.
    */
   template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
   class BitVectorRank {

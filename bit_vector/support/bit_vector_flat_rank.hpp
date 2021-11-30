@@ -24,6 +24,7 @@
 
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/l12_type.hpp"
+#include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
 
 namespace pasta {
@@ -61,10 +62,15 @@ namespace pasta {
    * information---most importantly the number of ones w.r.t. the beginning of
    * the L1-block---in the L2-blocks. For the L1/2-block layout see
    * \ref BigL12Type.
+   *
+   * \tparam OptimizedFor Compile time option to optimize data structure for
+   * either 0, 1, or no specific type of query.
    */
+  template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
   class BitVectorFlatRank{
 
     //! Friend class, using internal information l12_.
+    template <OptimizedFor o>
     friend class BitVectorFlatRankSelect;
 
     //! Size of the bit vector the rank support is constructed for.
@@ -97,8 +103,30 @@ namespace pasta {
      * \return Number of zeros (rank) before position \c index.
      */
     [[nodiscard("rank0 computed but not used")]]
-    size_t rank0(size_t const index) const {
-      return index - rank1(index);
+    size_t rank0(size_t index) const {
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        return index - rank1(index);
+      } else {
+        size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
+        __builtin_prefetch(&l12_[l1_pos], 0, 0);
+        int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
+                          FlattenedRankSelectConfig::L2_BIT_SIZE);
+        size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
+          (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
+        __builtin_prefetch(&data_[offset], 0, 0);
+
+        size_t result = l12_[l1_pos].l1() +
+          ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
+        index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
+        for (size_t i = 0; i < index / 64; ++i) {
+          result += std::popcount(~data_[offset++]);
+        }
+        if (index %= 64; index > 0) [[likely]] {
+          uint64_t const remaining = (~data_[offset]) << (64 - index);
+          result += std::popcount(remaining);
+        }
+        return result;
+      }
     }
 
     /*!
@@ -108,25 +136,29 @@ namespace pasta {
      */
     [[nodiscard("rank1 computed but not used")]]
     size_t rank1(size_t index) const {
-      size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
-                        FlattenedRankSelectConfig::L2_BIT_SIZE);
-      size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
-        (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
+        __builtin_prefetch(&l12_[l1_pos], 0, 0);
+        int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
+                          FlattenedRankSelectConfig::L2_BIT_SIZE);
+        size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
+          (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
+        __builtin_prefetch(&data_[offset], 0, 0);
 
-      size_t result = l12_[l1_pos].l1() +
-        ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
-      index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(data_[offset++]);
+        size_t result = l12_[l1_pos].l1() +
+          ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
+        index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
+        for (size_t i = 0; i < index / 64; ++i) {
+          result += std::popcount(data_[offset++]);
+        }
+        if (index %= 64; index > 0) [[likely]] {
+          uint64_t const remaining = data_[offset] << (64 - index);
+          result += std::popcount(remaining);
+        }
+        return result;
+      } else {
+        return index - rank0(index);
       }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = data_[offset] << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
     }
 
     /*!
@@ -151,24 +183,44 @@ namespace pasta {
 
       std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
       while (data + 64 <= data_end) {
-        l2_entries[0] = popcount<8>(data);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l2_entries[0] = popcount<8>(data);
+        } else {
+          l2_entries[0] = popcount_zeros<8>(data);
+        }
         data += 8;
         for (size_t i = 1; i < 7; ++i) {
-          l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
+          if constexpr (optimize_one_or_dont_care(optimized_for)) {
+            l2_entries[i] = l2_entries[i - 1] + popcount<8>(data);
+          } else {
+            l2_entries[i] = l2_entries[i - 1] + popcount_zeros<8>(data);
+          }
           data += 8;
         }
         l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
-        l1_entry += l2_entries.back() + popcount<8>(data);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l1_entry += l2_entries.back() + popcount<8>(data);
+        } else {
+          l1_entry += l2_entries.back() + popcount_zeros<8>(data);
+        }
         data += 8;
       }
       size_t l2_pos = 0;
       l2_entries = {0, 0, 0, 0, 0, 0, 0};
       while (data + 8 <= data_end) {
-        l2_entries[l2_pos++] = popcount<8>(data);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l2_entries[l2_pos++] = popcount<8>(data);
+        } else {
+          l2_entries[l2_pos++] = popcount_zeros<8>(data);
+        }
         data += 8;
       }
       while (data < data_end) {
-        l2_entries[l2_pos] += popcount<1>(data++);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l2_entries[l2_pos] += popcount<1>(data++);
+        } else {
+          l2_entries[l2_pos] += popcount_zeros<1>(data++);
+        }
       }
       std::partial_sum(l2_entries.begin(), l2_entries.end(),
                        l2_entries.begin());

@@ -35,10 +35,9 @@ void run_test(TestFunction test_config) {
         test_config(vector_size, 1ULL << 2);
         continue;
       }
-      std::vector<size_t> every_k_th = {1, 13};
-      for (auto const set_every_kth : every_k_th) {
-        // if set_every_k_th > n this testing doesn't make any sense
-        if (set_every_kth < n) {
+      for (size_t k = 0; k <= 4; ++k) {
+        size_t const set_every_kth = 1ULL << k;
+        if (k < n) { // if k > n this testing doesn't make any sense
           test_config(vector_size, set_every_kth);
         }
       }

@@ -56,16 +56,16 @@ int32_t main() {
       bv[i] = 1;
     }
 
-
+    // We test both configurations for rank in the rank test
     pasta::BitVectorFlatRankSelect bvrs(bv);
 
     die_unequal(set_ones, bvrs.rank1(N));
-    for(size_t i = 1; i <= N / K; ++i) {
+    for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
       die_unequal(i, bvrs.rank1((K * i)));
     }
 
     die_unequal((N - set_ones), bvrs.rank0(N));
-    for(size_t i = 1; i <= N / K; ++i) {
+    for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
       die_unequal((K - 1) * i, bvrs.rank0((K * i)));
     }
   });
@@ -73,14 +73,26 @@ int32_t main() {
   // Test select
   run_test([](size_t N, size_t K){
     {
-      pasta::BitVector bv(N, 0);
+     pasta::BitVector bv(N, 0);
       for (size_t i = 0; i < N; i += K) {
         bv[i] = 1;
       }
 
-      pasta::BitVectorFlatRankSelect bvrs(bv);
-      for (size_t i = 1; i <= N/K; ++i) {
-        die_unequal(K * (i - 1), bvrs.select1(i));
+      // Test optimized for one queries
+      {
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES>
+          bvrs(bv);
+        for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+      // Test optimized for zero queries
+      {
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES>
+          bvrs(bv);
+        for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
       }
     }
     {
@@ -89,9 +101,21 @@ int32_t main() {
         bv[i] = 0;
       }
 
-      pasta::BitVectorFlatRankSelect bvrs(bv);
-      for (size_t i = 1; i <= N/K; ++i) {
-        die_unequal(K * (i - 1), bvrs.select0(i));
+      // Test optimized for one queries
+      {
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES>
+          bvrs(bv);
+        for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+      // Test optimized for zero queries
+      {
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES>
+          bvrs(bv);
+        for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
       }
     }
   });

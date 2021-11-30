@@ -181,11 +181,13 @@ namespace pasta {
     template <OptimizedFor o>
     friend class BitVectorRank;
     //! Forward declaration.
+    template <OptimizedFor o>
     friend class BitVectorFlatRank;
     //! Forward declaration.
     template <OptimizedFor o>
     friend class BitVectorRankSelect;
     //! Forward declaration.
+    template <OptimizedFor o>
     friend class BitVectorFlatRankSelect;
 
     //! Size of the bit vector in bits.

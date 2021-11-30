@@ -53,13 +53,17 @@ namespace pasta {
    * \tparam use_intrinsic Set \c true if intrinsic functions should be used to
    * find L2-block where the select query has to search the last 512 bits.
    * Currently slower than simple loop.
+   *
+   * \tparam OptimizedFor Compile time option to optimize data structure for
+   * either 0, 1, or no specific type of query.
    */
+  template <OptimizedFor optimized_for=OptimizedFor::DONT_CARE>
   class BitVectorFlatRankSelect {
     template <typename T>
     using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
 
     //! Rank structure (requires a strict subset of data structures of select).
-    BitVectorFlatRank rank_;
+    BitVectorFlatRank<optimized_for> rank_;
 
     //! Size of the bit vector the select support is constructed for.
     size_t data_size_;
@@ -134,13 +138,21 @@ namespace pasta {
         samples0_[sample_pos];
       l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
         FlattenedRankSelectConfig::L1_BIT_SIZE;
-      while (l1_pos + 1 < l12_end &&
-             ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-             l12[l1_pos + 1].l1() < rank) {
-        ++l1_pos;
+
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l1_pos + 1 < l12_end &&
+               ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+               l12[l1_pos + 1].l1() < rank) {
+          ++l1_pos;
+        }
+        rank -= (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+          l12[l1_pos].l1();
+      } else {
+        while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
+          ++l1_pos;
+        }
+        rank -= l12[l1_pos].l1();
       }
-      rank -= (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-        l12[l1_pos].l1();
 
       size_t l2_pos = 0;
       if constexpr (use_intrinsic) {
@@ -161,24 +173,37 @@ namespace pasta {
         // blend them together to obtain all required values in a 128 bit word.
         value = _mm_blend_epi16(upper_values, lower_values, 0b01010101);
 
-        __m128i const max_ones =
-          _mm_setr_epi16(uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{4 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         std::numeric_limits<int16_t>::max(),
-                         uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-                         uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE});
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          __m128i const max_ones =
+            _mm_setr_epi16(uint16_t{5*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{4*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{3*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{2*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           std::numeric_limits<int16_t>::max(), // Sentinel
+                           uint16_t{8*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{7*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{6*FlattenedRankSelectConfig::L2_BIT_SIZE});
 
-        value = _mm_sub_epi16(max_ones, value);
+          value = _mm_sub_epi16(max_ones, value);
+        } else {
+          // To circumvent that the last value is a zero and thus the comparison
+          // fails in the next step, we add a maximum value to this. As
+          // intrinsics only consider signed integers, we have to add a signed
+          // 16 bit max!
+          value =
+            _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
+        }
 
         // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
 
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
-        //std::cout << "rank " << rank << '\n';
-        __m128i const cmp_value = _mm_set1_epi16(uint16_t{rank});
+        __m128i cmp_value;
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          cmp_value = _mm_set1_epi16(uint16_t{rank});
+        } else {
+          cmp_value = _mm_set1_epi16(uint16_t{rank - 1});
+        }
         // We now have a 128 bit word, where all consecutive 16 bit words are
         // either 0 (if values is less equal) or 16_BIT_MAX (if values is
         //greater than)
@@ -192,15 +217,25 @@ namespace pasta {
         uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
         l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16 );
       } else {
-        while (l2_pos < 7 && (l2_pos + 2) *
-               FlattenedRankSelectConfig::L2_BIT_SIZE -
-               l12[l1_pos][l2_pos] < rank) {
-          ++l2_pos;
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          while (l2_pos < 7 && (l2_pos + 2) *
+                 FlattenedRankSelectConfig::L2_BIT_SIZE -
+                 l12[l1_pos][l2_pos] < rank) {
+            ++l2_pos;
+          }
+        } else {
+          while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
+            ++l2_pos;
+          }
         }
       }
-      rank -= (l2_pos > 0) ?
-        (((l2_pos) * FlattenedRankSelectConfig::L2_BIT_SIZE) -
-         l12[l1_pos][l2_pos - 1]) : 0;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        rank -= (l2_pos > 0) ?
+          (((l2_pos) * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+           l12[l1_pos][l2_pos - 1]) : 0;
+      } else {
+        rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
+      }
 
       size_t const last_pos =
         (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
@@ -208,8 +243,8 @@ namespace pasta {
       size_t additional_words = 0;
       size_t popcount = 0;
 
-      while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos +
-                                                  additional_words)) < rank) {
+      while ((popcount = popcount_zeros<1>(data_ + last_pos +
+                                           additional_words)) < rank) {
         ++additional_words;
         rank -= popcount;
       }
@@ -217,8 +252,8 @@ namespace pasta {
       return (FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
         (FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
         (additional_words * 64) +
-        pasta::select1_reverse(~data_[last_pos + additional_words],
-                               popcount - rank + 1);
+        select1_reverse(~data_[last_pos + additional_words],
+                        popcount - rank + 1);
     }
 
     /*!
@@ -238,10 +273,20 @@ namespace pasta {
       l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
         FlattenedRankSelectConfig::L1_BIT_SIZE;
 
-      while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
-        ++l1_pos;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
+          ++l1_pos;
+        }
+        rank -= l12[l1_pos].l1();
+      } else {
+        while (l1_pos + 1 < l12_end &&
+               ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+               l12[l1_pos + 1].l1() < rank) {
+          ++l1_pos;
+        }
+        rank -= (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+          l12[l1_pos].l1();
       }
-      rank -= l12[l1_pos].l1();
       size_t l2_pos = 0;
       if constexpr (use_intrinsic) {
         __m128i value =
@@ -260,14 +305,29 @@ namespace pasta {
         // Both [upper|lower]_values contain half of the values we want. We
         // blend them together to obtain all required values in a 128 bit word.
         value = _mm_blend_epi16(upper_values, lower_values, 0b01010101);
-        // To circumvent that the last value is a zero and thus the comparison
-        // fails in the next step, we add a maximum value to this. As intrinsics
-        // only consider signed integers, we have to add a signed 16 bit max!
-        value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
+
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          // To circumvent that the last value is a zero and thus the comparison
+          // fails in the next step, we add a maximum value to this. As
+          // intrinsics only consider signed integers, we have to add a signed
+          // 16 bit max!
+          value =
+            _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
+        } else {
+          __m128i const max_ones =
+            _mm_setr_epi16(uint16_t{5*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{4*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{3*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{2*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           std::numeric_limits<int16_t>::max(), // Sentinel
+                           uint16_t{8*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{7*FlattenedRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{6*FlattenedRankSelectConfig::L2_BIT_SIZE});
+
+          value = _mm_sub_epi16(max_ones, value);
+        }
 
         // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
-        // TODO Remove unnecessary second shuffle by ordering the bits correctly
-        //      from the start
 
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
@@ -277,10 +337,6 @@ namespace pasta {
         //greater than)
         __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
 
-        // __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
-        //                                        14,15, 12,13, 10,11, 8,9);
-        // cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
-
         // As the values we are comparing with are monotonically increasing, we
         // do not have to check if values in the lower_result are 0 while not
         // all in upper_result are not (e.b., 00FF|0FF0, where the left half is
@@ -289,11 +345,26 @@ namespace pasta {
         uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
         l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16 );
       } else {
-        while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
-          ++l2_pos;
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
+            ++l2_pos;
+          }
+        } else {
+          while (l2_pos < 7 && (l2_pos + 2) *
+                 FlattenedRankSelectConfig::L2_BIT_SIZE -
+                 l12[l1_pos][l2_pos] < rank) {
+            ++l2_pos;
+          }
         }
       }
-      rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
+      } else {
+        rank -= (l2_pos > 0) ?
+          (((l2_pos) * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+           l12[l1_pos][l2_pos - 1]) : 0;
+      }
+
       size_t const last_pos =
         (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
         (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
@@ -305,12 +376,11 @@ namespace pasta {
         ++additional_words;
         rank -= popcount;
       }
-      return //(FlattenedRankSelectConfig::L0_BIT_SIZE * l0_pos) +
-        (FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
+      return (FlattenedRankSelectConfig::L2_BIT_SIZE * l2_pos) +
         (FlattenedRankSelectConfig::L1_BIT_SIZE * l1_pos) +
         (additional_words * 64) +
-        pasta::select1_reverse(data_[last_pos + additional_words],
-                               popcount - rank + 1);
+        select1_reverse(data_[last_pos + additional_words],
+                        popcount - rank + 1);
     }
 
     /*!

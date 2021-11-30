@@ -53,17 +53,33 @@ int32_t main() {
       ++set_ones;
       bv[i] = 1;
     }
+    // Test optimized for one queries
+    {
+      pasta::BitVectorRank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);
 
-    pasta::BitVectorRank<> bvr(bv);
+      die_unequal(set_ones, bvr.rank1(N));
+      for (size_t i = 1; i <= N/K; ++i) {
+        die_unequal(i, bvr.rank1((K * i)));
+      }
 
-    die_unequal(set_ones, bvr.rank1(N));
-    for (size_t i = 1; i <= N/K; ++i) {
-      die_unequal(i, bvr.rank1((K * i)));
+      die_unequal((N - set_ones), bvr.rank0(N));
+      for (size_t i = 1; i <= N/K; ++i) {
+        die_unequal((K - 1) * i, bvr.rank0((K * i)));
+      }
     }
+    // Test optimized for zero queries
+    {
+      pasta::BitVectorRank<pasta::OptimizedFor::ZERO_QUERIES> bvr(bv);
 
-    die_unequal((N - set_ones), bvr.rank0(N));
-    for (size_t i = 1; i <= N/K; ++i) {
-      die_unequal((K - 1) * i, bvr.rank0((K * i)));
+      die_unequal(set_ones, bvr.rank1(N));
+      for (size_t i = 1; i <= N/K; ++i) {
+        die_unequal(i, bvr.rank1((K * i)));
+      }
+
+      die_unequal((N - set_ones), bvr.rank0(N));
+      for (size_t i = 1; i <= N/K; ++i) {
+        die_unequal((K - 1) * i, bvr.rank0((K * i)));
+      }
     }
   });
 

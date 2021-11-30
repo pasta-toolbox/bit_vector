@@ -146,9 +146,38 @@ namespace pasta {
      * \return Number of zeros (rank) before position \c index.
      */
     [[nodiscard("rank0 computed but not used")]]
-    size_t rank0(size_t const index) const {
-      PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
-      return index - rank1(index);
+    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
+    size_t rank0(size_t index) const {
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        return index - rank1(index);
+      } else {
+        size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
+        __builtin_prefetch(&l12_[l1_pos], 0, 0);
+        size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
+          PopcntRankSelectConfig::L2_BIT_SIZE;
+        size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
+          (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
+        __builtin_prefetch(&data_[offset], 0, 0);
+
+        size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
+          l12_[l1_pos].l1;
+
+        for (size_t i = 0; i < l2_pos; ++i) {
+          result += l12_[l1_pos][i];
+        }
+
+        index %= PopcntRankSelectConfig::L2_BIT_SIZE;
+        PASTA_ASSERT(index < 512, "Trying to access bits that should be "
+                     "covered in an L1-block");
+        for (size_t i = 0; i < index / 64; ++i) {
+          result += std::popcount(~data_[offset++]);
+        }
+        if (index %= 64; index > 0) [[likely]] {
+          uint64_t const remaining = (~data_[offset]) << (64 - index);
+          result += std::popcount(remaining);
+        }
+        return result;
+      }
     }
 
     /*!
@@ -159,32 +188,36 @@ namespace pasta {
     [[nodiscard("rank1 computed but not used")]]
     size_t rank1(size_t index) const {
       PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
-      size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
-        PopcntRankSelectConfig::L2_BIT_SIZE;
-      size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
-        (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
+        __builtin_prefetch(&l12_[l1_pos], 0, 0);
+        size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
+          PopcntRankSelectConfig::L2_BIT_SIZE;
+        size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
+          (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
+        __builtin_prefetch(&data_[offset], 0, 0);
 
-      size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
-        l12_[l1_pos].l1;
+        size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
+          l12_[l1_pos].l1;
 
-      for (size_t i = 0; i < l2_pos; ++i) {
-        result += l12_[l1_pos][i];
-      }
+        for (size_t i = 0; i < l2_pos; ++i) {
+          result += l12_[l1_pos][i];
+        }
 
-      index %= PopcntRankSelectConfig::L2_BIT_SIZE;
-      PASTA_ASSERT(index < 512, "Trying to access bits that should be covered "
-                   "in an L1-block");
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(data_[offset++]);
+        index %= PopcntRankSelectConfig::L2_BIT_SIZE;
+        PASTA_ASSERT(index < 512, "Trying to access bits that should be "
+                     "covered in an L1-block");
+        for (size_t i = 0; i < index / 64; ++i) {
+          result += std::popcount(data_[offset++]);
+        }
+        if (index %= 64; index > 0) [[likely]] {
+          uint64_t const remaining = data_[offset] << (64 - index);
+          result += std::popcount(remaining);
+        }
+        return result;
+      } else {
+        return index - rank0(index);
       }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = data_[offset] << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
     }
 
     /*!
@@ -216,12 +249,20 @@ namespace pasta {
       while (data + 32 <= data_end) {
         uint32_t new_l1_entry = l1_entry;
         for (size_t i = 0; i < 3; ++i) {
-          l2_entries[i] = popcount<8>(data);
+          if constexpr (optimize_one_or_dont_care(optimized_for)) {
+            l2_entries[i] = popcount<8>(data);
+          } else {
+            l2_entries[i] = popcount_zeros<8>(data);
+          }
           data += 8;
           new_l1_entry += l2_entries[i];
         }
         l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
-        new_l1_entry += popcount<8>(data);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          new_l1_entry += popcount<8>(data);
+        } else {
+          new_l1_entry += popcount_zeros<8>(data);
+        }
         data += 8;
         l1_entry = new_l1_entry;
 
@@ -237,11 +278,19 @@ namespace pasta {
       l2_entries = {0, 0, 0};
       size_t l2_pos = 0;
       while (data + 8 <= data_end) {
-        l2_entries[l2_pos++] = popcount<8>(data);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l2_entries[l2_pos++] = popcount<8>(data);
+        } else {
+          l2_entries[l2_pos++] = popcount_zeros<8>(data);
+        }
         data += 8;
       }
       while (data < data_end) {
-        l2_entries[l2_pos] += popcount<1>(data++);
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          l2_entries[l2_pos] += popcount<1>(data++);
+        } else {
+          l2_entries[l2_pos] += popcount_zeros<1>(data++);
+        }
       }
       l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
 

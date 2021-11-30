@@ -149,60 +149,82 @@ namespace pasta {
       Array<L12Type> const& l12 = rank_.l12_;
 
       size_t l0_pos = 0;
-      while (l0_pos + 1 < l0.size() &&
-	     ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-	     l0[l0_pos + 1] < rank) {
-	++l0_pos;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l0_pos + 1 < l0.size() &&
+               ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
+               l0[l0_pos + 1] < rank) {
+          ++l0_pos;
+        }
+      } else {
+        while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
+          ++l0_pos;
+        }
       }
       if (l0_pos == l0.size()) [[unlikely]] {
-	return data_size_;
+        return data_size_;
       }
-      rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
+      } else {
+        rank -= l0[l0_pos];
+      }
 
       size_t const sample_pos =
-	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
-	samples0_pos_[l0_pos];
+        ((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
+        samples0_pos_[l0_pos];
       size_t l1_pos = (sample_pos >= samples0_.size()) ?
-	(l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
-		   PopcntRankSelectConfig::L1_WORD_SIZE)) :
-	samples0_[sample_pos];
+        (l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
+                   PopcntRankSelectConfig::L1_WORD_SIZE)) :
+        samples0_[sample_pos];
       l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
-	PopcntRankSelectConfig::L1_BIT_SIZE;
+        PopcntRankSelectConfig::L1_BIT_SIZE;
       size_t const l0_block_end =
-	std::min<size_t>(((l0_pos + 1) *
-			  (PopcntRankSelectConfig::L0_WORD_SIZE /
-			   PopcntRankSelectConfig::L1_WORD_SIZE)),
-			 l12.size()) - 1;
-      while (l1_pos < l0_block_end &&
-	     ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
-	     l12[l1_pos + 1].l1 < rank) {
-	++l1_pos;
-      }
-      rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
-	(l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
+        std::min<size_t>(((l0_pos + 1) *
+                          (PopcntRankSelectConfig::L0_WORD_SIZE /
+                           PopcntRankSelectConfig::L1_WORD_SIZE)),
+                         l12.size()) - 1;
 
       size_t l2_pos = 0;
-      while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
-	     l12[l1_pos][l2_pos] < rank) {
-	rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l1_pos + 1 < l0_block_end &&
+               ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
+               l12[l1_pos + 1].l1 < rank) {
+          ++l1_pos;
+        }
+        rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
+          (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
+
+        while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
+               l12[l1_pos][l2_pos] < rank) {
+          rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
+        }
+      } else {
+        while (l1_pos < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+          ++l1_pos;
+        }
+        rank -= l12[l1_pos].l1;
+        while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
+          rank -= l12[l1_pos][l2_pos++];
+        }
       }
 
-      size_t const last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-	(PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
+      size_t const last_pos =
+        (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+        (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
       size_t additional_words = 0;
       size_t popcount = 0;
 
       while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos +
-						  additional_words)) < rank) {
-	++additional_words;
-	rank -= popcount;
+                                                  additional_words)) < rank) {
+        ++additional_words;
+        rank -= popcount;
       }
 
       return (PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-	(PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-	(additional_words * 64) +
-	pasta::select1_reverse(~data_[last_pos + additional_words],
-			       popcount - rank + 1);
+        (PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
+        (additional_words * 64) +
+        pasta::select1_reverse(~data_[last_pos + additional_words],
+                               popcount - rank + 1);
     }
 
     /*!
@@ -216,52 +238,82 @@ namespace pasta {
       Array<L12Type> const& l12 = rank_.l12_;
 
       size_t l0_pos = 0;
-      while (l0[l0_pos + 1] < rank) {
-	++l0_pos;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
+          ++l0_pos;
+        }
+      } else {
+        while (l0_pos + 1 < l0.size() &&
+               ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
+               l0[l0_pos + 1] < rank) {
+          ++l0_pos;
+        }
       }
       if (l0_pos == l0.size()) [[unlikely]] {
-	return data_size_;
+        return data_size_;
       }
-      rank -= l0[l0_pos];
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        rank -= l0[l0_pos];
+      } else {
+        rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
+      }
 
       size_t const sample_pos =
-	((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
-	samples1_pos_[l0_pos];
+        ((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
+        samples1_pos_[l0_pos];
       size_t l1_pos = (sample_pos >= samples1_.size()) ?
-	(l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
-		   PopcntRankSelectConfig::L1_WORD_SIZE)) :
-	samples1_[sample_pos];
+        (l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
+                   PopcntRankSelectConfig::L1_WORD_SIZE)) :
+        samples1_[sample_pos];
       l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
-	PopcntRankSelectConfig::L1_BIT_SIZE;
+        PopcntRankSelectConfig::L1_BIT_SIZE;
       size_t const l0_block_end =
-	std::min<size_t>(((l0_pos + 1) *
-			  (PopcntRankSelectConfig::L0_WORD_SIZE /
-			   PopcntRankSelectConfig::L1_WORD_SIZE)),
-			 l12.size()) - 1;
-      while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
-	++l1_pos;
-      }
-      rank -= l12[l1_pos].l1;
+        std::min<size_t>(((l0_pos + 1) *
+                          (PopcntRankSelectConfig::L0_WORD_SIZE /
+                           PopcntRankSelectConfig::L1_WORD_SIZE)),
+                         l12.size()) - 1;
+
       size_t l2_pos = 0;
-      while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
-	rank -= l12[l1_pos][l2_pos++];
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+          ++l1_pos;
+        }
+        rank -= l12[l1_pos].l1;
+        while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
+          rank -= l12[l1_pos][l2_pos++];
+        }
+      } else {
+        while (l1_pos < l0_block_end &&
+               ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
+               l12[l1_pos + 1].l1 < rank) {
+          ++l1_pos;
+        }
+        rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
+          (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
+
+        while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
+               l12[l1_pos][l2_pos] < rank) {
+          rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
+        }
       }
-      size_t const last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-	(PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
+
+      size_t const last_pos =
+        (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+        (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
       size_t additional_words = 0;
       size_t popcount = 0;
 
       while ((popcount = pasta::popcount<1>(data_ + last_pos +
-					    additional_words)) < rank) {
-	++additional_words;
-	rank -= popcount;
+                                            additional_words)) < rank) {
+        ++additional_words;
+        rank -= popcount;
       }
       return //(PopcntRankSelectConfig::L0_BIT_SIZE * l0_pos) +
-	(PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-	(PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-	(additional_words * 64) +
-	pasta::select1_reverse(data_[last_pos + additional_words],
-			       popcount - rank + 1);
+        (PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
+        (PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
+        (additional_words * 64) +
+        pasta::select1_reverse(data_[last_pos + additional_words],
+                               popcount - rank + 1);
     }
 
     /*!
@@ -289,31 +341,31 @@ namespace pasta {
       size_t l12_pos = 0;
       size_t l0_pos = 0;
       for (; l12_pos < l12_end; ++l12_pos) {
-	if (l12_pos %
-	    (PopcntRankSelectConfig::L0_WORD_SIZE /
-	     PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
-	  samples0_pos_[l0_pos] = samples0_.size();
-	  samples1_pos_[l0_pos++] = samples1_.size();
-	  next_sample0_value = 1;
-	  next_sample1_value = 1;
-	}
-	if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
-	    ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-	    l12[l12_pos].l1 >= next_sample0_value) {
-	  samples0_.push_back(l12_pos - 1);
-	  next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
-	}
-	if (l12[l12_pos].l1 >= next_sample1_value) {
-	  samples1_.push_back(l12_pos - 1);
-	  next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
-	}
+        if (l12_pos %
+            (PopcntRankSelectConfig::L0_WORD_SIZE /
+             PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
+          samples0_pos_[l0_pos] = samples0_.size();
+          samples1_pos_[l0_pos++] = samples1_.size();
+          next_sample0_value = 1;
+          next_sample1_value = 1;
+        }
+        if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
+            ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
+            l12[l12_pos].l1 >= next_sample0_value) {
+          samples0_.push_back(l12_pos - 1);
+          next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+        }
+        if (l12[l12_pos].l1 >= next_sample1_value) {
+          samples1_.push_back(l12_pos - 1);
+          next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+        }
       }
       // Add at least one entry.
       if (samples0_.size() == 0) {
-	samples0_.push_back(0);
+        samples0_.push_back(0);
       }
       if (samples1_.size() == 0) {
-	samples1_.push_back(0);
+        samples1_.push_back(0);
       }
       samples0_pos_[0] = 0;
       samples1_pos_[0] = 0;

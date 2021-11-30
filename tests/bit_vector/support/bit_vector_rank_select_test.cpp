@@ -35,7 +35,7 @@ void run_test(TestFunction test_config) {
         test_config(vector_size, 1ULL << 2);
         continue;
       }
-      for (size_t k = 0; k <= 4; ++k) {
+      for (size_t k = 0; k <= 2; ++k) {
         size_t const set_every_kth = 1ULL << k;
         if (k < n) { // if k > n this testing doesn't make any sense
           test_config(vector_size, set_every_kth);
@@ -56,7 +56,7 @@ int32_t main() {
       bv[i] = 1;
     }
 
-
+    // We test both configurations for rank in the rank test
     pasta::BitVectorRankSelect bvrs(bv);
 
     die_unequal(set_ones, bvrs.rank1(N));
@@ -78,9 +78,19 @@ int32_t main() {
         bv[i] = 1;
       }
 
-      pasta::BitVectorRankSelect bvrs(bv);
-      for (size_t i = 1; i <= N/K; ++i) {
-        die_unequal(K * (i - 1), bvrs.select1(i));
+      // Test optimized for one queries
+      {
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ONE_QUERIES> bvrs(bv);
+        for (size_t i = 1; i <= N/K; ++i) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+      // Test optimized for zero queries
+      {
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ZERO_QUERIES> bvrs(bv);
+        for (size_t i = 1; i <= N/K; ++i) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
       }
     }
     {
@@ -89,9 +99,19 @@ int32_t main() {
         bv[i] = 0;
       }
 
-      pasta::BitVectorRankSelect bvrs(bv);
-      for (size_t i = 1; i <= N/K; ++i) {
-        die_unequal(K * (i - 1), bvrs.select0(i));
+      // Test optimized for one queries
+      {
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ONE_QUERIES> bvrs(bv);
+        for (size_t i = 1; i <= N/K; ++i) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+      // Test optimized for zero queries
+      {
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ZERO_QUERIES> bvrs(bv);
+        for (size_t i = 1; i <= N/K; ++i) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
       }
     }
   });

@@ -58,7 +58,7 @@ int32_t main() {
       pasta::BitVectorRank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
-      for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/100)) {
+      for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
         die_unequal(i, bvr.rank1((K * i)));
       }
 
@@ -72,7 +72,7 @@ int32_t main() {
       pasta::BitVectorRank<pasta::OptimizedFor::ZERO_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
-      for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/100)) {
+      for (size_t i = 1; i <= N/K; i += std::max<size_t>(1, N/1000)) {
         die_unequal(i, bvr.rank1((K * i)));
       }
 

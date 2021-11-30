@@ -146,8 +146,8 @@ namespace pasta {
       if constexpr (use_intrinsic) {
         __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
-        __m128i const shuffle_mask = _mm_setr_epi8(5,6, 7,8, 8,9, 10,11,
-                                                   11,12, 13,14, 14,15, -1,-1);
+        __m128i const shuffle_mask = _mm_setr_epi8(10,11, 8,9, 7,8, 5,6,
+                                                   -1,1, 14,15, 13,14, 11,12);
         value = _mm_shuffle_epi8(value, shuffle_mask);
         // The values consisting of a complete upper byte and half a lower byte,
         // which have to be shifted to the right to obtain the correct value.
@@ -159,7 +159,7 @@ namespace pasta {
         __m128i const lower_values = _mm_and_si128(value, lower_mask);
         // Both [upper|lower]_values contain half of the values we want. We
         // blend them together to obtain all required values in a 128 bit word.
-        value = _mm_blend_epi16(upper_values, lower_values, 0b10101010);
+        value = _mm_blend_epi16(upper_values, lower_values, 0b01010101);
 
         __m128i const max_ones =
           _mm_setr_epi16(uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
@@ -183,11 +183,6 @@ namespace pasta {
         // either 0 (if values is less equal) or 16_BIT_MAX (if values is
         //greater than)
         __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
-
-
-        __m128i const shuffle2 = _mm_setr_epi8(6,7, 4,5, 2,3, 0,1,
-                                               14,15, 12,13, 10,11, 8,9);
-        cmp_result = _mm_shuffle_epi8(cmp_result, shuffle2);
 
         // As the values we are comparing with are monotonically increasing, we
         // do not have to check if values in the lower_result are 0 while not

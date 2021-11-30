@@ -149,8 +149,8 @@ namespace pasta {
      * \return Number of zeros (rank) before position \c index.
      */
     [[nodiscard("rank0 computed but not used")]]
-    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
     size_t rank0(size_t index) const {
+      PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         return index - rank1(index);
       } else {

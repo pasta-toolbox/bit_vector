@@ -215,11 +215,13 @@ namespace pasta {
         }
         data += 8;
       }
-      while (data < data_end) {
-        if constexpr (optimize_one_or_dont_care(optimized_for)) {
-          l2_entries[l2_pos] += popcount<1>(data++);
-        } else {
-          l2_entries[l2_pos] += popcount_zeros<1>(data++);
+      if (l2_pos < 7) {
+        while (data < data_end) {
+          if constexpr (optimize_one_or_dont_care(optimized_for)) {
+            l2_entries[l2_pos] += popcount<1>(data++);
+          } else {
+            l2_entries[l2_pos] += popcount_zeros<1>(data++);
+          }
         }
       }
       std::partial_sum(l2_entries.begin(), l2_entries.end(),

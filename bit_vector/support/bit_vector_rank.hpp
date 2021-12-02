@@ -280,7 +280,7 @@ namespace pasta {
       // For the last not full L12-Block
       l2_entries = {0, 0, 0};
       size_t l2_pos = 0;
-      while (data + 8 <= data_end) {
+      while (data + 8 < data_end) {
         if constexpr (optimize_one_or_dont_care(optimized_for)) {
           l2_entries[l2_pos++] = popcount<8>(data);
         } else {
@@ -288,24 +288,26 @@ namespace pasta {
         }
         data += 8;
       }
-      while (data < data_end) {
-        if constexpr (optimize_one_or_dont_care(optimized_for)) {
-          l2_entries[l2_pos] += popcount<1>(data++);
-        } else {
-          l2_entries[l2_pos] += popcount_zeros<1>(data++);
+      if (l2_pos < 3) {
+        while (data < data_end) {
+          if constexpr (optimize_one_or_dont_care(optimized_for)) {
+            l2_entries[l2_pos] += popcount<1>(data++);
+          } else {
+            l2_entries[l2_pos] += popcount_zeros<1>(data++);
+          }
         }
       }
-      l12_[l12_pos++] = L12Type(l1_entry, l2_entries);
-
+      l12_[l12_pos] = L12Type(l1_entry, l2_entries);
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
                      PopcntRankSelectConfig::L1_WORD_SIZE) == 0) [[unlikely]] {
         l0_[l0_pos] += (l0_[l0_pos - 1] + l1_entry);
         ++l0_pos;
         l1_entry = 0;
+      } else {
+        // Append sentinel (max uint64_t value) to l0_, as this makes some
+        // loop-conditions in during select queries easier
+        l0_[l0_pos] = std::numeric_limits<uint64_t>::max();
       }
-      // Append sentinel (max uint64_t value) to l0_, as this makes some
-      // loop-conditions in during select queries easier
-      l0_[l0_pos] = std::numeric_limits<uint64_t>::max();
     }
   }; // class BitVectorRank
 

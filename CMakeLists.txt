@@ -30,7 +30,7 @@ project(pasta_bit_vector)
 option(PASTA_BIT_VECTOR_BUILD_TESTS
   "Build pasta::bit_vector's tests." OFF)
 ## Build benchmark tools
-option(PASTA_BIT_VECTOR_BUILD_BENCHMAKRS
+option(PASTA_BIT_VECTOR_BUILD_BENCHMARKS
   "Build pasta::bit_vector's benchmarks." OFF)
 ## Build pasta::bit_vector with code coverage options
 option(PASTA_BIT_VECTOR_COVERAGE_REPORTING
@@ -75,7 +75,7 @@ endif()
 
 # Optional benchmarks
 
-if(PASTA_BIT_VECTOR_BUILD_BENCHMAKRS)
+if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
   find_library(SDSL_LIBRARY sdsl
     PATHS ${SDSL_DIR})
 

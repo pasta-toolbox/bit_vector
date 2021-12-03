@@ -55,9 +55,13 @@ namespace pasta {
    * Currently slower than simple loop.
    *
    * \tparam OptimizedFor Compile time option to optimize data structure for
-   * either 0, 1, or no specific type of query.
+   * either 0, 1, or neither type of query. Default is \c neither.
+   * \tparam use_intrinsic \c bool flag that specifies whether intrinsics should
+   * be used during select queries (currently using them is slower). Default is
+   * \c false.
    */
-  template <OptimizedFor optimized_for=OptimizedFor::DONT_CARE>
+  template <OptimizedFor optimized_for=OptimizedFor::DONT_CARE,
+            bool use_intrinsic=false>
   class BitVectorFlatRankSelect {
     template <typename T>
     using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
@@ -76,7 +80,6 @@ namespace pasta {
     //! Positions of every \c SELECT_SAMPLE_RATE one.
     std::vector<uint32_t> samples1_;
 
-    static constexpr bool use_intrinsic = true;
   public:
     //! Default constructor w/o parameter.
     BitVectorFlatRankSelect() = default;
@@ -403,14 +406,26 @@ namespace pasta {
       size_t next_sample0_value = 1;
       size_t next_sample1_value = 1;
       for (size_t l12_pos = 0; l12_pos < l12_end; ++l12_pos) {
-        if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-            l12[l12_pos].l1() >= next_sample0_value) {
-          samples0_.push_back(l12_pos - 1);
-          next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
-        }
-        if (l12[l12_pos].l1() >= next_sample1_value) {
-          samples1_.push_back(l12_pos - 1);
-          next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+              l12[l12_pos].l1() >= next_sample0_value) {
+            samples0_.push_back(l12_pos - 1);
+            next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+          if (l12[l12_pos].l1() >= next_sample1_value) {
+            samples1_.push_back(l12_pos - 1);
+            next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+        } else {
+          if (l12[l12_pos].l1() >= next_sample0_value) {
+            samples0_.push_back(l12_pos - 1);
+            next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+          if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
+              l12[l12_pos].l1() >= next_sample1_value) {
+            samples1_.push_back(l12_pos - 1);
+            next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
         }
       }
       // Add at least one entry.

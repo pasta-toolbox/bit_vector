@@ -70,7 +70,7 @@ namespace pasta {
   class BitVectorFlatRank{
 
     //! Friend class, using internal information l12_.
-    template <OptimizedFor o>
+    template <OptimizedFor o, bool i>
     friend class BitVectorFlatRankSelect;
 
     //! Size of the bit vector the rank support is constructed for.
@@ -182,7 +182,7 @@ namespace pasta {
       uint64_t const * const data_end = data_ + data_size_;
 
       std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
-      while (data + 64 <= data_end) {
+      while (data + 64 < data_end) {
         if constexpr (optimize_one_or_dont_care(optimized_for)) {
           l2_entries[0] = popcount<8>(data);
         } else {
@@ -207,7 +207,7 @@ namespace pasta {
       }
       size_t l2_pos = 0;
       l2_entries = {0, 0, 0, 0, 0, 0, 0};
-      while (data + 8 <= data_end) {
+      while (data + 8 < data_end) {
         if constexpr (optimize_one_or_dont_care(optimized_for)) {
           l2_entries[l2_pos++] = popcount<8>(data);
         } else {

@@ -202,7 +202,7 @@ namespace pasta {
           rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
         }
       } else {
-        while (l1_pos < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+        while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
           ++l1_pos;
         }
         rank -= l12[l1_pos].l1;
@@ -352,15 +352,28 @@ namespace pasta {
           next_sample0_value = 1;
           next_sample1_value = 1;
         }
-        if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
-            ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-            l12[l12_pos].l1 >= next_sample0_value) {
-          samples0_.push_back(l12_pos - 1);
-          next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
-        }
-        if (l12[l12_pos].l1 >= next_sample1_value) {
-          samples1_.push_back(l12_pos - 1);
-          next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+        if constexpr (optimize_one_or_dont_care(optimized_for)) {
+          if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
+              ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
+              l12[l12_pos].l1 >= next_sample0_value) {
+            samples0_.push_back(l12_pos - 1);
+            next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+          if (l12[l12_pos].l1 >= next_sample1_value) {
+            samples1_.push_back(l12_pos - 1);
+            next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+        } else {
+          if (l12[l12_pos].l1 >= next_sample0_value) {
+            samples0_.push_back(l12_pos - 1);
+            next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
+          if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
+              ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
+              l12[l12_pos].l1 >= next_sample1_value) {
+            samples1_.push_back(l12_pos - 1);
+            next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
+          }
         }
       }
       // Add at least one entry.

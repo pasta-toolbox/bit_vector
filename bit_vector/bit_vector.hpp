@@ -30,6 +30,7 @@
 #include <tlx/container/simple_vector.hpp>
 
 #include "bit_vector/support/optimized_for.hpp"
+#include "bit_vector/support/use_intrinsics.hpp"
 
 namespace pasta {
 
@@ -187,7 +188,7 @@ namespace pasta {
     template <OptimizedFor o>
     friend class BitVectorRankSelect;
     //! Forward declaration.
-    template <OptimizedFor o, bool i>
+    template <OptimizedFor o, UseIntrinsics i>
     friend class BitVectorFlatRankSelect;
 
     //! Size of the bit vector in bits.

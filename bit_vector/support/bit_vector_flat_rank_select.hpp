@@ -35,8 +35,10 @@
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
 #include "bit_vector/support/l12_type.hpp"
+#include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
 #include "bit_vector/support/select.hpp"
+#include "bit_vector/support/use_intrinsics.hpp"
 
 namespace pasta {
 
@@ -63,7 +65,7 @@ namespace pasta {
    * \c false.
    */
   template <OptimizedFor optimized_for=OptimizedFor::DONT_CARE,
-            bool use_intrinsic=false>
+            UseIntrinsics use_intrinsics=UseIntrinsics::NO>
   class BitVectorFlatRankSelect {
     template <typename T>
     using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
@@ -160,7 +162,7 @@ namespace pasta {
       }
 
       size_t l2_pos = 0;
-      if constexpr (use_intrinsic) {
+      if constexpr (use_intrinsics_functions(use_intrinsics)) {
         __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
         __m128i const shuffle_mask = _mm_setr_epi8(10,11, 8,9, 7,8, 5,6,
@@ -297,7 +299,7 @@ namespace pasta {
           l12[l1_pos].l1();
       }
       size_t l2_pos = 0;
-      if constexpr (use_intrinsic) {
+      if constexpr (use_intrinsics_functions(use_intrinsics)) {
         __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
         __m128i const shuffle_mask = _mm_setr_epi8(10,11, 8,9, 7,8, 5,6,

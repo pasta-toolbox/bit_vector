@@ -24,6 +24,7 @@
 
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_flat_rank_select.hpp"
+#include "bit_vector/support/use_intrinsics.hpp"
 
 template<typename TestFunction>
 void run_test(TestFunction test_config) {
@@ -80,16 +81,16 @@ int32_t main() {
 
       // Test optimized for one queries without intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES, false>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::UseIntrinsics::NO> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select1(i));
         }
       }
       // Test optimized for zero queries without intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES, false>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::UseIntrinsics::NO>  bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select1(i));
         }
@@ -103,16 +104,16 @@ int32_t main() {
 
       // Test optimized for one queries without intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES, false>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::UseIntrinsics::NO> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select0(i));
         }
       }
       // Test optimized for zero queries without intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES, false>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::UseIntrinsics::NO> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select0(i));
         }
@@ -126,16 +127,16 @@ int32_t main() {
 
       // Test optimized for one queries with intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES, true>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::UseIntrinsics::YES> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select1(i));
         }
       }
       // Test optimized for zero queries with intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES, true>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::UseIntrinsics::YES> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select1(i));
         }
@@ -149,16 +150,16 @@ int32_t main() {
 
       // Test optimized for one queries with intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES, true>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::UseIntrinsics::YES> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select0(i));
         }
       }
       // Test optimized for zero queries with intrinsics
       {
-        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES, true>
-          bvrs(bv);
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::UseIntrinsics::YES> bvrs(bv);
         for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
           die_unequal(K * (i - 1), bvrs.select0(i));
         }

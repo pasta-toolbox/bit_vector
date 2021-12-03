@@ -42,7 +42,7 @@ namespace pasta {
     ONE_QUERIES,
     //! rank_0 and select_9 queries should be optimized.
     ZERO_QUERIES,
-  }; // enum class tune_for
+  }; // enum class OptimizedFor
 
   /*!
    * \brief Helper function indicating if queries should be optimized for one
@@ -60,6 +60,6 @@ namespace pasta {
   }
 
   //! \}
-}
+} // namespace pasta
 
 /******************************************************************************/

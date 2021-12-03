@@ -30,6 +30,8 @@
 
 #include <tlx/container/simple_vector.hpp>
 
+#include <utils/debug_asserts.hpp>
+
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
 #include "bit_vector/support/l12_type.hpp"
@@ -202,10 +204,14 @@ namespace pasta {
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
         __m128i cmp_value;
+        PASTA_ASSERT(rank <= std::numeric_limits<uint16_t>::max(),
+                     "Rank is too large. This should not occur because in this "
+                     "block the number of previous bits should reduce the "
+                     "local rank further.");
         if constexpr (optimize_one_or_dont_care(optimized_for)) {
-          cmp_value = _mm_set1_epi16(uint16_t{rank});
+          cmp_value = _mm_set1_epi16(rank);
         } else {
-          cmp_value = _mm_set1_epi16(uint16_t{rank - 1});
+          cmp_value = _mm_set1_epi16(rank - 1);
         }
         // We now have a 128 bit word, where all consecutive 16 bit words are
         // either 0 (if values is less equal) or 16_BIT_MAX (if values is
@@ -334,7 +340,11 @@ namespace pasta {
 
         // We want to compare the L2-values with the remaining number of bits
         // (rank) that are remaining
-        __m128i const cmp_value = _mm_set1_epi16(uint16_t{rank - 1});
+        PASTA_ASSERT(rank <= std::numeric_limits<uint16_t>::max(),
+                     "Rank is too large. This should not occur because in this "
+                     "block the number of previous bits should reduce the "
+                     "local rank further.");
+        __m128i const cmp_value = _mm_set1_epi16(rank - 1);
         // We now have a 128 bit word, where all consecutive 16 bit words are
         // either 0 (if values is less equal) or 16_BIT_MAX (if values is
         //greater than)

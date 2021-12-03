@@ -28,16 +28,16 @@ jobs:
         sudo apt-get install ninja-build gcovr
 
     - name: Configure CMake
-      run: cmake --preset=relwithdeb -DPASTA_BIT_VECTOR_BUILD_TESTS=On -DPASTA_BIT_VECTOR_COVERAGE_REPORTING=On
+      run: cmake --preset=debug -DPASTA_BIT_VECTOR_BUILD_TESTS=On -DPASTA_BIT_VECTOR_COVERAGE_REPORTING=On
       env:
         CC: gcc-10
         CXX: g++-10
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build_with_debug_info/
+      run: cmake --build ${{github.workspace}}/debug/
 
     - name: Test
-      run: ctest --test-dir ${{github.workspace}}/build_with_debug_info/
+      run: ctest --test-dir ${{github.workspace}}/debug/
 
     - name: Run gcovr
       run: |

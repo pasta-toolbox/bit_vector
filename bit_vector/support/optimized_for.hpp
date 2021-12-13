@@ -22,44 +22,44 @@
 
 namespace pasta {
 
-  //! \addtogroup pasta_bit_vectors
-  //! \{
+//! \addtogroup pasta_bit_vectors
+//! \{
 
-  /*!
-   * \brief Enum used to specify which queries the rank (and select) data
-   * structures should be optimized for.
-   *
-   * Throughout the rank and select data structures, we store information about
-   * the number of ones or zeros in 512 bit blocks. If we store the information
-   * for ones, the queries for zeros are more complicated and vice versa. This
-   * option allows to specify which query the data structure should be optimized
-   * for.
-   */
-  enum class OptimizedFor {
-    //! It does not matter (both types are called equally often).
-    DONT_CARE,
-    //! rank_1 and select_1 queries should be optimized.
-    ONE_QUERIES,
-    //! rank_0 and select_9 queries should be optimized.
-    ZERO_QUERIES,
-  }; // enum class OptimizedFor
+/*!
+ * \brief Enum used to specify which queries the rank (and select) data
+ * structures should be optimized for.
+ *
+ * Throughout the rank and select data structures, we store information about
+ * the number of ones or zeros in 512 bit blocks. If we store the information
+ * for ones, the queries for zeros are more complicated and vice versa. This
+ * option allows to specify which query the data structure should be optimized
+ * for.
+ */
+enum class OptimizedFor {
+  //! It does not matter (both types are called equally often).
+  DONT_CARE,
+  //! rank_1 and select_1 queries should be optimized.
+  ONE_QUERIES,
+  //! rank_0 and select_9 queries should be optimized.
+  ZERO_QUERIES,
+}; // enum class OptimizedFor
 
-  /*!
-   * \brief Helper function indicating if queries should be optimized for one
-   * queries or the caller does not care.
-   *
-   * \param optimized_for \ref OptimizedFor indicating for what type of queries
-   * the data structure should be optimized.
-   * \return \c true if the data structure should be optimized for one queries
-   * or the caller does not care for what queries the data structure is
-   * optimized for. \false otherwise.
-   */
-  constexpr bool optimize_one_or_dont_care(OptimizedFor const optimized_for) {
-    return ((optimized_for == OptimizedFor::DONT_CARE) ||
-            (optimized_for == OptimizedFor::ONE_QUERIES));
-  }
+/*!
+ * \brief Helper function indicating if queries should be optimized for one
+ * queries or the caller does not care.
+ *
+ * \param optimized_for \ref OptimizedFor indicating for what type of queries
+ * the data structure should be optimized.
+ * \return \c true if the data structure should be optimized for one queries
+ * or the caller does not care for what queries the data structure is
+ * optimized for. \false otherwise.
+ */
+constexpr bool optimize_one_or_dont_care(OptimizedFor const optimized_for) {
+  return ((optimized_for == OptimizedFor::DONT_CARE) ||
+          (optimized_for == OptimizedFor::ONE_QUERIES));
+}
 
-  //! \}
+//! \}
 } // namespace pasta
 
 /******************************************************************************/

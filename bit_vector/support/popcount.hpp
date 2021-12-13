@@ -26,45 +26,43 @@
 
 namespace pasta {
 
-  /*! \file */ 
-  
-  /*!
-   * \brief Compute popcount of a specific number of 64-bit words.
-   *
-   * Note that there are no bound checks.
-   *
-   * \tparam Words Number of 64-bit words the popcount is computed for.
-   * \param buffer Pointer to the beginning of the 64-bit words.
-   * \return Popcount of the \c Words * 64 bits starting at \c buffer.
-   */
-  template <size_t Words>
-  [[nodiscard]]
-  uint64_t popcount(uint64_t const * const buffer) {
-    uint64_t popcount = 0;
-    for (size_t i = 0; i < Words; ++i) {
-      popcount += std::popcount(buffer[i]);
-    }
-    return popcount;
-  }
+/*! \file */
 
-  /*!
-   * \brief Counts the number of zero bits in a specific number of 64-bit words.
-   *
-   * Note that there are no bound checks.
-   *
-   * \tparam Words Number of 64-bit words the zeros are counted in.
-   * \param buffer Pointer to the beginning of the 64-bit words.
-   * \return Number of zeros in the \c Words * 64 bits starting at \c buffer.
-   */
-  template <size_t Words>
-  [[nodiscard]]
-  uint64_t popcount_zeros(uint64_t const * const buffer) {
-    uint64_t popcount = 0;
-    for (size_t i = 0; i < Words; ++i) {
-      popcount += std::popcount(~buffer[i]);
-    }
-    return popcount;
+/*!
+ * \brief Compute popcount of a specific number of 64-bit words.
+ *
+ * Note that there are no bound checks.
+ *
+ * \tparam Words Number of 64-bit words the popcount is computed for.
+ * \param buffer Pointer to the beginning of the 64-bit words.
+ * \return Popcount of the \c Words * 64 bits starting at \c buffer.
+ */
+template <size_t Words>
+[[nodiscard]] uint64_t popcount(uint64_t const* const buffer) {
+  uint64_t popcount = 0;
+  for (size_t i = 0; i < Words; ++i) {
+    popcount += std::popcount(buffer[i]);
   }
+  return popcount;
+}
+
+/*!
+ * \brief Counts the number of zero bits in a specific number of 64-bit words.
+ *
+ * Note that there are no bound checks.
+ *
+ * \tparam Words Number of 64-bit words the zeros are counted in.
+ * \param buffer Pointer to the beginning of the 64-bit words.
+ * \return Number of zeros in the \c Words * 64 bits starting at \c buffer.
+ */
+template <size_t Words>
+[[nodiscard]] uint64_t popcount_zeros(uint64_t const* const buffer) {
+  uint64_t popcount = 0;
+  for (size_t i = 0; i < Words; ++i) {
+    popcount += std::popcount(~buffer[i]);
+  }
+  return popcount;
+}
 
 } // namespace pasta
 

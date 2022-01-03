@@ -184,6 +184,9 @@ private:
   friend class BitVectorFlatRank;
   //! Forward declaration.
   template <OptimizedFor o>
+  friend class BitVectorWideRank;
+  //! Forward declaration.
+  template <OptimizedFor o>
   friend class BitVectorRankSelect;
   //! Forward declaration.
   template <OptimizedFor o, UseIntrinsics i>

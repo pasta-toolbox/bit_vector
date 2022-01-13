@@ -254,7 +254,7 @@ public:
     }
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       rank -= (l2_pos > 0) ?
-                  (((l2_pos)*FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                  ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
                    l12[l1_pos][l2_pos - 1]) :
                   0;
     } else {
@@ -398,7 +398,7 @@ public:
       rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
     } else {
       rank -= (l2_pos > 0) ?
-                  (((l2_pos)*FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                  ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
                    l12[l1_pos][l2_pos - 1]) :
                   0;
     }

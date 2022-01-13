@@ -213,22 +213,17 @@ public:
       }
     }
 
-    size_t const last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-                            (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
-    size_t additional_words = 0;
+    size_t last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+                      (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
-    while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos +
-                                                additional_words)) < rank) {
-      ++additional_words;
+    while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos)) < rank) {
+      ++last_pos;
       rank -= popcount;
     }
 
-    return (PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-           (PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-           (additional_words * 64) +
-           pasta::select1_reverse(~data_[last_pos + additional_words],
-                                  popcount - rank + 1);
+    return (last_pos * 64) +
+           pasta::select1_reverse(~data_[last_pos], popcount - rank + 1);
   }
 
   /*!
@@ -304,22 +299,16 @@ public:
       }
     }
 
-    size_t const last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-                            (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
-    size_t additional_words = 0;
+    size_t last_pos = (PopcntRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+                      (PopcntRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
-    while ((popcount = pasta::popcount<1>(data_ + last_pos +
-                                          additional_words)) < rank) {
-      ++additional_words;
+    while ((popcount = pasta::popcount<1>(data_ + last_pos)) < rank) {
+      ++last_pos;
       rank -= popcount;
     }
-    return //(PopcntRankSelectConfig::L0_BIT_SIZE * l0_pos) +
-        (PopcntRankSelectConfig::L2_BIT_SIZE * l2_pos) +
-        (PopcntRankSelectConfig::L1_BIT_SIZE * l1_pos) +
-        (additional_words * 64) +
-        pasta::select1_reverse(data_[last_pos + additional_words],
-                               popcount - rank + 1);
+    return (last_pos * 64) +
+           pasta::select1_reverse(data_[last_pos], popcount - rank + 1);
   }
 
   /*!

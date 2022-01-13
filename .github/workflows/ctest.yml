@@ -1,9 +1,10 @@
 name: pasta::bit_vector CI
 
-workflow_run:
-  workflows: ["clang-format check"]
-  types:
-  - completed
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   build:
     strategy:

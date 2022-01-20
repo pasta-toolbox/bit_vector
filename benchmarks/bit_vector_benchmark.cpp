@@ -35,9 +35,8 @@
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
 #include "bit_vector/support/bit_vector_flat_rank_select.hpp"
 #include "bit_vector/support/optimized_for.hpp"
-#include "bit_vector/support/use_intrinsics.hpp"
+#include "bit_vector/support/find_l2_flat_with.hpp"
 #include "utils/do_not_optimize.hpp"
-// #include "util/git_commit.hpp"
 #include "utils/memory_monitor.hpp"
 #include "utils/timer.hpp"
 
@@ -54,18 +53,24 @@ public:
       pasta::BitVectorRankSelect<pasta::OptimizedFor::ONE_QUERIES>;
     using pasta_bv_rs_zero =
       pasta::BitVectorRankSelect<pasta::OptimizedFor::ZERO_QUERIES>;
-    using pasta_bv_flat_rs_one =
+    using pasta_bv_flat_rs_ls_one =
       pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::UseIntrinsics::NO>;
-    using pasta_bv_flat_rs_zero =
+                                     pasta::FindL2FlatWith::LINEAR_SEARCH>;
+    using pasta_bv_flat_rs_ls_zero =
       pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::UseIntrinsics::NO>;
-    using pasta_bv_flat_intr_rs_one =
+                                     pasta::FindL2FlatWith::LINEAR_SEARCH>;
+    using pasta_bv_flat_rs_bs_one =
       pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::UseIntrinsics::YES>;
-    using pasta_bv_flat_intr_rs_zero =
+                                     pasta::FindL2FlatWith::BINARY_SEARCH>;
+    using pasta_bv_flat_rs_bs_zero =
       pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::UseIntrinsics::YES>;
+                                     pasta::FindL2FlatWith::BINARY_SEARCH>;
+    using pasta_bv_flat_rs_i_one =
+      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                     pasta::FindL2FlatWith::INTRINSICS>;
+    using pasta_bv_flat_rs_i_zero =
+      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                     pasta::FindL2FlatWith::INTRINSICS>;
 
     die_verbose_unless(fill_percentage_ <= 100, "-f [--fill_percentage] must "
                        "be between 0 and 100 inclusive.");
@@ -76,12 +81,13 @@ public:
 
     run_pasta<pasta_bv_rs_one>("pasta_bv_rs_one", gen);
     run_pasta<pasta_bv_rs_zero>("pasta_bv_rs_zero", gen);
-    run_pasta<pasta_bv_flat_rs_one>("pasta_bv_rs_flat_one", gen);
-    run_pasta<pasta_bv_flat_rs_zero>("pasta_bv_flat_rs_zero", gen);
-    run_pasta<pasta_bv_flat_intr_rs_one>("pasta_bv_flat_intr_rs_one", gen);
-    run_pasta<pasta_bv_flat_intr_rs_zero>("pasta_bv_flat_intr_rs_zero", gen);
+    run_pasta<pasta_bv_flat_rs_ls_one>("pasta_bv_flat_rs_ls_one", gen);
+    run_pasta<pasta_bv_flat_rs_ls_zero>("pasta_bv_flat_rs_ls_zero", gen);
+    run_pasta<pasta_bv_flat_rs_bs_one>("pasta_bv_flat_rs_bs_one", gen);
+    run_pasta<pasta_bv_flat_rs_bs_zero>("pasta_bv_flat_rs_bs_zero", gen);
+    run_pasta<pasta_bv_flat_rs_i_one>("pasta_bv_flat_rs_i_one", gen);
+    run_pasta<pasta_bv_flat_rs_i_zero>("pasta_bv_flat_rs_i_zero", gen);
     run_sdsl(gen);
-
   }
 
   size_t bit_size_ = 1024*1024;

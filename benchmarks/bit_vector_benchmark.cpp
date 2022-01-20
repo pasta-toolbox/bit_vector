@@ -18,59 +18,56 @@
  *
  ******************************************************************************/
 
-#include <cstdint>
-#include <iostream>
-#include <random>
-
-#include <tlx/math/aggregate.hpp>
-#include <tlx/cmdline_parser.hpp>
-#include <tlx/die.hpp>
-#include <tlx/logger.hpp>
-
 #include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_rank.hpp"
-#include "bit_vector/support/bit_vector_rank_select.hpp"
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
 #include "bit_vector/support/bit_vector_flat_rank_select.hpp"
-#include "bit_vector/support/optimized_for.hpp"
+#include "bit_vector/support/bit_vector_rank.hpp"
+#include "bit_vector/support/bit_vector_rank_select.hpp"
 #include "bit_vector/support/find_l2_flat_with.hpp"
+#include "bit_vector/support/optimized_for.hpp"
 #include "utils/do_not_optimize.hpp"
 #include "utils/memory_monitor.hpp"
 #include "utils/timer.hpp"
 
-class BitVectorBenchmark {
+#include <cstdint>
+#include <iostream>
+#include <random>
+#include <tlx/cmdline_parser.hpp>
+#include <tlx/die.hpp>
+#include <tlx/logger.hpp>
+#include <tlx/math/aggregate.hpp>
 
+class BitVectorBenchmark {
   static constexpr bool debug = true;
   static constexpr auto LOG_PREFIX = "[BitVectorBenchmark] ";
 
 public:
-
   void run() {
-
     using pasta_bv_rs_one =
-      pasta::BitVectorRankSelect<pasta::OptimizedFor::ONE_QUERIES>;
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ONE_QUERIES>;
     using pasta_bv_rs_zero =
-      pasta::BitVectorRankSelect<pasta::OptimizedFor::ZERO_QUERIES>;
+        pasta::BitVectorRankSelect<pasta::OptimizedFor::ZERO_QUERIES>;
     using pasta_bv_flat_rs_ls_one =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2FlatWith::LINEAR_SEARCH>;
     using pasta_bv_flat_rs_ls_zero =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2FlatWith::LINEAR_SEARCH>;
     using pasta_bv_flat_rs_bs_one =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2FlatWith::BINARY_SEARCH>;
     using pasta_bv_flat_rs_bs_zero =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2FlatWith::BINARY_SEARCH>;
     using pasta_bv_flat_rs_i_one =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2FlatWith::INTRINSICS>;
     using pasta_bv_flat_rs_i_zero =
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>;
+        pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2FlatWith::INTRINSICS>;
 
-    die_verbose_unless(fill_percentage_ <= 100, "-f [--fill_percentage] must "
+    die_verbose_unless(fill_percentage_ <= 100,
+                       "-f [--fill_percentage] must "
                        "be between 0 and 100 inclusive.");
 
     std::random_device rd;
@@ -87,14 +84,13 @@ public:
     run_pasta<pasta_bv_flat_rs_i_zero>("pasta_bv_flat_rs_i_zero", gen);
   }
 
-  size_t bit_size_ = 1024*1024;
+  size_t bit_size_ = 1024 * 1024;
   uint32_t fill_percentage_ = 50;
   size_t query_count_ = 10000;
 
 private:
-
   template <typename RankSelectType>
-  void run_pasta(std::string_view const name, std::mt19937 randomness)    {
+  void run_pasta(std::string_view const name, std::mt19937 randomness) {
     LOG << LOG_PREFIX << "Creating PaStA bit vector";
 
     pasta::Timer timer;
@@ -155,47 +151,42 @@ private:
     mem_monitor.reset();
 
     for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
-      [[maybe_unused]]
-      size_t const result = bvrs.rank0(rank_positions[i]);
+      [[maybe_unused]] size_t const result = bvrs.rank0(rank_positions[i]);
       PASTA_DO_NOT_OPTIMIZE(result);
     }
     size_t const rank0_query_time = timer.get_and_reset();
-    for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
-         ++i) {
-      [[maybe_unused]]
-      size_t const result = bvrs.rank1(rank_positions[i]);
+    for (size_t i = rank_positions.size() / 2; i < rank_positions.size(); ++i) {
+      [[maybe_unused]] size_t const result = bvrs.rank1(rank_positions[i]);
       PASTA_DO_NOT_OPTIMIZE(result);
     }
     size_t const rank1_query_time = timer.get_and_reset();
 
     for (auto const pos : select0_positions) {
-      [[maybe_unused]]
-      size_t const result = bvrs.select0(pos);
+      [[maybe_unused]] size_t const result = bvrs.select0(pos);
       PASTA_DO_NOT_OPTIMIZE(result);
     }
     size_t const select0_query_time = timer.get_and_reset();
     for (auto const pos : select1_positions) {
-      [[maybe_unused]]
-      size_t const result = bvrs.select1(pos);
+      [[maybe_unused]] size_t const result = bvrs.select1(pos);
       PASTA_DO_NOT_OPTIMIZE(result);
     }
     size_t const select1_query_time = timer.get_and_reset();
     auto const rs_query_mem = mem_monitor.get_and_reset();
 
     LOG << LOG_PREFIX << "Query stats";
-    LOG << LOG_PREFIX << "Rank positions min/max/avg: "
-        << rank_query_properties.min() << " / "
-        << rank_query_properties.max() << " / "
+    LOG << LOG_PREFIX
+        << "Rank positions min/max/avg: " << rank_query_properties.min()
+        << " / " << rank_query_properties.max() << " / "
         << rank_query_properties.avg();
 
-    LOG << LOG_PREFIX << "Select0 rank min/max/avg: "
-        << select0_query_properties.min() << " / "
-        << select0_query_properties.max() << " / "
+    LOG << LOG_PREFIX
+        << "Select0 rank min/max/avg: " << select0_query_properties.min()
+        << " / " << select0_query_properties.max() << " / "
         << select0_query_properties.avg();
 
-    LOG << LOG_PREFIX << "Select1 rank min/max/avg: "
-        << select1_query_properties.min() << " / "
-        << select1_query_properties.max() << " / "
+    LOG << LOG_PREFIX
+        << "Select1 rank min/max/avg: " << select1_query_properties.min()
+        << " / " << select1_query_properties.max() << " / "
         << select1_query_properties.avg();
 
     LOG << LOG_PREFIX << "Finished PaStA bit vector benchmark";
@@ -224,7 +215,7 @@ private:
   }
 }; // class BitVectorBenchmark
 
-int32_t main(int32_t argc, char const * const argv[]) {
+int32_t main(int32_t argc, char const* const argv[]) {
   BitVectorBenchmark bvb;
 
   tlx::CmdlineParser cp;
@@ -232,13 +223,22 @@ int32_t main(int32_t argc, char const * const argv[]) {
   cp.set_description("Benchmark tool for PaStA's bit vector implementation.");
   cp.set_author("Florian Kurpicz <florian@kurpicz.org>");
 
-  cp.add_bytes('b', "bit_size", bvb.bit_size_, "Size of the bit vector in bits "
+  cp.add_bytes('b',
+               "bit_size",
+               bvb.bit_size_,
+               "Size of the bit vector in bits "
                "(accepts SI units, default 1024^2.");
 
-  cp.add_uint('f', "fill_percentage", bvb.fill_percentage_, "Percentage of set "
+  cp.add_uint('f',
+              "fill_percentage",
+              bvb.fill_percentage_,
+              "Percentage of set "
               "bits in the bit vector (default 50%).");
 
-  cp.add_bytes('q', "query_count", bvb.query_count_, "Number of rank and select"
+  cp.add_bytes('q',
+               "query_count",
+               bvb.query_count_,
+               "Number of rank and select"
                " queries (accepts SI units, default is 10000)");
 
   if (!cp.process(argc, argv)) {

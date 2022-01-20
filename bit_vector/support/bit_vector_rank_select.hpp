@@ -76,7 +76,7 @@ class BitVectorRankSelect {
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
 
   //! Rank structure (requires a strict subset of data structures of select).
-  BitVectorRank<optimized_for> rank_;
+  BitVectorRank<optimized_for> const rank_;
 
   //! Size of the bit vector the select support is constructed for.
   size_t data_size_;
@@ -125,7 +125,7 @@ public:
    * \param index Index the rank of zeros is computed for.
    * \return Numbers of zeros (rank) before position \c index.
    */
-  [[nodiscard("rank0 computed but not used")]] size_t
+  [[nodiscard("rank0 computed but not used")]] inline size_t
   rank0(size_t const index) const {
     return rank_.rank0(index);
   }
@@ -135,7 +135,7 @@ public:
    * \param index Index the rank of ones is computed for.
    * \return Numbers of ones (rank) before position \c index.
    */
-  [[nodiscard("rank1 computed but not used")]] size_t
+  [[nodiscard("rank1 computed but not used")]] inline size_t
   rank1(size_t const index) const {
     return rank_.rank1(index);
   }
@@ -199,17 +199,25 @@ public:
       rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
               (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
 
-      while (l2_pos < 3 &&
-             PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos] < rank) {
-        rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
+      auto l2 = l12[l1_pos].l2_values;
+      while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
+                                   (l2 & uint16_t(0b1111111111)) <
+                               rank) {
+        rank -=
+            PopcntRankSelectConfig::L2_BIT_SIZE - (l2 & uint16_t(0b1111111111));
+        l2 >>= 10;
+        ++l2_pos;
       }
     } else {
       while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
         ++l1_pos;
       }
       rank -= l12[l1_pos].l1;
-      while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
-        rank -= l12[l1_pos][l2_pos++];
+      auto l2 = l12[l1_pos].l2_values;
+      while (l2_pos < 3 && (l2 & uint16_t(0b1111111111)) < rank) {
+        rank -= (l2 & uint16_t(0b1111111111));
+        l2 >>= 10;
+        ++l2_pos;
       }
     }
 
@@ -222,8 +230,7 @@ public:
       rank -= popcount;
     }
 
-    return (last_pos * 64) +
-           pasta::select1_reverse(~data_[last_pos], popcount - rank + 1);
+    return (last_pos * 64) + select(~data_[last_pos], rank - 1);
   }
 
   /*!
@@ -280,8 +287,11 @@ public:
         ++l1_pos;
       }
       rank -= l12[l1_pos].l1;
-      while (l2_pos < 3 && l12[l1_pos][l2_pos] < rank) {
-        rank -= l12[l1_pos][l2_pos++];
+      auto l2 = l12[l1_pos].l2_values;
+      while (l2_pos < 3 && (l2 & uint16_t(0b1111111111)) < rank) {
+        rank -= (l2 & uint16_t(0b1111111111));
+        l2 >>= 10;
+        ++l2_pos;
       }
     } else {
       while (l1_pos < l0_block_end &&
@@ -293,9 +303,14 @@ public:
       rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
               (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
 
-      while (l2_pos < 3 &&
-             PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos] < rank) {
-        rank -= PopcntRankSelectConfig::L2_BIT_SIZE - l12[l1_pos][l2_pos++];
+      auto l2 = l12[l1_pos].l2_values;
+      while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
+                                   (l2 & uint16_t(0b1111111111)) <
+                               rank) {
+        rank -=
+            PopcntRankSelectConfig::L2_BIT_SIZE - (l2 & uint16_t(0b1111111111));
+        l2 >>= 10;
+        ++l2_pos;
       }
     }
 
@@ -307,8 +322,7 @@ public:
       ++last_pos;
       rank -= popcount;
     }
-    return (last_pos * 64) +
-           pasta::select1_reverse(data_[last_pos], popcount - rank + 1);
+    return (last_pos * 64) + select(data_[last_pos], rank - 1);
   }
 
   /*!

@@ -24,7 +24,7 @@
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
-#include "bit_vector/support/use_intrinsics.hpp"
+#include "bit_vector/support/find_l2_flat_with.hpp"
 
 #include <numeric>
 #include <utils/debug_asserts.hpp>
@@ -76,7 +76,7 @@ struct FlattenedRankSelectConfig {
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
 class BitVectorFlatRank {
   //! Friend class, using internal information l12_.
-  template <OptimizedFor o, UseIntrinsics i>
+  template <OptimizedFor o, FindL2FlatWith f>
   friend class BitVectorFlatRankSelect;
 
   //! Size of the bit vector the rank support is constructed for.

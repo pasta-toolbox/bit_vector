@@ -22,11 +22,11 @@
 
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_flat_rank.hpp"
+#include "bit_vector/support/find_l2_flat_with.hpp"
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
 #include "bit_vector/support/select.hpp"
-#include "bit_vector/support/use_intrinsics.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -62,7 +62,7 @@ namespace pasta {
  * \c false.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
-          UseIntrinsics use_intrinsics = UseIntrinsics::NO>
+          FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH>
 class BitVectorFlatRankSelect {
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
@@ -160,7 +160,7 @@ public:
     }
 
     size_t l2_pos = 0;
-    if constexpr (use_intrinsics_functions(use_intrinsics)) {
+    if constexpr (use_intrinsics(find_with)) {
       __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
@@ -211,8 +211,6 @@ public:
         // 16 bit max!
         value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
       }
-
-      // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
 
       // We want to compare the L2-values with the remaining number of bits
       // (rank) that are remaining
@@ -231,47 +229,161 @@ public:
       // greater than)
       __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
 
-      // As the values we are comparing with are monotonically increasing, we
-      // do not have to check if values in the lower_result are 0 while not
-      // all in upper_result are not (e.b., 00FF|0FF0, where the left half is
-      // lower_result). This corner case cannot occur.
-      uint64_t const upper_result = _mm_extract_epi64(cmp_result, 0);
-      uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
-      l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16);
-    } else {
+      // Obtain the most significant bit of each 8 bit word in the
+      // result of the comparison. Note that the 16 MSBs will be 0.
+      // Within the other 16 bits, we have 2 zero bits for each
+      // element that is less than the rank.
+      uint32_t const result = _mm_movemask_epi8(cmp_result);
+
+      // Compute the number of entries that are less than the rank
+      // based on the movemask-operation above.
+      l2_pos = (16 - std::popcount(result)) / 2;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while (l2_pos < 7 &&
-               (l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
-                       l12[l1_pos][l2_pos] <
-                   rank) {
+        rank -= ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                 l12[l1_pos][l2_pos]);
+      } else {
+        rank -= l12[l1_pos][l2_pos];
+      }
+    } else if constexpr (use_linear_search(find_with)) {
+      auto tmp = l12[l1_pos].data >> 32;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while ((l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                       ((tmp >> 12) & uint16_t(0b111111111111)) <
+                   rank &&
+               l2_pos < 7) {
+          tmp >>= 12;
           ++l2_pos;
         }
       } else {
-        while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
+        while (((tmp >> 12) & uint16_t(0b111111111111)) < rank && l2_pos < 7) {
+          tmp >>= 12;
           ++l2_pos;
         }
       }
-    }
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      rank -= (l2_pos > 0) ?
-                  ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
-                   l12[l1_pos][l2_pos - 1]) :
-                  0;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        rank -= (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                (tmp & uint16_t(0b111111111111));
+      } else {
+        rank -= (tmp & uint16_t(0b111111111111));
+      }
+    } else if (use_binary_search(find_with)) {
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        auto tmp = l12[l1_pos].data >> 44;
+        if (uint16_t const mid =
+                (3 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                ((tmp >> 36) & uint16_t(0b111111111111));
+            mid < rank) {
+          if (uint16_t const right =
+                  (5 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  ((tmp >> 60) & uint16_t(0b111111111111));
+              right < rank) {
+            if (uint16_t const leaf =
+                    (6 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 72) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 7;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 6;
+              rank -= (right - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          } else {
+            if (uint16_t const leaf =
+                    (4 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 48) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 5;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 4;
+              rank -= (mid - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          }
+        } else {
+          if (uint16_t const left =
+                  (1 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  ((tmp >> 12) & uint16_t(0b111111111111));
+              left < rank) {
+            if (uint16_t const leaf =
+                    (2 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 24) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 3;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 2;
+              rank -= (left - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          } else {
+            if (uint16_t const leaf =
+                    (0 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (tmp & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 1;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          }
+        }
+      } else {
+        auto tmp = l12[l1_pos].data >> 44;
+        if (uint16_t const mid = ((tmp >> 36) & uint16_t(0b111111111111));
+            mid < rank) {
+          if (uint16_t const right = ((tmp >> 60) & uint16_t(0b111111111111));
+              right < rank) {
+            if (uint16_t const leaf = ((tmp >> 72) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 7;
+              rank -= leaf;
+            } else {
+              l2_pos = 6;
+              rank -= right;
+            }
+          } else {
+            if (uint16_t const leaf = ((tmp >> 48) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 5;
+              rank -= leaf;
+            } else {
+              l2_pos = 4;
+              rank -= mid;
+            }
+          }
+        } else {
+          if (uint16_t const left = ((tmp >> 12) & uint16_t(0b111111111111));
+              left < rank) {
+            if (uint16_t const leaf = ((tmp >> 24) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 3;
+              rank -= leaf;
+            } else {
+              l2_pos = 2;
+              rank -= left;
+            }
+          } else {
+            if (uint16_t const leaf = (tmp & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 1;
+              rank -= leaf;
+            }
+          }
+        }
+      }
     } else {
-      rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
+      static_assert(use_linear_search(find_with) ||
+                        use_binary_search(find_with) ||
+                        use_intrinsics(find_with),
+                    "Using unsupported search method for l2 entries");
     }
 
     size_t last_pos = (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
                       (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
-    while ((popcount = popcount_zeros<1>(data_ + last_pos)) < rank) {
+    while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos)) < rank) {
       ++last_pos;
       rank -= popcount;
     }
-
-    return (last_pos * 64) +
-           select1_reverse(~data_[last_pos], popcount - rank + 1);
+    return (last_pos * 64) + select(~data_[last_pos], rank - 1);
   }
 
   /*!
@@ -282,20 +394,23 @@ public:
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
     Array<BigL12Type> const& l12 = rank_.l12_;
+    Array<uint64_t> const& l0 = rank_.l0_;
     size_t const l12_end = l12.size();
 
     size_t const sample_pos =
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = (sample_pos >= samples1_.size()) ? samples1_.back() :
                                                        samples1_[sample_pos];
-    l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
-              FlattenedRankSelectConfig::L1_BIT_SIZE;
-
+    // std::cout << "b: l1_pos " << l1_pos << '\n';
+    //  l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
+    //            FlattenedRankSelectConfig::L1_BIT_SIZE;
+    // std::cout << "a: l1_pos " << l1_pos << '\n';
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
+      while (l12[l1_pos + 1].l1() < rank && (l1_pos + 1) < l12_end) {
         ++l1_pos;
       }
-      rank -= l12[l1_pos].l1();
+      // std::cout << "f: l1_pos " << l1_pos << '\n';
+      rank -= (l12[l1_pos].l1() + l0[l1_pos >> 20]);
     } else {
       while (l1_pos + 1 < l12_end &&
              ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
@@ -307,7 +422,7 @@ public:
           (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) - l12[l1_pos].l1();
     }
     size_t l2_pos = 0;
-    if constexpr (use_intrinsics_functions(use_intrinsics)) {
+    if constexpr (use_intrinsics(find_with)) {
       __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
@@ -359,8 +474,6 @@ public:
         value = _mm_sub_epi16(max_ones, value);
       }
 
-      // TODO DEBUG ASSERT RANK IS SMALL ENOUGH
-
       // We want to compare the L2-values with the remaining number of bits
       // (rank) that are remaining
       PASTA_ASSERT(rank <= std::numeric_limits<uint16_t>::max(),
@@ -373,34 +486,147 @@ public:
       // greater than)
       __m128i cmp_result = _mm_cmpgt_epi16(value, cmp_value);
 
-      // As the values we are comparing with are monotonically increasing, we
-      // do not have to check if values in the lower_result are 0 while not
-      // all in upper_result are not (e.b., 00FF|0FF0, where the left half is
-      // lower_result). This corner case cannot occur.
-      uint64_t const upper_result = _mm_extract_epi64(cmp_result, 0);
-      uint64_t const lower_result = _mm_extract_epi64(cmp_result, 1);
-      l2_pos = ((_lzcnt_u64(upper_result) + _lzcnt_u64(lower_result)) / 16);
-    } else {
+      // Obtain the most significant bit of each 8 bit word in the
+      // result of the comparison. Note that the 16 MSBs will be 0.
+      // Within the other 16 bits, we have 2 zero bits for each
+      // element that is less than the rank.
+      uint32_t const result = _mm_movemask_epi8(cmp_result);
+
+      // Compute the number of entries that are less than the rank
+      // based on the movemask-operation above.
+      l2_pos = (16 - std::popcount(result)) / 2;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while (l2_pos < 7 && l12[l1_pos][l2_pos] < rank) {
+        rank -= l12[l1_pos][l2_pos];
+      } else {
+        rank -= ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                 l12[l1_pos][l2_pos]);
+      }
+    } else if constexpr (use_linear_search(find_with)) {
+      auto tmp = l12[l1_pos].data >> 32;
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        while (((tmp >> 12) & uint16_t(0b111111111111)) < rank && l2_pos < 7) {
+          tmp >>= 12;
           ++l2_pos;
+        }
+        rank -= (tmp & uint16_t(0b111111111111));
+      } else {
+        while ((l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                       ((tmp >> 12) & uint16_t(0b111111111111)) <
+                   rank &&
+               l2_pos < 7) {
+          tmp >>= 12;
+          ++l2_pos;
+        }
+        rank -= (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+                (tmp & uint16_t(0b111111111111));
+      }
+    } else if constexpr (use_binary_search(find_with)) {
+      if constexpr (optimize_one_or_dont_care(optimized_for)) {
+        auto tmp = l12[l1_pos].data >> 44;
+        if (uint16_t const mid = ((tmp >> 36) & uint16_t(0b111111111111));
+            mid < rank) {
+          if (uint16_t const right = ((tmp >> 60) & uint16_t(0b111111111111));
+              right < rank) {
+            if (uint16_t const leaf = ((tmp >> 72) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 7;
+              rank -= leaf;
+            } else {
+              l2_pos = 6;
+              rank -= right;
+            }
+          } else {
+            if (uint16_t const leaf = ((tmp >> 48) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 5;
+              rank -= leaf;
+            } else {
+              l2_pos = 4;
+              rank -= mid;
+            }
+          }
+        } else {
+          if (uint16_t const left = ((tmp >> 12) & uint16_t(0b111111111111));
+              left < rank) {
+            if (uint16_t const leaf = ((tmp >> 24) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 3;
+              rank -= leaf;
+            } else {
+              l2_pos = 2;
+              rank -= left;
+            }
+          } else {
+            if (uint16_t const leaf = (tmp & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 1;
+              rank -= leaf;
+            }
+          }
         }
       } else {
-        while (l2_pos < 7 &&
-               (l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
-                       l12[l1_pos][l2_pos] <
-                   rank) {
-          ++l2_pos;
+        auto tmp = l12[l1_pos].data >> 44;
+        if (uint16_t const mid =
+                (3 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                ((tmp >> 36) & uint16_t(0b111111111111));
+            mid < rank) {
+          if (uint16_t const right =
+                  (5 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  ((tmp >> 60) & uint16_t(0b111111111111));
+              right < rank) {
+            if (uint16_t const leaf =
+                    (6 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 72) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 7;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 6;
+              rank -= (right - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          } else {
+            if (uint16_t const leaf =
+                    (4 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 48) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 5;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 4;
+              rank -= (mid - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          }
+        } else {
+          if (uint16_t const left =
+                  (1 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  ((tmp >> 12) & uint16_t(0b111111111111));
+              left < rank) {
+            if (uint16_t const leaf =
+                    (2 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    ((tmp >> 24) & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 3;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            } else {
+              l2_pos = 2;
+              rank -= (left - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          } else {
+            if (uint16_t const leaf =
+                    (0 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (tmp & uint16_t(0b111111111111));
+                leaf < rank) {
+              l2_pos = 1;
+              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+            }
+          }
         }
       }
-    }
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      rank -= (l2_pos > 0) ? l12[l1_pos][l2_pos - 1] : 0;
     } else {
-      rank -= (l2_pos > 0) ?
-                  ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
-                   l12[l1_pos][l2_pos - 1]) :
-                  0;
+      static_assert(use_linear_search(find_with) ||
+                        use_binary_search(find_with) ||
+                        use_intrinsics(find_with),
+                    "Using unsupported search method for l2 entries");
     }
 
     size_t last_pos = (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
@@ -411,8 +637,7 @@ public:
       ++last_pos;
       rank -= popcount;
     }
-    return (last_pos * 64) +
-           select1_reverse(data_[last_pos], popcount - rank + 1);
+    return (last_pos * 64) + select(data_[last_pos], rank - 1);
   }
 
   /*!

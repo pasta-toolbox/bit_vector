@@ -20,8 +20,8 @@
 
 #pragma once
 
+#include "bit_vector/support/find_l2_flat_with.hpp"
 #include "bit_vector/support/optimized_for.hpp"
-#include "bit_vector/support/use_intrinsics.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -189,7 +189,7 @@ private:
   template <OptimizedFor o>
   friend class BitVectorRankSelect;
   //! Forward declaration.
-  template <OptimizedFor o, UseIntrinsics i>
+  template <OptimizedFor o, FindL2FlatWith f>
   friend class BitVectorFlatRankSelect;
 
   //! Size of the bit vector in bits.
@@ -288,7 +288,7 @@ public:
    * \param size Number of bits the bit vector contains.
    */
   BitVector(size_t const size) noexcept
-      : bit_size_(size),
+      : bit_size_(size + 512),
         size_((bit_size_ >> 6) + 1),
         data_(size_),
         raw_data_(data_.data()) {}

@@ -33,7 +33,6 @@ endmacro(pasta_build_test)
 pasta_build_test(bit_vector/bit_vector_test)
 pasta_build_test(bit_vector/support/bit_vector_rank_test)
 pasta_build_test(bit_vector/support/bit_vector_flat_rank_test)
-pasta_build_test(bit_vector/support/bit_vector_wide_rank_test)
 pasta_build_test(bit_vector/support/bit_vector_rank_select_test)
 pasta_build_test(bit_vector/support/bit_vector_flat_rank_select_test)
 

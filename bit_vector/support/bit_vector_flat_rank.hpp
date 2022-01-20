@@ -113,7 +113,6 @@ public:
    */
   [[nodiscard("rank0 computed but not used")]] size_t
   rank0(size_t index) const {
-    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
     return index - rank1(index);
   }
 
@@ -124,7 +123,6 @@ public:
    */
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
-    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
     size_t offset = ((index / 512) * 8);
     __builtin_prefetch(&data_[offset], 0, 0);
     size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;

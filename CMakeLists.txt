@@ -76,24 +76,14 @@ endif()
 # Optional benchmarks
 
 if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
-  find_library(SDSL_LIBRARY sdsl
-    PATHS ${SDSL_DIR})
+  add_executable(bit_vector_benchmark
+    benchmarks/bit_vector_benchmark.cpp)
 
-  if(SDSL_LIBRARY)
-    add_executable(bit_vector_benchmark
-      benchmarks/bit_vector_benchmark.cpp)
-
-    target_link_libraries(bit_vector_benchmark PUBLIC
-      pasta_bit_vector
-      tlx
-      sdsl
-      pasta_utils
-      pasta_memory_monitor)
-  else()
-    message(SEND_ERROR
-      "SDSL-lite not found, please install the library or disable the\
-       benchmark construction")
-  endif()
+  target_link_libraries(bit_vector_benchmark PUBLIC
+    pasta_bit_vector
+    tlx
+    pasta_utils
+    pasta_memory_monitor)
 endif()
 
 ################################################################################

@@ -27,8 +27,6 @@
 #include <tlx/die.hpp>
 #include <tlx/logger.hpp>
 
-#include <sdsl/bit_vectors.hpp>
-
 #include "bit_vector/bit_vector.hpp"
 #include "bit_vector/support/bit_vector_rank.hpp"
 #include "bit_vector/support/bit_vector_rank_select.hpp"
@@ -87,7 +85,6 @@ public:
     run_pasta<pasta_bv_flat_rs_bs_zero>("pasta_bv_flat_rs_bs_zero", gen);
     run_pasta<pasta_bv_flat_rs_i_one>("pasta_bv_flat_rs_i_one", gen);
     run_pasta<pasta_bv_flat_rs_i_zero>("pasta_bv_flat_rs_i_zero", gen);
-    run_sdsl(gen);
   }
 
   size_t bit_size_ = 1024*1024;
@@ -225,140 +222,6 @@ private:
               << "rs_query_mem=" << rs_query_mem.cur_peak << " "
               << "\n";
   }
-
-  void run_sdsl(std::mt19937 randomness) {
-    LOG << LOG_PREFIX << "Creating SDLS bit vector";
-
-    pasta::Timer timer;
-    pasta::MemoryMonitor& mem_monitor = pasta::MemoryMonitor::instance();
-    mem_monitor.reset();
-    sdsl::bit_vector bv(bit_size_, 0);
-
-    size_t const bv_construction_time = timer.get_and_reset();
-    auto const bv_construction_mem = mem_monitor.get_and_reset();
-
-    LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
-    std::uniform_int_distribution<> bit_dist(0, 99);
-    for (size_t i = 0; i < bit_size_; ++i) {
-      bv[i] = (static_cast<uint32_t>(bit_dist(randomness)) < fill_percentage_);
-    }
-
-    size_t const bv_set_bits_time = timer.get_and_reset();
-    auto const bv_set_bits_mem = mem_monitor.get_and_reset();
-
-    sdsl::bit_vector::select_0_type bvs0(&bv);
-    sdsl::bit_vector::select_1_type bvs1(&bv);
-
-    sdsl::bit_vector::rank_0_type bvr0(&bv);
-    sdsl::bit_vector::rank_1_type bvr1(&bv);
-
-    size_t const rs_construction_time = timer.get_and_reset();
-    LOG << LOG_PREFIX << "Preparing queries";
-    timer.reset();
-    auto const rs_construction_mem = mem_monitor.get_and_reset();
-
-    std::uniform_int_distribution<> rank_dist(0, bit_size_ - 1);
-    std::vector<size_t> rank_positions(query_count_);
-
-    tlx::Aggregate<size_t> rank_query_properties;
-    for (auto& pos : rank_positions) {
-      pos = rank_dist(randomness);
-      rank_query_properties.add(pos);
-    }
-
-    size_t const zero_bits = bvr0.rank(bit_size_);
-    size_t const one_bits = bvr1.rank(bit_size_);
-
-    std::vector<size_t> select0_positions(query_count_ / 2);
-    std::vector<size_t> select1_positions(query_count_ / 2 +
-                                          ((query_count_ % 2 == 0) ? 0 : 1));
-    std::uniform_int_distribution<> select0_dist(1, zero_bits);
-    std::uniform_int_distribution<> select1_dist(1, one_bits);
-
-    tlx::Aggregate<size_t> select0_query_properties;
-    tlx::Aggregate<size_t> select1_query_properties;
-    for (auto& pos : select0_positions) {
-      pos = select0_dist(randomness);
-      select0_query_properties.add(pos);
-    }
-    for (auto& pos : select1_positions) {
-      pos = select1_dist(randomness);
-      select1_query_properties.add(pos);
-    }
-
-    LOG << LOG_PREFIX << "Benchmarking queries";
-    timer.reset();
-    mem_monitor.reset();
-
-    for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
-      [[maybe_unused]]
-      size_t const result = bvr0.rank(rank_positions[i]);
-      PASTA_DO_NOT_OPTIMIZE(result);
-    }
-    size_t const rank0_query_time = timer.get_and_reset();
-    for (size_t i = rank_positions.size() / 2; i < rank_positions.size();
-         ++i) {
-      [[maybe_unused]]
-      size_t const result = bvr1.rank(rank_positions[i]);
-      PASTA_DO_NOT_OPTIMIZE(result);
-    }
-    size_t const rank1_query_time = timer.get_and_reset();
-
-    for (auto const pos : select0_positions) {
-      [[maybe_unused]]
-      size_t const result = bvs0.select(pos);
-      PASTA_DO_NOT_OPTIMIZE(result);
-    }
-    size_t const select0_query_time = timer.get_and_reset();
-    for (auto const pos : select1_positions) {
-      [[maybe_unused]]
-      size_t const result = bvs1.select(pos);
-      PASTA_DO_NOT_OPTIMIZE(result);
-    }
-    size_t const select1_query_time = timer.get_and_reset();
-    auto const rs_query_mem = mem_monitor.get_and_reset();
-
-    LOG << LOG_PREFIX << "Query stats";
-    LOG << LOG_PREFIX << "Rank positions min/max/avg:"
-        << rank_query_properties.min() << " / "
-        << rank_query_properties.max() << " / "
-        << rank_query_properties.avg();
-
-    LOG << LOG_PREFIX << "Select0 rank min/max/avg:"
-        << select0_query_properties.min() << " / "
-        << select0_query_properties.max() << " / "
-        << select0_query_properties.avg();
-
-    LOG << LOG_PREFIX << "Select1 rank min/max/avg:"
-        << select1_query_properties.min() << " / "
-        << select1_query_properties.max() << " / "
-        << select1_query_properties.avg();
-
-    LOG << LOG_PREFIX << "Finished SDSL bit vector benchmark";
-
-    std::cout << "RESULT "
-              << "algo=sdsl_bv_uncompressed "
-              << "bit_size=" << bit_size_ << " "
-              << "fill_percentage=" << fill_percentage_ << " "
-              << "bv_construction_time=" << bv_construction_time << " "
-              << "bv_construction_mem=" << bv_construction_mem.cur_peak << " "
-              << "bv_set_bits_time=" << bv_set_bits_time << " "
-              << "bv_set_bits_mem=" << bv_set_bits_mem.cur_peak << " "
-              << "rs_construction_time=" << rs_construction_time << " "
-              << "rs_construction_mem=" << rs_construction_mem.cur_peak << " "
-              << "query_count=" << query_count_ << " "
-              << "rank0_query_time=" << rank0_query_time << " "
-              << "rank1_query_time=" << rank1_query_time << " "
-              << "rank_query_time="
-              << (rank0_query_time + rank1_query_time) << " "
-              << "select0_query_time=" << select0_query_time << " "
-              << "select1_query_time=" << select1_query_time << " "
-              << "select_query_time="
-              << (select0_query_time + select1_query_time) << " "
-              << "rs_query_mem=" << rs_query_mem.cur_peak << " "
-              << "\n";
-  }
-
 }; // class BitVectorBenchmark
 
 int32_t main(int32_t argc, char const * const argv[]) {

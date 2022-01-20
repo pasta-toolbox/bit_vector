@@ -163,9 +163,10 @@ public:
     size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
     __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
-      PopcntRankSelectConfig::L2_BIT_SIZE;
-    size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
-      l12_[l1_pos].l1;;
+                          PopcntRankSelectConfig::L2_BIT_SIZE;
+    size_t result =
+        l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] + l12_[l1_pos].l1;
+    ;
 
     auto l2 = l12_[l1_pos].l2_values;
     for (size_t i = 0; i < l2_pos; ++i) {
@@ -180,7 +181,8 @@ public:
     // the computation below.
     if constexpr (!optimize_one_or_dont_care(optimized_for)) {
       result = ((l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) +
-                (l2_pos * PopcntRankSelectConfig::L2_BIT_SIZE)) - result;
+                (l2_pos * PopcntRankSelectConfig::L2_BIT_SIZE)) -
+               result;
     }
     index %= PopcntRankSelectConfig::L2_BIT_SIZE;
     PASTA_ASSERT(index < 512,

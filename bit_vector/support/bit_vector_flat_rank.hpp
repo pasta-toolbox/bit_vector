@@ -21,10 +21,10 @@
 #pragma once
 
 #include "bit_vector/bit_vector.hpp"
+#include "bit_vector/support/find_l2_flat_with.hpp"
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
-#include "bit_vector/support/find_l2_flat_with.hpp"
 
 #include <numeric>
 #include <utils/debug_asserts.hpp>
@@ -42,7 +42,7 @@ struct FlattenedRankSelectConfig {
   static constexpr size_t L1_BIT_SIZE = 8 * L2_BIT_SIZE;
   //! Bits covered by an L0-block.
   static constexpr size_t L0_BIT_SIZE =
-    static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) + 1;
+      static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) + 1;
 
   //! Number of 64-bit words covered by an L2-block.
   static constexpr size_t L2_WORD_SIZE = L2_BIT_SIZE / (sizeof(uint64_t) * 8);
@@ -132,7 +132,7 @@ public:
     size_t const l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
                            FlattenedRankSelectConfig::L2_BIT_SIZE);
     size_t result = l0_[index / FlattenedRankSelectConfig::L0_BIT_SIZE] +
-      l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
+                    l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
 
     // It is faster to not have a specialized rank0 function when
     // optimized for zero queries, because there is no popcount for
@@ -141,9 +141,10 @@ public:
     // the computation below.
     if constexpr (!optimize_one_or_dont_care(optimized_for)) {
       result = ((l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) +
-                (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE)) - result;
+                (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE)) -
+               result;
     }
-    
+
     index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
     PASTA_ASSERT(index < 512,
                  "Trying to access bits that should be "

@@ -35,7 +35,7 @@ void run_test(TestFunction test_config) {
         continue;
       }
       for (size_t k = 0; k <= 4; ++k) {
-        size_t const set_every_kth = 1ULL << k;
+        size_t const set_every_kth = 1 + (1ULL << k);
         if (k < n) { // if k > n this testing doesn't make any sense
           test_config(vector_size, set_every_kth);
         }

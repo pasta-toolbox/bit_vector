@@ -144,40 +144,10 @@ public:
    * \param index Index the rank of zeros is computed for.
    * \return Number of zeros (rank) before position \c index.
    */
-  [[nodiscard("rank0 computed but not used")]] size_t
+  [[nodiscard("rank0 computed but not used")]] inline size_t
   rank0(size_t index) const {
     PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      return index - rank1(index);
-    } else {
-      size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
-                            PopcntRankSelectConfig::L2_BIT_SIZE;
-      size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
-                      (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
-
-      size_t result =
-          l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] + l12_[l1_pos].l1;
-
-      for (size_t i = 0; i < l2_pos; ++i) {
-        result += l12_[l1_pos][i];
-      }
-
-      index %= PopcntRankSelectConfig::L2_BIT_SIZE;
-      PASTA_ASSERT(index < 512,
-                   "Trying to access bits that should be "
-                   "covered in an L1-block");
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(~data_[offset++]);
-      }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = (~data_[offset]) << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
-    }
+    return index - rank1(index);
   }
 
   /*!
@@ -185,40 +155,45 @@ public:
    * \param index Index the rank of ones is computed for.
    * \return Numbers of ones (rank) before position \c index.
    */
-  [[nodiscard("rank1 computed but not used")]] size_t
+  [[nodiscard("rank1 computed but not used")]] inline size_t
   rank1(size_t index) const {
     PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
-                            PopcntRankSelectConfig::L2_BIT_SIZE;
-      size_t offset = (l1_pos * PopcntRankSelectConfig::L1_WORD_SIZE) +
-                      (l2_pos * PopcntRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
+    size_t offset = ((index / 512) * 8);
+    __builtin_prefetch(&data_[offset], 0, 0);
+    size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
+    __builtin_prefetch(&l12_[l1_pos], 0, 0);
+    size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
+      PopcntRankSelectConfig::L2_BIT_SIZE;
+    size_t result = l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] +
+      l12_[l1_pos].l1;;
 
-      size_t result =
-          l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] + l12_[l1_pos].l1;
-
-      for (size_t i = 0; i < l2_pos; ++i) {
-        result += l12_[l1_pos][i];
-      }
-
-      index %= PopcntRankSelectConfig::L2_BIT_SIZE;
-      PASTA_ASSERT(index < 512,
-                   "Trying to access bits that should be "
-                   "covered in an L1-block");
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(data_[offset++]);
-      }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = data_[offset] << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
-    } else {
-      return index - rank0(index);
+    auto l2 = l12_[l1_pos].l2_values;
+    for (size_t i = 0; i < l2_pos; ++i) {
+      result += (l2 & uint16_t(0b1111111111));
+      l2 >>= 10;
     }
+
+    // It is faster to not have a specialized rank0 function when
+    // optimized for zero queries, because there is no popcount for
+    // zero equivalent and for all popcounts in this code, the words
+    // would have to be bit-wise negated, which is more expensive than
+    // the computation below.
+    if constexpr (!optimize_one_or_dont_care(optimized_for)) {
+      result = ((l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) +
+                (l2_pos * PopcntRankSelectConfig::L2_BIT_SIZE)) - result;
+    }
+    index %= PopcntRankSelectConfig::L2_BIT_SIZE;
+    PASTA_ASSERT(index < 512,
+                 "Trying to access bits that should be "
+                 "covered in an L1-block");
+    for (size_t i = 0; i < index / 64; ++i) {
+      result += std::popcount(data_[offset++]);
+    }
+    if (index %= 64; index > 0) [[likely]] {
+      uint64_t const remaining = data_[offset] << (64 - index);
+      result += std::popcount(remaining);
+    }
+    return result;
   }
 
   /*!

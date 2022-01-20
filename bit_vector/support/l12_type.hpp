@@ -108,15 +108,16 @@ struct BigL12Type {
              ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
              ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
              ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
-             ((__uint128_t{0xFFFFFFFFFF} & _l1))) {}
+             ((__uint128_t{0b111111111111} & 0ULL) << 32) |
+             ((__uint128_t{0xFFFFFFFF} & _l1))) {}
 
   /*!
    * \brief Access operator used to access the L2-block entries individually.
    * \param index The index (0 to 6) of the L2-block.
    * \return Popcount of the corresponding L2-block.
    */
-  inline uint16_t operator[](size_t const index) const {
-    return (data >> ((12 * index) + 44) & uint16_t(0b111111111111));
+  inline uint64_t operator[](size_t const index) const {
+    return ((data >> ((12 * index) + 32)) & uint64_t(0b111111111111));
   }
 
   /*!
@@ -124,7 +125,7 @@ struct BigL12Type {
    * \returns L1-value of the L12-block.
    */
   inline uint64_t l1() const {
-    return uint64_t{0xFFFFFFFFFF} & data;
+    return uint64_t{0xFFFFFFFF} & data;
   }
 
   //! All data of the \c BigL12Type packed into 128 bits.

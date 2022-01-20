@@ -27,6 +27,7 @@
 #include "bit_vector/support/use_intrinsics.hpp"
 
 #include <numeric>
+#include <utils/debug_asserts.hpp>
 
 namespace pasta {
 
@@ -39,11 +40,16 @@ struct FlattenedRankSelectConfig {
   static constexpr size_t L2_BIT_SIZE = 512;
   //! Bits covered by an L1-block.
   static constexpr size_t L1_BIT_SIZE = 8 * L2_BIT_SIZE;
+  //! Bits covered by an L0-block.
+  static constexpr size_t L0_BIT_SIZE =
+    static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) + 1;
 
   //! Number of 64-bit words covered by an L2-block.
   static constexpr size_t L2_WORD_SIZE = L2_BIT_SIZE / (sizeof(uint64_t) * 8);
   //! Number of 64-bit words covered by an L1-block.
   static constexpr size_t L1_WORD_SIZE = L1_BIT_SIZE / (sizeof(uint64_t) * 8);
+  //! Number of 64-bit words covered by an L0-block.
+  static constexpr size_t L0_WORD_SIZE = L0_BIT_SIZE / (sizeof(uint64_t) * 8);
 
   //! Sample rate of positions for faster select queries.
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
@@ -81,6 +87,8 @@ class BitVectorFlatRank {
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
+  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
+
 public:
   //! Default constructor w/o parameter.
   BitVectorFlatRank() = default;
@@ -93,7 +101,8 @@ public:
   BitVectorFlatRank(BitVector const& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
-        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
+        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1),
+        l0_((data_size_ >> 32) + 1) {
     init();
   }
 
@@ -104,29 +113,8 @@ public:
    */
   [[nodiscard("rank0 computed but not used")]] size_t
   rank0(size_t index) const {
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      return index - rank1(index);
-    } else {
-      size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
-                        FlattenedRankSelectConfig::L2_BIT_SIZE);
-      size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
-                      (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
-
-      size_t result =
-          l12_[l1_pos].l1() + ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
-      index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(~data_[offset++]);
-      }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = (~data_[offset]) << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
-    }
+    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
+    return index - rank1(index);
   }
 
   /*!
@@ -136,29 +124,38 @@ public:
    */
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
-    if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
-      __builtin_prefetch(&l12_[l1_pos], 0, 0);
-      int32_t l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
-                        FlattenedRankSelectConfig::L2_BIT_SIZE);
-      size_t offset = (l1_pos * FlattenedRankSelectConfig::L1_WORD_SIZE) +
-                      (l2_pos * FlattenedRankSelectConfig::L2_WORD_SIZE);
-      __builtin_prefetch(&data_[offset], 0, 0);
+    PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
+    size_t offset = ((index / 512) * 8);
+    __builtin_prefetch(&data_[offset], 0, 0);
+    size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
+    __builtin_prefetch(&l12_[l1_pos], 0, 0);
+    size_t const l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
+                           FlattenedRankSelectConfig::L2_BIT_SIZE);
+    size_t result = l0_[index / FlattenedRankSelectConfig::L0_BIT_SIZE] +
+      l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
 
-      size_t result =
-          l12_[l1_pos].l1() + ((l2_pos >= 1) ? l12_[l1_pos][l2_pos - 1] : 0);
-      index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
-      for (size_t i = 0; i < index / 64; ++i) {
-        result += std::popcount(data_[offset++]);
-      }
-      if (index %= 64; index > 0) [[likely]] {
-        uint64_t const remaining = data_[offset] << (64 - index);
-        result += std::popcount(remaining);
-      }
-      return result;
-    } else {
-      return index - rank0(index);
+    // It is faster to not have a specialized rank0 function when
+    // optimized for zero queries, because there is no popcount for
+    // zero equivalent and for all popcounts in this code, the words
+    // would have to be bit-wise negated, which is more expensive than
+    // the computation below.
+    if constexpr (!optimize_one_or_dont_care(optimized_for)) {
+      result = ((l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) +
+                (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE)) - result;
     }
+    
+    index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
+    PASTA_ASSERT(index < 512,
+                 "Trying to access bits that should be "
+                 "covered in an L1-block");
+    for (size_t i = 0; i < index / 64; ++i) {
+      result += std::popcount(data_[offset++]);
+    }
+    if (index %= 64; index > 0) [[likely]] {
+      uint64_t const remaining = (data_[offset]) << (64 - index);
+      result += std::popcount(remaining);
+    }
+    return result;
   }
 
   /*!
@@ -175,11 +172,12 @@ private:
   //! constructor.
   void init() {
     size_t l12_pos = 0;
+    size_t l0_pos = 1;
     uint64_t l1_entry = 0ULL;
 
     uint64_t const* data = data_;
     uint64_t const* const data_end = data_ + data_size_;
-
+    l0_[0] = 0;
     std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
     while (data + 64 < data_end) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
@@ -201,6 +199,11 @@ private:
         l1_entry += l2_entries.back() + popcount<8>(data);
       } else {
         l1_entry += l2_entries.back() + popcount_zeros<8>(data);
+      }
+      if ((l12_pos & 0xFFFFFFFF) == 0) [[unlikely]] {
+        l0_[l0_pos] = l1_entry + l0_[l0_pos - 1];
+        ++l0_pos;
+        l1_entry = 0;
       }
       data += 8;
     }
@@ -224,7 +227,7 @@ private:
       }
     }
     std::partial_sum(l2_entries.begin(), l2_entries.end(), l2_entries.begin());
-    l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
+    l12_[l12_pos] = BigL12Type(l1_entry, l2_entries);
   }
 }; // class BitVectorFlatRank
 

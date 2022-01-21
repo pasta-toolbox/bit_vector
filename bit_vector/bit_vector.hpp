@@ -288,7 +288,7 @@ public:
    * \param size Number of bits the bit vector contains.
    */
   BitVector(size_t const size) noexcept
-      : bit_size_(size + 512),
+      : bit_size_(size),
         size_((bit_size_ >> 6) + 1),
         data_(size_),
         raw_data_(data_.data()) {}

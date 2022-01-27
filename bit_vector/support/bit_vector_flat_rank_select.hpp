@@ -401,15 +401,10 @@ public:
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = (sample_pos >= samples1_.size()) ? samples1_.back() :
                                                        samples1_[sample_pos];
-    // std::cout << "b: l1_pos " << l1_pos << '\n';
-    //  l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
-    //            FlattenedRankSelectConfig::L1_BIT_SIZE;
-    // std::cout << "a: l1_pos " << l1_pos << '\n';
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while ((l1_pos + 1) < l12_end && l12[l1_pos + 1].l1() < rank) {
         ++l1_pos;
       }
-      // std::cout << "f: l1_pos " << l1_pos << '\n';
       rank -= (l12[l1_pos].l1() + l0[l1_pos >> 20]);
     } else {
       while (l1_pos + 1 < l12_end &&

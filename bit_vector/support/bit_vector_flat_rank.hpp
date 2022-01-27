@@ -154,10 +154,6 @@ public:
       uint64_t const remaining = (data_[offset]) << (64 - index);
       result += std::popcount(remaining);
     }
-    if (offset >= data_size_) {
-      std::cout << "offset " << offset << '\n';
-      std::cout << "data_size_ " << data_size_ << '\n';
-    }
     return result;
   }
 

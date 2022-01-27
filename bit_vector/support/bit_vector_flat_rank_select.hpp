@@ -406,7 +406,7 @@ public:
     //            FlattenedRankSelectConfig::L1_BIT_SIZE;
     // std::cout << "a: l1_pos " << l1_pos << '\n';
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l12[l1_pos + 1].l1() < rank && (l1_pos + 1) < l12_end) {
+      while ((l1_pos + 1) < l12_end && l12[l1_pos + 1].l1() < rank) {
         ++l1_pos;
       }
       // std::cout << "f: l1_pos " << l1_pos << '\n';

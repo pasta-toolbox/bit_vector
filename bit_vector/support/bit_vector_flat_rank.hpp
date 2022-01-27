@@ -102,7 +102,7 @@ public:
       : data_size_(bv.size_),
         data_(bv.data_.data()),
         l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1),
-        l0_((data_size_ >> 32) + 1) {
+        l0_((data_size_ / FlattenedRankSelectConfig::L0_WORD_SIZE) + 2) {
     init();
   }
 
@@ -153,6 +153,10 @@ public:
     if (index %= 64; index > 0) [[likely]] {
       uint64_t const remaining = (data_[offset]) << (64 - index);
       result += std::popcount(remaining);
+    }
+    if (offset >= data_size_) {
+      std::cout << "offset " << offset << '\n';
+      std::cout << "data_size_ " << data_size_ << '\n';
     }
     return result;
   }
@@ -227,6 +231,9 @@ private:
     }
     std::partial_sum(l2_entries.begin(), l2_entries.end(), l2_entries.begin());
     l12_[l12_pos] = BigL12Type(l1_entry, l2_entries);
+    for (; l0_pos < l0_.size(); ++l0_pos) {
+      l0_[l0_pos] = l0_[l0_pos - 1];
+    }
   }
 }; // class BitVectorFlatRank
 

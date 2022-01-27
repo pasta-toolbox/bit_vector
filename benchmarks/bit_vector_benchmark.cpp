@@ -27,7 +27,7 @@
 #include "bit_vector/support/optimized_for.hpp"
 #include "utils/do_not_optimize.hpp"
 #if defined(DNDEBUG)
-#include "utils/memory_monitor.hpp"
+#  include "utils/memory_monitor.hpp"
 #endif
 #include "utils/perf_profile.hpp"
 #include "utils/timer.hpp"
@@ -110,9 +110,21 @@ private:
 
     LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
     std::uniform_int_distribution<> bit_dist(0, 99);
-    for (size_t i = 0; i < bit_size_; ++i) {
-      bv[i] = (static_cast<uint32_t>(bit_dist(randomness)) < fill_percentage_);
+    auto bv_data = bv.data();
+    for (size_t i = 0; i < bv_data.size(); ++i) {
+      uint64_t word = 0ULL;
+      for (size_t j = 0; j < 64; ++j) {
+        if (static_cast<uint32_t>(bit_dist(randomness)) < fill_percentage_) {
+          word |= 1ULL;
+        }
+        word <<= 1;
+      }
+      bv_data.data()[i] = word;
     }
+    // for (size_t i = 0; i < bit_size_; ++i) {
+    //   bv[i] = (static_cast<uint32_t>(bit_dist(randomness)) <
+    //   fill_percentage_);
+    // }
 
     size_t const bv_set_bits_time = timer.get_and_reset();
 #if defined(DNDEBUG)
@@ -211,17 +223,17 @@ private:
               << "bit_size=" << bit_size_ << " "
               << "fill_percentage=" << fill_percentage_ << " "
               << "bv_construction_time=" << bv_construction_time << " "
-      #if defined(DNDEBUG)
+#if defined(DNDEBUG)
               << "bv_construction_mem=" << bv_construction_mem.cur_peak << " "
-      #endif
+#endif
               << "bv_set_bits_time=" << bv_set_bits_time << " "
-      #if defined(DNDEBUG)
+#if defined(DNDEBUG)
               << "bv_set_bits_mem=" << bv_set_bits_mem.cur_peak << " "
-      #endif
+#endif
               << "rs_construction_time=" << rs_construction_time << " "
-      #if defined(DNDEBUG)
+#if defined(DNDEBUG)
               << "rs_construction_mem=" << rs_construction_mem.cur_peak << " "
-      #endif
+#endif
               << "query_count=" << query_count_ << " "
               << "rank0_query_time=" << rank0_query_time << " "
               << "rank1_query_time=" << rank1_query_time << " "
@@ -231,9 +243,9 @@ private:
               << "select1_query_time=" << select1_query_time << " "
               << "total_select_query_time="
               << (select0_query_time + select1_query_time) << " "
-      #if defined(DNDEBUG)
+#if defined(DNDEBUG)
               << "rs_query_mem=" << rs_query_mem.cur_peak << " "
-      #endif
+#endif
               << "\n";
   }
 }; // class BitVectorBenchmark

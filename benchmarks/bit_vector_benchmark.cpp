@@ -26,7 +26,10 @@
 #include "bit_vector/support/find_l2_flat_with.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 #include "utils/do_not_optimize.hpp"
+#if defined(DNDEBUG)
 #include "utils/memory_monitor.hpp"
+#endif
+#include "utils/perf_profile.hpp"
 #include "utils/timer.hpp"
 
 #include <cstdint>
@@ -94,12 +97,16 @@ private:
     LOG << LOG_PREFIX << "Creating PaStA bit vector";
 
     pasta::Timer timer;
+#if defined(DNDEBUG)
     pasta::MemoryMonitor& mem_monitor = pasta::MemoryMonitor::instance();
     mem_monitor.reset();
+#endif
     pasta::BitVector bv(bit_size_, 0);
 
     size_t const bv_construction_time = timer.get_and_reset();
+#if defined(DNDEBUG)
     auto const bv_construction_mem = mem_monitor.get_and_reset();
+#endif
 
     LOG << LOG_PREFIX << "Flipping bits with uniform distribution";
     std::uniform_int_distribution<> bit_dist(0, 99);
@@ -108,14 +115,18 @@ private:
     }
 
     size_t const bv_set_bits_time = timer.get_and_reset();
+#if defined(DNDEBUG)
     auto const bv_set_bits_mem = mem_monitor.get_and_reset();
+#endif
 
     RankSelectType bvrs(bv);
 
     size_t const rs_construction_time = timer.get_and_reset();
     LOG << LOG_PREFIX << "Preparing queries";
     timer.reset();
+#if defined(DNDEBUG)
     auto const rs_construction_mem = mem_monitor.get_and_reset();
+#endif
 
     std::uniform_int_distribution<> rank_dist(0, bit_size_ - 1);
     std::vector<size_t> rank_positions(query_count_);
@@ -148,7 +159,9 @@ private:
 
     LOG << LOG_PREFIX << "Benchmarking queries";
     timer.reset();
+#if defined(DNDEBUG)
     mem_monitor.reset();
+#endif
 
     for (size_t i = 0; i < rank_positions.size() / 2; ++i) {
       [[maybe_unused]] size_t const result = bvrs.rank0(rank_positions[i]);
@@ -171,7 +184,9 @@ private:
       PASTA_DO_NOT_OPTIMIZE(result);
     }
     size_t const select1_query_time = timer.get_and_reset();
+#if defined(DNDEBUG)
     auto const rs_query_mem = mem_monitor.get_and_reset();
+#endif
 
     LOG << LOG_PREFIX << "Query stats";
     LOG << LOG_PREFIX
@@ -196,11 +211,17 @@ private:
               << "bit_size=" << bit_size_ << " "
               << "fill_percentage=" << fill_percentage_ << " "
               << "bv_construction_time=" << bv_construction_time << " "
+      #if defined(DNDEBUG)
               << "bv_construction_mem=" << bv_construction_mem.cur_peak << " "
+      #endif
               << "bv_set_bits_time=" << bv_set_bits_time << " "
+      #if defined(DNDEBUG)
               << "bv_set_bits_mem=" << bv_set_bits_mem.cur_peak << " "
+      #endif
               << "rs_construction_time=" << rs_construction_time << " "
+      #if defined(DNDEBUG)
               << "rs_construction_mem=" << rs_construction_mem.cur_peak << " "
+      #endif
               << "query_count=" << query_count_ << " "
               << "rank0_query_time=" << rank0_query_time << " "
               << "rank1_query_time=" << rank1_query_time << " "
@@ -210,7 +231,9 @@ private:
               << "select1_query_time=" << select1_query_time << " "
               << "total_select_query_time="
               << (select0_query_time + select1_query_time) << " "
+      #if defined(DNDEBUG)
               << "rs_query_mem=" << rs_query_mem.cur_peak << " "
+      #endif
               << "\n";
   }
 }; // class BitVectorBenchmark

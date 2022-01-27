@@ -83,7 +83,7 @@ if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
     pasta_bit_vector
     tlx
     pasta_utils
-    pasta_memory_monitor)
+    optimized pasta_memory_monitor)
 endif()
 
 ################################################################################

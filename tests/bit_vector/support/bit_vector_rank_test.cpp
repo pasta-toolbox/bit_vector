@@ -67,7 +67,7 @@ int32_t main() {
     }
 
     size_t const query_pos_offset = (N > (1ULL << 30)) ? 101 : 1;
-    
+
     // Test optimized for one queries
     {
       pasta::BitVectorRank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);

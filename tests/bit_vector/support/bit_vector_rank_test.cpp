@@ -47,22 +47,38 @@ void run_test(TestFunction test_config) {
 int32_t main() {
   run_test([](size_t N, size_t K) {
     pasta::BitVector bv(N, 0);
+
     size_t set_ones = 0;
-    for (size_t i = 0; i < N; i += K) {
-      ++set_ones;
-      bv[i] = 1;
+
+    auto bv_data = bv.data();
+    for (size_t i = 0; i < bv_data.size(); ++i) {
+      uint64_t word = 0ULL;
+      for (size_t j = 0; j < 64; ++j) {
+        word >>= 1;
+        if (size_t bit_pos = ((i * 64) + j); bit_pos >= N) {
+          word >>= (63 - j);
+          break;
+        } else if (bit_pos % K == 0) {
+          ++set_ones;
+          word |= (1ULL << 63);
+        }
+      }
+      bv_data.data()[i] = word;
     }
+
+    size_t const query_pos_offset = (N > (1ULL << 30)) ? 101 : 1;
+    
     // Test optimized for one queries
     {
       pasta::BitVectorRank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
-      for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 4000) + 1)) {
+      for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(i, bvr.rank1((K * i)));
       }
 
       die_unequal((N - set_ones), bvr.rank0(N));
-      for (size_t i = 1; i <= N / K; ++i) {
+      for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal((K - 1) * i, bvr.rank0((K * i)));
       }
     }
@@ -71,12 +87,12 @@ int32_t main() {
       pasta::BitVectorRank<pasta::OptimizedFor::ZERO_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
-      for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 4000) + 1)) {
+      for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(i, bvr.rank1((K * i)));
       }
 
       die_unequal((N - set_ones), bvr.rank0(N));
-      for (size_t i = 1; i <= N / K; ++i) {
+      for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal((K - 1) * i, bvr.rank0((K * i)));
       }
     }

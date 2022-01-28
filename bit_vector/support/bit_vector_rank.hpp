@@ -158,7 +158,7 @@ public:
   [[nodiscard("rank1 computed but not used")]] inline size_t
   rank1(size_t index) const {
     PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
-    size_t offset = ((index / 512) * 8);
+    size_t offset = ((index / PopcntRankSelectConfig::L2_BIT_SIZE) * 8);
     __builtin_prefetch(&data_[offset], 0, 0);
     size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
     __builtin_prefetch(&l12_[l1_pos], 0, 0);
@@ -185,7 +185,7 @@ public:
                result;
     }
     index %= PopcntRankSelectConfig::L2_BIT_SIZE;
-    PASTA_ASSERT(index < 512,
+    PASTA_ASSERT(index < PopcntRankSelectConfig::L2_BIT_SIZE,
                  "Trying to access bits that should be "
                  "covered in an L1-block");
     for (size_t i = 0; i < index / 64; ++i) {

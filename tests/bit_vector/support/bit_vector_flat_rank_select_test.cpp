@@ -28,7 +28,10 @@
 template <typename TestFunction>
 void run_test(TestFunction test_config) {
   std::vector<size_t> offsets = {0, 723};
-  std::vector<size_t> bit_sizes = { 1ULL << 2, 1ULL << 12, 1ULL << 32, (1ULL << 32) + (1ULL << 12) };
+  std::vector<size_t> bit_sizes = {1ULL << 2,
+                                   1ULL << 12,
+                                   1ULL << 32,
+                                   (1ULL << 32) + (1ULL << 12)};
   // for (size_t n = 2; n <= 32; n += 10) {
   for (auto const& bit_size : bit_sizes) {
     for (auto const offset : offsets) {
@@ -39,7 +42,8 @@ void run_test(TestFunction test_config) {
       }
       for (size_t k = 0; k <= 4; ++k) {
         size_t const set_every_kth = 1ULL << k;
-        if (k < bit_size) { // if k > bit_size this testing doesn't make any sense
+        // if k > bit_size this testing doesn't make any sense
+        if (k < bit_size) {
           test_config(vector_size, set_every_kth);
         }
       }

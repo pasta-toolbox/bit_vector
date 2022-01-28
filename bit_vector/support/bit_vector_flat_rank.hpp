@@ -86,6 +86,8 @@ class BitVectorFlatRank {
 
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+  //! Number of actual existing BigL12-blocks (important for scanning)
+  size_t l12_end_ = 0;
 
 public:
   //! Default constructor w/o parameter.
@@ -169,7 +171,6 @@ private:
     uint64_t const* data = data_;
     uint64_t const* const data_end = data_ + data_size_;
 
-    size_t l12_pos = 0;
     uint64_t l1_entry = 0ULL;
     std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
 
@@ -188,7 +189,7 @@ private:
         }
         data += 8;
       }
-      l12_[l12_pos++] = BigL12Type(l1_entry, l2_entries);
+      l12_[l12_end_++] = BigL12Type(l1_entry, l2_entries);
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         l1_entry += l2_entries.back() + popcount<8>(data);
       } else {
@@ -216,7 +217,7 @@ private:
       }
     }
     std::partial_sum(l2_entries.begin(), l2_entries.end(), l2_entries.begin());
-    l12_[l12_pos] = BigL12Type(l1_entry, l2_entries);
+    l12_[l12_end_++] = BigL12Type(l1_entry, l2_entries);
   }
 }; // class BitVectorFlatRank
 

@@ -134,7 +134,7 @@ public:
   [[nodiscard("select0 computed but not used")]] size_t
   select0(size_t rank) const {
     Array<BigL12Type> const& l12 = rank_.l12_;
-    size_t const l12_end = l12.size();
+    size_t const l12_end = rank_.l12_end_;
 
     size_t const sample_pos =
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
@@ -158,7 +158,6 @@ public:
       }
       rank -= l12[l1_pos].l1();
     }
-
     size_t l2_pos = 0;
     if constexpr (use_intrinsics(find_with)) {
       __m128i value =
@@ -394,7 +393,7 @@ public:
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
     Array<BigL12Type> const& l12 = rank_.l12_;
-    size_t const l12_end = l12.size();
+    size_t const l12_end = rank_.l12_end_;
 
     size_t const sample_pos =
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);

@@ -87,8 +87,6 @@ class BitVectorFlatRank {
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
-  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
-
 public:
   //! Default constructor w/o parameter.
   BitVectorFlatRank() = default;
@@ -101,8 +99,7 @@ public:
   BitVectorFlatRank(BitVector const& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
-        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1),
-        l0_((data_size_ / FlattenedRankSelectConfig::L0_WORD_SIZE) + 2) {
+        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
     init();
   }
 
@@ -129,8 +126,7 @@ public:
     __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
                            FlattenedRankSelectConfig::L2_BIT_SIZE);
-    size_t result = l0_[index / FlattenedRankSelectConfig::L0_BIT_SIZE] +
-                    l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
+    size_t result = l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
 
     // It is faster to not have a specialized rank0 function when
     // optimized for zero queries, because there is no popcount for
@@ -170,14 +166,13 @@ private:
   //! Function used for initializing data structure to reduce LOCs of
   //! constructor.
   void init() {
-    size_t l12_pos = 0;
-    size_t l0_pos = 1;
-    uint64_t l1_entry = 0ULL;
-
     uint64_t const* data = data_;
     uint64_t const* const data_end = data_ + data_size_;
-    l0_[0] = 0;
+
+    size_t l12_pos = 0;
+    uint64_t l1_entry = 0ULL;
     std::array<uint16_t, 7> l2_entries = {0, 0, 0, 0, 0, 0, 0};
+
     while (data + 64 < data_end) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         l2_entries[0] = popcount<8>(data);
@@ -198,11 +193,6 @@ private:
         l1_entry += l2_entries.back() + popcount<8>(data);
       } else {
         l1_entry += l2_entries.back() + popcount_zeros<8>(data);
-      }
-      if ((l12_pos & 0xFFFFFFFF) == 0) [[unlikely]] {
-        l0_[l0_pos] = l1_entry + l0_[l0_pos - 1];
-        ++l0_pos;
-        l1_entry = 0;
       }
       data += 8;
     }
@@ -227,9 +217,6 @@ private:
     }
     std::partial_sum(l2_entries.begin(), l2_entries.end(), l2_entries.begin());
     l12_[l12_pos] = BigL12Type(l1_entry, l2_entries);
-    for (; l0_pos < l0_.size(); ++l0_pos) {
-      l0_[l0_pos] = l0_[l0_pos - 1];
-    }
   }
 }; // class BitVectorFlatRank
 

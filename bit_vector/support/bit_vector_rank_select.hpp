@@ -346,9 +346,7 @@ private:
     size_t const l12_end = rank_.l12_.size();
     size_t next_sample0_value = 1;
     size_t next_sample1_value = 1;
-    size_t l12_pos = 0;
-    size_t l0_pos = 0;
-    for (; l12_pos < l12_end; ++l12_pos) {
+    for (size_t l0_pos = 0, l12_pos = 0; l12_pos < l12_end; ++l12_pos) {
       if (l12_pos % (PopcntRankSelectConfig::L0_WORD_SIZE /
                      PopcntRankSelectConfig::L1_WORD_SIZE) ==
           0) [[unlikely]] {
@@ -384,14 +382,12 @@ private:
       }
     }
     // Add at least one entry.
-    if (samples0_.size() == 0) {
+    if (samples0_.size() == 0) [[unlikely]] {
       samples0_.push_back(0);
     }
-    if (samples1_.size() == 0) {
+    if (samples1_.size() == 0) [[unlikely]] {
       samples1_.push_back(0);
     }
-    samples0_pos_[0] = 0;
-    samples1_pos_[0] = 0;
   }
 }; // class BitVectorRankSelect
 

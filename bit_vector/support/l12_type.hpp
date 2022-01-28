@@ -84,7 +84,7 @@ static_assert(sizeof(L12Type) == 8);
  * +------+------+------+------+------+------+---+------+------+--------+
  * | 3 * 12-bit integer | 3 * 12 bit integer |...| 12 bit int. | L1-info|
  * +------+------+------+------+------+------+---+------+------+--------+
- * |   8  | 4/4  |   8  |   8  | 4/4  |  8   |...|  8   | 4/0  | 40 Bit |
+ * |   8  | 4/4  |   8  |   8  | 4/4  |  8   |...|  8   | 4/4  + 40 Bit |
  * +------+------+------+------+------+------+---+------+------+--------+
  *
  * The order of the 12-bit integers should remain the same (as they occur
@@ -108,8 +108,7 @@ struct BigL12Type {
              ((__uint128_t{0b111111111111} & _l2[2]) << 68) |
              ((__uint128_t{0b111111111111} & _l2[1]) << 56) |
              ((__uint128_t{0b111111111111} & _l2[0]) << 44) |
-             ((__uint128_t{0b111111111111} & 0ULL) << 32) |
-             ((__uint128_t{0xFFFFFFFF} & _l1))) {}
+             ((__uint128_t{0xFFFFFFFFFFF} & _l1))) {}
 
   /*!
    * \brief Access operator used to access the L2-block entries individually.
@@ -117,7 +116,10 @@ struct BigL12Type {
    * \return Popcount of the corresponding L2-block.
    */
   inline uint64_t operator[](size_t const index) const {
-    return ((data >> ((12 * index) + 32)) & uint64_t(0b111111111111));
+    return (index == 0) ?
+               0 :
+               ((data >> ((12 * index) + 32)) & uint64_t(0b111111111111));
+    // Here, shifting by 32 bits + X is sufficient, because index > 1.
   }
 
   /*!
@@ -125,7 +127,7 @@ struct BigL12Type {
    * \returns L1-value of the L12-block.
    */
   inline uint64_t l1() const {
-    return uint64_t{0xFFFFFFFF} & data;
+    return uint64_t{0xFFFFFFFFFFF} & data;
   }
 
   //! All data of the \c BigL12Type packed into 128 bits.

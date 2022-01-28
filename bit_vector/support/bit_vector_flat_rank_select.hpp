@@ -394,7 +394,6 @@ public:
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
     Array<BigL12Type> const& l12 = rank_.l12_;
-    Array<uint64_t> const& l0 = rank_.l0_;
     size_t const l12_end = l12.size();
 
     size_t const sample_pos =
@@ -405,7 +404,7 @@ public:
       while ((l1_pos + 1) < l12_end && l12[l1_pos + 1].l1() < rank) {
         ++l1_pos;
       }
-      rank -= (l12[l1_pos].l1() + l0[l1_pos >> 20]);
+      rank -= l12[l1_pos].l1();
     } else {
       while (l1_pos + 1 < l12_end &&
              ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
@@ -679,10 +678,10 @@ private:
       }
     }
     // Add at least one entry.
-    if (samples0_.size() == 0) {
+    if (samples0_.size() == 0) [[unlikely]] {
       samples0_.push_back(0);
     }
-    if (samples1_.size() == 0) {
+    if (samples1_.size() == 0) [[unlikely]] {
       samples1_.push_back(0);
     }
   }

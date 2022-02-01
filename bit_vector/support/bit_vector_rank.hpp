@@ -166,7 +166,6 @@ public:
                           PopcntRankSelectConfig::L2_BIT_SIZE;
     size_t result =
         l0_[index / PopcntRankSelectConfig::L0_BIT_SIZE] + l12_[l1_pos].l1;
-    ;
 
     auto l2 = l12_[l1_pos].l2_values;
     for (size_t i = 0; i < l2_pos; ++i) {

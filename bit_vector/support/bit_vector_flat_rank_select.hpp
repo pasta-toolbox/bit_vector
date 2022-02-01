@@ -138,8 +138,7 @@ public:
 
     size_t const sample_pos =
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
-    size_t l1_pos = (sample_pos >= samples0_.size()) ? samples0_.back() :
-                                                       samples0_[sample_pos];
+    size_t l1_pos = samples0_[sample_pos];
     l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
               FlattenedRankSelectConfig::L1_BIT_SIZE;
 
@@ -397,8 +396,7 @@ public:
 
     size_t const sample_pos =
         ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
-    size_t l1_pos = (sample_pos >= samples1_.size()) ? samples1_.back() :
-                                                       samples1_[sample_pos];
+    size_t l1_pos = samples1_[sample_pos];
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while ((l1_pos + 1) < l12_end && l12[l1_pos + 1].l1() < rank) {
         ++l1_pos;

@@ -175,10 +175,8 @@ public:
     size_t const sample_pos =
         ((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
         samples0_pos_[l0_pos];
-    size_t l1_pos = (sample_pos >= samples0_.size()) ?
-                        (l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
-                                   PopcntRankSelectConfig::L1_WORD_SIZE)) :
-                        samples0_[sample_pos];
+
+    size_t l1_pos = samples0_[sample_pos];
     l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
               PopcntRankSelectConfig::L1_BIT_SIZE;
     size_t const l0_block_end =
@@ -268,10 +266,7 @@ public:
     size_t const sample_pos =
         ((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
         samples1_pos_[l0_pos];
-    size_t l1_pos = (sample_pos >= samples1_.size()) ?
-                        (l0_pos * (PopcntRankSelectConfig::L0_WORD_SIZE /
-                                   PopcntRankSelectConfig::L1_WORD_SIZE)) :
-                        samples1_[sample_pos];
+    size_t l1_pos = samples1_[sample_pos];
     l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
               PopcntRankSelectConfig::L1_BIT_SIZE;
     size_t const l0_block_end =

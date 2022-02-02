@@ -19,7 +19,8 @@
  ******************************************************************************/
 
 #include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_wide_rank.hpp"
+#include "bit_vector/support/bit_vector_wide_rank_select.hpp"
+#include "bit_vector/support/find_l2_wide_with.hpp"
 
 #include <cstdint>
 #include <tlx/die.hpp>
@@ -52,7 +53,7 @@ void run_test(TestFunction test_config) {
 
 int32_t main() {
   // Test rank
-  run_test([](size_t N, size_t K){
+  run_test([](size_t N, size_t K) {
     pasta::BitVector bv(N, 0);
     size_t set_ones = 0;
     for (size_t i = 0; i < N; i += K) {
@@ -65,12 +66,12 @@ int32_t main() {
       pasta::BitVectorWideRank<pasta::OptimizedFor::ONE_QUERIES> bvrs(bv);
 
       die_unequal(set_ones, bvrs.rank1(N));
-      for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
+      for (size_t i = 1; i <= N / K; i += std::max<size_t>(1, N / 1000)) {
         die_unequal(i, bvrs.rank1((K * i)));
       }
 
       die_unequal((N - set_ones), bvrs.rank0(N));
-      for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
+      for (size_t i = 1; i <= N / K; i += std::max<size_t>(1, N / 1000)) {
         die_unequal((K - 1) * i, bvrs.rank0((K * i)));
       }
     }
@@ -79,121 +80,108 @@ int32_t main() {
       pasta::BitVectorWideRank<pasta::OptimizedFor::ZERO_QUERIES> bvrs(bv);
 
       die_unequal(set_ones, bvrs.rank1(N));
-      for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
+      for (size_t i = 1; i <= N / K; i += std::max<size_t>(1, N / 1000)) {
         die_unequal(i, bvrs.rank1((K * i)));
       }
 
       die_unequal((N - set_ones), bvrs.rank0(N));
-      for(size_t i = 1; i <= N / K; i += std::max<size_t>(1, N/1000)) {
+      for (size_t i = 1; i <= N / K; i += std::max<size_t>(1, N / 1000)) {
         die_unequal((K - 1) * i, bvrs.rank0((K * i)));
       }
     }
   });
 
-  // // Test select
-  // run_test([](size_t N, size_t K) {
-  //   {
-  //     pasta::BitVector bv(N, 0);
-  //     for (size_t i = 0; i < N; i += K) {
-  //       bv[i] = 1;
-  //     }
+  // Test select
+  run_test([](size_t N, size_t K) {
+    {
+      pasta::BitVector bv(N, 0);
+      for (size_t i = 0; i < N; i += K) {
+        bv[i] = 1;
+      }
 
-  //     // Test optimized for one queries without intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-  //                                      pasta::UseIntrinsics::NO>
-  //           bvrs(bv);
-  //       for (size_t i = 1; i <= N / K;
-  //            i += (std::max<size_t>(1, N / 100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select1(i));
-  //       }
-  //     }
-  //     // Test optimized for zero queries without intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-  //                                      pasta::UseIntrinsics::NO>
-  //           bvrs(bv);
-  //       for (size_t i = 1; i <= N / K;
-  //            i += (std::max<size_t>(1, N / 100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select1(i));
-  //       }
-  //     }
-  //   }
-  //   {
-  //     pasta::BitVector bv(N, 1);
-  //     for (size_t i = 0; i < N; i += K) {
-  //       bv[i] = 0;
-  //     }
+      // Test optimized for one queries without intrinsics
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2WideWith::LINEAR_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2WideWith::BINARY_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2WideWith::LINEAR_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2WideWith::BINARY_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select1(i));
+        }
+      }
+    }
+    {
+      pasta::BitVector bv(N, 1);
+      for (size_t i = 0; i < N; i += K) {
+        bv[i] = 0;
+      }
 
-  //     // Test optimized for one queries without intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-  //                                      pasta::UseIntrinsics::NO>
-  //           bvrs(bv);
-  //       for (size_t i = 1; i <= N / K;
-  //            i += (std::max<size_t>(1, N / 100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select0(i));
-  //       }
-  //     }
-  //     // Test optimized for zero queries without intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-  //                                      pasta::UseIntrinsics::NO>
-  //           bvrs(bv);
-  //       for (size_t i = 1; i <= N / K;
-  //            i += (std::max<size_t>(1, N / 200) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select0(i));
-  //       }
-  //     }
-  //   }
-  //   {
-  //    pasta::BitVector bv(N, 0);
-  //     for (size_t i = 0; i < N; i += K) {
-  //       bv[i] = 1;
-  //     }
-
-  //     // Test optimized for one queries with intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-  //                                      pasta::UseIntrinsics::YES> bvrs(bv);
-  //       for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select1(i));
-  //       }
-  //     }
-  //     // Test optimized for zero queries with intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-  //                                      pasta::UseIntrinsics::YES> bvrs(bv);
-  //       for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select1(i));
-  //       }
-  //     }
-  //   }
-  //   {
-  //     pasta::BitVector bv(N, 1);
-  //     for(size_t i = 0; i < N; i += K) {
-  //       bv[i] = 0;
-  //     }
-
-  //     // Test optimized for one queries with intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-  //                                      pasta::UseIntrinsics::YES> bvrs(bv);
-  //       for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select0(i));
-  //       }
-  //     }
-  //     // Test optimized for zero queries with intrinsics
-  //     {
-  //       pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-  //                                      pasta::UseIntrinsics::YES> bvrs(bv);
-  //       for (size_t i = 1; i <= N/K; i += (std::max<size_t>(1, N/100) + 1)) {
-  //         die_unequal(K * (i - 1), bvrs.select0(i));
-  //       }
-  //     }
-  //   }
-  // });
-
+      // Test optimized for one queries without intrinsics
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2WideWith::LINEAR_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                                       pasta::FindL2WideWith::BINARY_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2WideWith::LINEAR_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+      {
+        pasta::BitVectorWideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                                       pasta::FindL2WideWith::BINARY_SEARCH>
+            bvrs(bv);
+        for (size_t i = 1; i <= N / K;
+             i += (std::max<size_t>(1, N / 100) + 1)) {
+          die_unequal(K * (i - 1), bvrs.select0(i));
+        }
+      }
+    }
+  });
   return 0;
 }
 

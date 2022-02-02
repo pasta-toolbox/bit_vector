@@ -21,7 +21,7 @@
 #pragma once
 
 #include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/find_l2_flat_with.hpp"
+#include "bit_vector/support/find_l2_wide_with.hpp"
 #include "bit_vector/support/l12_type.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 #include "bit_vector/support/popcount.hpp"
@@ -70,7 +70,7 @@ struct WideRankSelectConfig {
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
 class BitVectorWideRank {
   //! Friend class, using internal information l12_.
-  template <OptimizedFor o, FindL2FlatWith i>
+  template <OptimizedFor o, FindL2WideWith f>
   friend class BitVectorWideRankSelect;
 
   //! Size of the bit vector the rank support is constructed for.

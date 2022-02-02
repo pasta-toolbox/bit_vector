@@ -21,6 +21,7 @@
 #pragma once
 
 #include "bit_vector/support/find_l2_flat_with.hpp"
+#include "bit_vector/support/find_l2_wide_with.hpp"
 #include "bit_vector/support/optimized_for.hpp"
 
 #include <algorithm>
@@ -191,7 +192,10 @@ private:
   //! Forward declaration.
   template <OptimizedFor o, FindL2FlatWith f>
   friend class BitVectorFlatRankSelect;
-
+  //! Forward declaration.
+  template <OptimizedFor o, FindL2WideWith f>
+  friend class BitVectorWideRankSelect;
+  
   //! Size of the bit vector in bits.
   size_t bit_size_;
   //! Size of the underlying data used to store the bits.

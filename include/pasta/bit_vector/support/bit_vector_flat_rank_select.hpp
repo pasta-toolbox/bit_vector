@@ -34,7 +34,7 @@
 #include <immintrin.h>
 #include <limits>
 #include <tlx/container/simple_vector.hpp>
-#include <utils/debug_asserts.hpp>
+#include <pasta/utils/debug_asserts.hpp>
 #include <vector>
 
 namespace pasta {

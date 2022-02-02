@@ -27,7 +27,7 @@
 #include "pasta/bit_vector/support/popcount.hpp"
 
 #include <numeric>
-#include <utils/debug_asserts.hpp>
+#include <pasta/utils/debug_asserts.hpp>
 
 namespace pasta {
 

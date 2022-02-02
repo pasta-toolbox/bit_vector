@@ -25,9 +25,9 @@
 #include <pasta/bit_vector/support/bit_vector_rank_select.hpp>
 #include <pasta/bit_vector/support/find_l2_flat_with.hpp>
 #include <pasta/bit_vector/support/optimized_for.hpp>
-#include <utils/do_not_optimize.hpp>
+#include <pasta/utils/do_not_optimize.hpp>
 #if defined(DNDEBUG)
-#  include <utils/memory_monitor.hpp>
+#  include <pasta/utils/memory_monitor.hpp>
 #endif
 #include <cstdint>
 #include <iostream>
@@ -36,7 +36,7 @@
 #include <tlx/die.hpp>
 #include <tlx/logger.hpp>
 #include <tlx/math/aggregate.hpp>
-#include <utils/timer.hpp>
+#include <pasta/utils/timer.hpp>
 
 class BitVectorBenchmark {
   static constexpr bool debug = true;

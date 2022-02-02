@@ -61,7 +61,7 @@ endif()
 # pasta::bit_vector interface definitions
 add_library(pasta_bit_vector INTERFACE)
 target_include_directories(pasta_bit_vector INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${TLX_INCLUDE_DIRS})
 target_link_libraries(pasta_bit_vector INTERFACE
   pasta_utils

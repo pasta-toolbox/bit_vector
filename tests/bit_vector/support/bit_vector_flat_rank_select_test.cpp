@@ -18,11 +18,10 @@
  *
  ******************************************************************************/
 
-#include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_flat_rank_select.hpp"
-#include "bit_vector/support/find_l2_flat_with.hpp"
-
 #include <cstdint>
+#include <pasta/bit_vector/bit_vector.hpp>
+#include <pasta/bit_vector/support/bit_vector_flat_rank_select.hpp>
+#include <pasta/bit_vector/support/find_l2_flat_with.hpp>
 #include <tlx/die.hpp>
 
 template <typename TestFunction>

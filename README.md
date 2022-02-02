@@ -1,11 +1,11 @@
-# pasta::Bit_Vector
+# pasta::bit_vector
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![pasta::bit_vector CI](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml/badge.svg)](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml)
 [![codecov](https://codecov.io/gh/pasta-toolbox/bit_vector/branch/main/graph/badge.svg?token=2QD6ME44SU)](https://codecov.io/gh/pasta-toolbox/bit_vector)
 
-This header-only library contains a highly tuned (uncompressed) bit vector implementation with rank and select support.
-The rank and select support has a space overhead of only ~3%.
+This header-only library contains a highly tuned (uncompressed) bit vector implementation with multiple space efficient rank and select support data structures.
+The our fastest rank and select support has a space overhead of only ~3% and makes use of data level parallelism via SIMD instructions.
 
 ## Contents
 This repository contains the following algorithms and data structures.
@@ -20,6 +20,15 @@ This repository contains the following bit vector implementations:
 > Dong Zhou and David G. Andersen and Michael Kaminsky,
 > Space-Efficient, High-Performance Rank and Select Structures on Uncompressed Bit Sequences,
 > SEA 2013.
+
+- improved [rank][] and [select][] support requiring the same amount of memory but providing faster rank (most of the time) and select (always) queries, and
+- a very fast [rank][] support that can also answer [select][] queries
+
+TODO FIX THE LINKS
+TODO ADD BENCHMARK RESULTS
+TODO ADD EXAMPLES
+TODO REMOVE SDSL
+TODO MORE FOCUS ON THE RANK AND SELECT, LESS FOCUS ON THE BIT VECTOR
 
 [uncompressed bit vector]: bit_vector/bit_vector.hpp
 [rank]: bit_vectorsupport/bit_vector_rank.hpp

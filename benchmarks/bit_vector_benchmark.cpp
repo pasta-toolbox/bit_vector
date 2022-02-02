@@ -18,20 +18,17 @@
  *
  ******************************************************************************/
 
-#include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_flat_rank.hpp"
-#include "bit_vector/support/bit_vector_flat_rank_select.hpp"
-#include "bit_vector/support/bit_vector_rank.hpp"
-#include "bit_vector/support/bit_vector_rank_select.hpp"
-#include "bit_vector/support/find_l2_flat_with.hpp"
-#include "bit_vector/support/optimized_for.hpp"
-#include "utils/do_not_optimize.hpp"
+#include <pasta/bit_vector/bit_vector.hpp>
+#include <pasta/bit_vector/support/bit_vector_flat_rank.hpp>
+#include <pasta/bit_vector/support/bit_vector_flat_rank_select.hpp>
+#include <pasta/bit_vector/support/bit_vector_rank.hpp>
+#include <pasta/bit_vector/support/bit_vector_rank_select.hpp>
+#include <pasta/bit_vector/support/find_l2_flat_with.hpp>
+#include <pasta/bit_vector/support/optimized_for.hpp>
+#include <utils/do_not_optimize.hpp>
 #if defined(DNDEBUG)
-#  include "utils/memory_monitor.hpp"
+#  include <utils/memory_monitor.hpp>
 #endif
-#include "utils/perf_profile.hpp"
-#include "utils/timer.hpp"
-
 #include <cstdint>
 #include <iostream>
 #include <random>
@@ -39,6 +36,7 @@
 #include <tlx/die.hpp>
 #include <tlx/logger.hpp>
 #include <tlx/math/aggregate.hpp>
+#include <utils/timer.hpp>
 
 class BitVectorBenchmark {
   static constexpr bool debug = true;

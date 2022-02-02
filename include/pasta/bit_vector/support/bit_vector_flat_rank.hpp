@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/find_l2_flat_with.hpp"
-#include "bit_vector/support/l12_type.hpp"
-#include "bit_vector/support/optimized_for.hpp"
-#include "bit_vector/support/popcount.hpp"
+#include "pasta/bit_vector/bit_vector.hpp"
+#include "pasta/bit_vector/support/find_l2_flat_with.hpp"
+#include "pasta/bit_vector/support/l12_type.hpp"
+#include "pasta/bit_vector/support/optimized_for.hpp"
+#include "pasta/bit_vector/support/popcount.hpp"
 
 #include <numeric>
 #include <utils/debug_asserts.hpp>

@@ -18,7 +18,7 @@
  *
  ******************************************************************************/
 
-#include <bit_vector/bit_vector.hpp>
+#include <pasta/bit_vector/bit_vector.hpp>
 #include <tlx/die.hpp>
 
 static constexpr size_t FIB_MAX = 94; // largest 64 bit Fibonacci number

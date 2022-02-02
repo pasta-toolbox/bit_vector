@@ -1,8 +1,9 @@
 /*******************************************************************************
  * pasta/container/support/select.hpp
  *
- * Copyright (C) 2019-2020 Emmanuel Esposito, Stefano Marchini and Sebastiano
- *Vigna
+ * Copyright (C) 2019-2020 Emmanuel Esposito,
+ *                         Stefano Marchini, and
+ *                         Sebastiano Vigna
  *
  * PaStA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

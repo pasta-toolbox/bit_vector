@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "bit_vector/bit_vector.hpp"
-#include "bit_vector/support/bit_vector_wide_rank.hpp"
-#include "bit_vector/support/find_l2_wide_with.hpp"
-#include "bit_vector/support/optimized_for.hpp"
-#include "bit_vector/support/popcount.hpp"
-#include "bit_vector/support/select.hpp"
+#include "pasta/bit_vector/bit_vector.hpp"
+#include "pasta/bit_vector/support/bit_vector_wide_rank.hpp"
+#include "pasta/bit_vector/support/find_l2_wide_with.hpp"
+#include "pasta/bit_vector/support/optimized_for.hpp"
+#include "pasta/bit_vector/support/popcount.hpp"
+#include "pasta/bit_vector/support/select.hpp"
 
 #include <cstddef>
 #include <cstdint>

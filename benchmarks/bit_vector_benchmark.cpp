@@ -25,6 +25,8 @@
 #include <pasta/bit_vector/support/optimized_for.hpp>
 #include <pasta/bit_vector/support/rank.hpp>
 #include <pasta/bit_vector/support/rank_select.hpp>
+#include <pasta/bit_vector/support/wide_rank.hpp>
+#include <pasta/bit_vector/support/wide_rank_select.hpp>
 #include <pasta/utils/do_not_optimize.hpp>
 #if defined(DNDEBUG)
 #  include <pasta/utils/memory_monitor.hpp>
@@ -65,6 +67,18 @@ public:
     using pasta_bv_flat_rs_i_zero =
         pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
                               pasta::FindL2FlatWith::INTRINSICS>;
+    using pasta_bv_wide_rs_ls_one =
+        pasta::WideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                              pasta::FindL2WideWith::LINEAR_SEARCH>;
+    using pasta_bv_wide_rs_ls_zero =
+        pasta::WideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                              pasta::FindL2WideWith::LINEAR_SEARCH>;
+    using pasta_bv_wide_rs_bs_one =
+        pasta::WideRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                              pasta::FindL2WideWith::BINARY_SEARCH>;
+    using pasta_bv_wide_rs_bs_zero =
+        pasta::WideRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                              pasta::FindL2WideWith::BINARY_SEARCH>;
 
     die_verbose_unless(fill_percentage_ <= 100,
                        "-f [--fill_percentage] must "
@@ -82,6 +96,10 @@ public:
     run_pasta<pasta_bv_flat_rs_bs_zero>("pasta_bv_flat_rs_bs_zero", gen);
     run_pasta<pasta_bv_flat_rs_i_one>("pasta_bv_flat_rs_i_one", gen);
     run_pasta<pasta_bv_flat_rs_i_zero>("pasta_bv_flat_rs_i_zero", gen);
+    run_pasta<pasta_bv_wide_rs_ls_one>("pasta_bv_wide_rs_ls_one", gen);
+    run_pasta<pasta_bv_wide_rs_ls_zero>("pasta_bv_wide_rs_lss_zero", gen);
+    run_pasta<pasta_bv_wide_rs_bs_one>("pasta_bv_wide_rs_bs_one", gen);
+    run_pasta<pasta_bv_wide_rs_bs_zero>("pasta_bv_wide_rs_bs_zero", gen);
   }
 
   size_t bit_size_ = 1024 * 1024;

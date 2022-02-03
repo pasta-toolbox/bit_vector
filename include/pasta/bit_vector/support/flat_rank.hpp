@@ -32,10 +32,10 @@
 namespace pasta {
 
 /*!
- * \brief Static configuration for \c BitVectorFlatRank and
- * \c BitVectorFlatRankSelect
+ * \brief Static configuration for \c FlatRank and
+ * \c FlatRankSelect
  */
-struct FlattenedRankSelectConfig {
+struct FlatRankSelectConfig {
   //! Bits covered by an L2-block.
   static constexpr size_t L2_BIT_SIZE = 512;
   //! Bits covered by an L1-block.
@@ -53,7 +53,7 @@ struct FlattenedRankSelectConfig {
 
   //! Sample rate of positions for faster select queries.
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
-}; // struct FlattenedRankSelectConfig
+}; // struct FlatRankSelectConfig
 
 //! \addtogroup pasta_bit_vectors
 //! \{
@@ -74,11 +74,12 @@ struct FlattenedRankSelectConfig {
  * either 0, 1, or no specific type of query.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
-class BitVectorFlatRank {
+class FlatRank {
   //! Friend class, using internal information l12_.
   template <OptimizedFor o, FindL2FlatWith f>
-  friend class BitVectorFlatRankSelect;
+  friend class FlatRankSelect;
 
+protected:
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
   //! Pointer to the data of the bit vector.
@@ -91,17 +92,17 @@ class BitVectorFlatRank {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorFlatRank() = default;
+  FlatRank() = default;
 
   /*!
    * \brief Constructor. Creates the auxiliary information for efficient rank
    * queries.
    * \param bv \c BitVector the rank structure is created for.
    */
-  BitVectorFlatRank(BitVector const& bv)
+  FlatRank(BitVector const& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
-        l12_((data_size_ / FlattenedRankSelectConfig::L1_WORD_SIZE) + 1) {
+        l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1) {
     init();
   }
 
@@ -124,10 +125,10 @@ public:
   rank1(size_t index) const {
     size_t offset = ((index / 512) * 8);
     __builtin_prefetch(&data_[offset], 0, 0);
-    size_t const l1_pos = index / FlattenedRankSelectConfig::L1_BIT_SIZE;
+    size_t const l1_pos = index / FlatRankSelectConfig::L1_BIT_SIZE;
     __builtin_prefetch(&l12_[l1_pos], 0, 0);
-    size_t const l2_pos = ((index % FlattenedRankSelectConfig::L1_BIT_SIZE) /
-                           FlattenedRankSelectConfig::L2_BIT_SIZE);
+    size_t const l2_pos = ((index % FlatRankSelectConfig::L1_BIT_SIZE) /
+                           FlatRankSelectConfig::L2_BIT_SIZE);
     size_t result = l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
 
     // It is faster to not have a specialized rank0 function when
@@ -136,12 +137,12 @@ public:
     // would have to be bit-wise negated, which is more expensive than
     // the computation below.
     if constexpr (!optimize_one_or_dont_care(optimized_for)) {
-      result = ((l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) +
-                (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE)) -
+      result = ((l1_pos * FlatRankSelectConfig::L1_BIT_SIZE) +
+                (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE)) -
                result;
     }
 
-    index %= FlattenedRankSelectConfig::L2_BIT_SIZE;
+    index %= FlatRankSelectConfig::L2_BIT_SIZE;
     PASTA_ASSERT(index < 512,
                  "Trying to access bits that should be "
                  "covered in an L1-block");
@@ -159,7 +160,7 @@ public:
    * \brief Estimate for the space usage.
    * \return Number of bytes used by this data structure.
    */
-  [[nodiscard("space useage computed but not used")]] size_t
+  [[nodiscard("space useage computed but not used")]] virtual size_t
   space_usage() const {
     return l12_.size() * sizeof(BigL12Type) + sizeof(*this);
   }
@@ -219,7 +220,7 @@ private:
     std::partial_sum(l2_entries.begin(), l2_entries.end(), l2_entries.begin());
     l12_[l12_end_++] = BigL12Type(l1_entry, l2_entries);
   }
-}; // class BitVectorFlatRank
+}; // class FlatRank
 
 //! \}
 

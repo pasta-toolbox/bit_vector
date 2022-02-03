@@ -29,8 +29,8 @@
 namespace pasta {
 
 /*!
- * \brief Static configuration for \c BitVectorWideRank and
- * \c BitVectorWideRankSelect
+ * \brief Static configuration for \c WideRank and
+ * \c WideRankSelect
  */
 struct WideRankSelectConfig {
   //! Bits covered by an L2-block.
@@ -66,10 +66,10 @@ struct WideRankSelectConfig {
  * structure for either 0, 1, or no specific type of query.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
-class BitVectorWideRank {
+class WideRank {
   //! Friend class, using internal information l12_.
   template <OptimizedFor o, FindL2WideWith f>
-  friend class BitVectorWideRankSelect;
+  friend class WideRankSelect;
 
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
@@ -83,14 +83,14 @@ class BitVectorWideRank {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorWideRank() = default;
+  WideRank() = default;
 
   /*!
    * \brief Constructor. Creates the auxiliary information for efficient rank
    * queries.
    * \param bv \c BitVector the rank structure is created for.
    */
-  BitVectorWideRank(BitVector const& bv)
+  WideRank(BitVector const& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
         l1_((data_size_ / WideRankSelectConfig::L1_WORD_SIZE) + 1),
@@ -144,7 +144,7 @@ public:
    * \brief Estimate for the space usage.
    * \return Number of bytes used by this data structure.
    */
-  [[nodiscard("space useage computed but not used")]] size_t
+  [[nodiscard("space useage computed but not used")]] virtual size_t
   space_usage() const {
     return (l1_.size() * sizeof(uint64_t)) + (l2_.size() * sizeof(uint16_t)) +
            sizeof(*this);

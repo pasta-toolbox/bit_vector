@@ -38,10 +38,10 @@
 #pragma once
 
 #include "pasta/bit_vector/bit_vector.hpp"
-#include "pasta/bit_vector/support/bit_vector_rank.hpp"
 #include "pasta/bit_vector/support/l12_type.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
 #include "pasta/bit_vector/support/popcount.hpp"
+#include "pasta/bit_vector/support/rank.hpp"
 #include "pasta/bit_vector/support/select.hpp"
 
 #include <cstddef>
@@ -71,17 +71,22 @@ namespace pasta {
  * either 0, 1, or no specific type of query.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
-class BitVectorRankSelect {
+class RankSelect final : public Rank<optimized_for> {
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using Rank<optimized_for>::data_size_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using Rank<optimized_for>::data_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using Rank<optimized_for>::l0_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using Rank<optimized_for>::l12_;
+
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
-
-  //! Rank structure (requires a strict subset of data structures of select).
-  BitVectorRank<optimized_for> const rank_;
-
-  //! Size of the bit vector the select support is constructed for.
-  size_t data_size_;
-  //! Pointer to the data of the bit vector.
-  uint64_t const* data_;
 
   // Members for the structure (needed only for select)
   //! Staring positions of the samples of zeros (w.r.t. L0-blocks)
@@ -95,50 +100,29 @@ class BitVectorRankSelect {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorRankSelect() = default;
+  RankSelect() = default;
+
   /*!
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
    * \param bv \c BitVector the rank and select structure is created for.
    */
-  BitVectorRankSelect(BitVector const& bv)
-      : rank_(bv),
-        data_size_(bv.size_),
-        data_(bv.data_.data()),
+  RankSelect(BitVector const& bv)
+      : Rank<optimized_for>(bv),
         samples0_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
         samples1_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1) {
     init();
   }
 
   //! Default move constructor.
-  BitVectorRankSelect(BitVectorRankSelect&& other) = default;
+  RankSelect(RankSelect&& other) = default;
 
   //! Default move assignment.
-  BitVectorRankSelect& operator=(BitVectorRankSelect&& other) = default;
+  RankSelect& operator=(RankSelect&& other) = default;
 
   //! Destructor. Deleting manually created arrays.
-  ~BitVectorRankSelect() = default;
-
-  /*!
-   * \brief Computes rank of zeros.
-   * \param index Index the rank of zeros is computed for.
-   * \return Numbers of zeros (rank) before position \c index.
-   */
-  [[nodiscard("rank0 computed but not used")]] inline size_t
-  rank0(size_t const index) const {
-    return rank_.rank0(index);
-  }
-
-  /*!
-   * \brief Computes rank of ones.
-   * \param index Index the rank of ones is computed for.
-   * \return Numbers of ones (rank) before position \c index.
-   */
-  [[nodiscard("rank1 computed but not used")]] inline size_t
-  rank1(size_t const index) const {
-    return rank_.rank1(index);
-  }
+  ~RankSelect() = default;
 
   /*!
    * \brief Get position of specific zero, i.e., select.
@@ -147,29 +131,28 @@ public:
    */
   [[nodiscard("select0 computed but not used")]] size_t
   select0(size_t rank) const {
-    Array<uint64_t> const& l0 = rank_.l0_;
-    Array<L12Type> const& l12 = rank_.l12_;
-
+    size_t const l0_end = l0_.size();
+    size_t const l12_end = l12_.size();
     size_t l0_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l0_pos + 1 < l0.size() &&
+      while (l0_pos + 1 < l0_end &&
              ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-                     l0[l0_pos + 1] <
+                     l0_[l0_pos + 1] <
                  rank) {
         ++l0_pos;
       }
     } else {
-      while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
+      while (l0_pos + 1 < l0_end && l0_[l0_pos + 1] < rank) {
         ++l0_pos;
       }
     }
-    if (l0_pos == l0.size()) [[unlikely]] {
+    if (l0_pos == l0_end) [[unlikely]] {
       return data_size_;
     }
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
+      rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0_[l0_pos];
     } else {
-      rank -= l0[l0_pos];
+      rank -= l0_[l0_pos];
     }
 
     size_t const sample_pos =
@@ -183,21 +166,21 @@ public:
         std::min<size_t>(
             ((l0_pos + 1) * (PopcntRankSelectConfig::L0_WORD_SIZE /
                              PopcntRankSelectConfig::L1_WORD_SIZE)),
-            l12.size()) -
+            l12_end) -
         1;
 
     size_t l2_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos < l0_block_end &&
              ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
-                     l12[l1_pos + 1].l1 <
+                     l12_[l1_pos + 1].l1 <
                  rank) {
         ++l1_pos;
       }
       rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
-              (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
+              (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12_[l1_pos].l1;
 
-      auto l2 = l12[l1_pos].l2_values;
+      auto l2 = l12_[l1_pos].l2_values;
       while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
                                    (l2 & uint16_t(0b1111111111)) <
                                rank) {
@@ -207,11 +190,11 @@ public:
         ++l2_pos;
       }
     } else {
-      while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+      while (l1_pos + 1 < l0_block_end && l12_[l1_pos + 1].l1 < rank) {
         ++l1_pos;
       }
-      rank -= l12[l1_pos].l1;
-      auto l2 = l12[l1_pos].l2_values;
+      rank -= l12_[l1_pos].l1;
+      auto l2 = l12_[l1_pos].l2_values;
       while (l2_pos < 3 && (l2 & uint16_t(0b1111111111)) < rank) {
         rank -= (l2 & uint16_t(0b1111111111));
         l2 >>= 10;
@@ -238,29 +221,29 @@ public:
    */
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
-    Array<uint64_t> const& l0 = rank_.l0_;
-    Array<L12Type> const& l12 = rank_.l12_;
+    size_t const l0_end = l0_.size();
+    size_t const l12_end = l12_.size();
 
     size_t l0_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l0_pos + 1 < l0.size() && l0[l0_pos + 1] < rank) {
+      while (l0_pos + 1 < l0_end && l0_[l0_pos + 1] < rank) {
         ++l0_pos;
       }
     } else {
-      while (l0_pos + 1 < l0.size() &&
+      while (l0_pos + 1 < l0_end &&
              ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-                     l0[l0_pos + 1] <
+                     l0_[l0_pos + 1] <
                  rank) {
         ++l0_pos;
       }
     }
-    if (l0_pos == l0.size()) [[unlikely]] {
+    if (l0_pos == l0_end) [[unlikely]] {
       return data_size_;
     }
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      rank -= l0[l0_pos];
+      rank -= l0_[l0_pos];
     } else {
-      rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0[l0_pos];
+      rank -= (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l0_[l0_pos];
     }
 
     size_t const sample_pos =
@@ -273,16 +256,16 @@ public:
         std::min<size_t>(
             ((l0_pos + 1) * (PopcntRankSelectConfig::L0_WORD_SIZE /
                              PopcntRankSelectConfig::L1_WORD_SIZE)),
-            l12.size()) -
+            l12_end) -
         1;
 
     size_t l2_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l1_pos + 1 < l0_block_end && l12[l1_pos + 1].l1 < rank) {
+      while (l1_pos + 1 < l0_block_end && l12_[l1_pos + 1].l1 < rank) {
         ++l1_pos;
       }
-      rank -= l12[l1_pos].l1;
-      auto l2 = l12[l1_pos].l2_values;
+      rank -= l12_[l1_pos].l1;
+      auto l2 = l12_[l1_pos].l2_values;
       while (l2_pos < 3 && (l2 & uint16_t(0b1111111111)) < rank) {
         rank -= (l2 & uint16_t(0b1111111111));
         l2 >>= 10;
@@ -291,14 +274,14 @@ public:
     } else {
       while (l1_pos < l0_block_end &&
              ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
-                     l12[l1_pos + 1].l1 <
+                     l12_[l1_pos + 1].l1 <
                  rank) {
         ++l1_pos;
       }
       rank -= (l1_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
-              (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12[l1_pos].l1;
+              (l0_pos * PopcntRankSelectConfig::L0_BIT_SIZE) - l12_[l1_pos].l1;
 
-      auto l2 = l12[l1_pos].l2_values;
+      auto l2 = l12_[l1_pos].l2_values;
       while (l2_pos < 3 && PopcntRankSelectConfig::L2_BIT_SIZE -
                                    (l2 & uint16_t(0b1111111111)) <
                                rank) {
@@ -325,20 +308,18 @@ public:
    * \return Number of bytes used by this data structure.
    */
   [[nodiscard("space usage computed but not used")]] size_t
-  space_usage() const {
+  space_usage() const final {
     return samples0_.size() * sizeof(uint32_t) +
            samples1_.size() * sizeof(uint32_t) +
            samples0_pos_.size() * sizeof(uint64_t) +
-           samples1_pos_.size() * sizeof(uint64_t) + rank_.space_usage() +
-           sizeof(*this) - sizeof(rank_); // included in sizeof(*this)
+           samples1_pos_.size() * sizeof(uint64_t) + sizeof(*this);
   }
 
 private:
   //! Function used initializing data structure to reduce LOCs of constructor.
   void init() {
-    Array<L12Type> const& l12 = rank_.l12_;
+    size_t const l12_end = l12_.size();
 
-    size_t const l12_end = rank_.l12_.size();
     size_t next_sample0_value = 1;
     size_t next_sample1_value = 1;
     for (size_t l0_pos = 0, l12_pos = 0; l12_pos < l12_end; ++l12_pos) {
@@ -353,23 +334,23 @@ private:
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
                 ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-                l12[l12_pos].l1 >=
+                l12_[l12_pos].l1 >=
             next_sample0_value) {
           samples0_.push_back(l12_pos - 1);
           next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
         }
-        if (l12[l12_pos].l1 >= next_sample1_value) {
+        if (l12_[l12_pos].l1 >= next_sample1_value) {
           samples1_.push_back(l12_pos - 1);
           next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
         }
       } else {
-        if (l12[l12_pos].l1 >= next_sample0_value) {
+        if (l12_[l12_pos].l1 >= next_sample0_value) {
           samples0_.push_back(l12_pos - 1);
           next_sample0_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
         }
         if ((l12_pos * PopcntRankSelectConfig::L1_BIT_SIZE) -
                 ((l0_pos - 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
-                l12[l12_pos].l1 >=
+                l12_[l12_pos].l1 >=
             next_sample1_value) {
           samples1_.push_back(l12_pos - 1);
           next_sample1_value += PopcntRankSelectConfig::SELECT_SAMPLE_RATE;
@@ -384,7 +365,7 @@ private:
       samples1_.push_back(0);
     }
   }
-}; // class BitVectorRankSelect
+}; // class RankSelect
 
 //! \}
 

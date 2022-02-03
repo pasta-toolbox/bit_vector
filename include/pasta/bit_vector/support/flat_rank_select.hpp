@@ -21,8 +21,8 @@
 #pragma once
 
 #include "pasta/bit_vector/bit_vector.hpp"
-#include "pasta/bit_vector/support/bit_vector_flat_rank.hpp"
 #include "pasta/bit_vector/support/find_l2_flat_with.hpp"
+#include "pasta/bit_vector/support/flat_rank.hpp"
 #include "pasta/bit_vector/support/l12_type.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
 #include "pasta/bit_vector/support/popcount.hpp"
@@ -33,8 +33,8 @@
 #include <emmintrin.h>
 #include <immintrin.h>
 #include <limits>
-#include <tlx/container/simple_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
+#include <tlx/container/simple_vector.hpp>
 #include <vector>
 
 namespace pasta {
@@ -63,17 +63,22 @@ namespace pasta {
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
           FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH>
-class BitVectorFlatRankSelect {
+class FlatRankSelect final : public FlatRank<optimized_for> {
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using FlatRank<optimized_for>::data_size_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using FlatRank<optimized_for>::data_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using FlatRank<optimized_for>::l12_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using FlatRank<optimized_for>::l12_end_;
+
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
-
-  //! Rank structure (requires a strict subset of data structures of select).
-  BitVectorFlatRank<optimized_for> rank_;
-
-  //! Size of the bit vector the select support is constructed for.
-  size_t data_size_;
-  //! Pointer to the data of the bit vector.
-  uint64_t const* data_;
 
   // Members for the structure (needed only for select)
   //! Positions of every \c SELECT_SAMPLE_RATE zero.
@@ -83,48 +88,25 @@ class BitVectorFlatRankSelect {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorFlatRankSelect() = default;
+  FlatRankSelect() = default;
   /*!
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
    * \param bv \c BitVector the rank and select structure is created for.
    */
-  BitVectorFlatRankSelect(BitVector const& bv)
-      : rank_(bv),
-        data_size_(bv.size_),
-        data_(bv.data_.data()) {
+  FlatRankSelect(BitVector const& bv) : FlatRank<optimized_for>(bv) {
     init();
   }
 
   //! Default move constructor.
-  BitVectorFlatRankSelect(BitVectorFlatRankSelect&&) = default;
+  FlatRankSelect(FlatRankSelect&&) = default;
 
   //! Default move assignment.
-  BitVectorFlatRankSelect& operator=(BitVectorFlatRankSelect&&) = default;
+  FlatRankSelect& operator=(FlatRankSelect&&) = default;
 
   //! Destructor. Deleting manually created arrays.
-  ~BitVectorFlatRankSelect() = default;
-
-  /*!
-   * \brief Computes rank of zeros.
-   * \param index Index the rank of zeros is computed for.
-   * \return Numbers of zeros (rank) before position \c index.
-   */
-  [[nodiscard("rank0 computed but not used")]] size_t
-  rank0(size_t const index) const {
-    return rank_.rank0(index);
-  }
-
-  /*!
-   * \brief Computes rank of ones.
-   * \param index Index the rank of ones is computed for.
-   * \return Numbers of ones (rank) before position \c index.
-   */
-  [[nodiscard("rank1 computed but not used")]] size_t
-  rank1(size_t const index) const {
-    return rank_.rank1(index);
-  }
+  ~FlatRankSelect() = default;
 
   /*!
    * \brief Get position of specific zero, i.e., select.
@@ -133,34 +115,32 @@ public:
    */
   [[nodiscard("select0 computed but not used")]] size_t
   select0(size_t rank) const {
-    Array<BigL12Type> const& l12 = rank_.l12_;
-    size_t const l12_end = rank_.l12_end_;
+    size_t const l12_end = l12_end_;
 
     size_t const sample_pos =
-        ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
+        ((rank - 1) / FlatRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = samples0_[sample_pos];
-    l1_pos += ((rank - 1) % FlattenedRankSelectConfig::SELECT_SAMPLE_RATE) /
-              FlattenedRankSelectConfig::L1_BIT_SIZE;
+    l1_pos += ((rank - 1) % FlatRankSelectConfig::SELECT_SAMPLE_RATE) /
+              FlatRankSelectConfig::L1_BIT_SIZE;
 
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos + 1 < l12_end &&
-             ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-                     l12[l1_pos + 1].l1() <
+             ((l1_pos + 1) * FlatRankSelectConfig::L1_BIT_SIZE) -
+                     l12_[l1_pos + 1].l1() <
                  rank) {
         ++l1_pos;
       }
-      rank -=
-          (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) - l12[l1_pos].l1();
+      rank -= (l1_pos * FlatRankSelectConfig::L1_BIT_SIZE) - l12_[l1_pos].l1();
     } else {
-      while (l1_pos + 1 < l12_end && l12[l1_pos + 1].l1() < rank) {
+      while (l1_pos + 1 < l12_end && l12_[l1_pos + 1].l1() < rank) {
         ++l1_pos;
       }
-      rank -= l12[l1_pos].l1();
+      rank -= l12_[l1_pos].l1();
     }
     size_t l2_pos = 0;
     if constexpr (use_intrinsics(find_with)) {
       __m128i value =
-          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
+          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12_[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
                                                  11,
                                                  8,
@@ -191,15 +171,15 @@ public:
       value = _mm_blend_epi16(upper_values, lower_values, 0b01010101);
 
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        __m128i const max_ones = _mm_setr_epi16(
-            uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{4 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            std::numeric_limits<int16_t>::max(), // Sentinel
-            uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE});
+        __m128i const max_ones =
+            _mm_setr_epi16(uint16_t{5 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{4 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{3 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{2 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           std::numeric_limits<int16_t>::max(), // Sentinel
+                           uint16_t{8 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{7 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{6 * FlatRankSelectConfig::L2_BIT_SIZE});
 
         value = _mm_sub_epi16(max_ones, value);
       } else {
@@ -237,15 +217,15 @@ public:
       // based on the movemask-operation above.
       l2_pos = (16 - std::popcount(result)) / 2;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        rank -= ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
-                 l12[l1_pos][l2_pos]);
+        rank -= ((l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
+                 l12_[l1_pos][l2_pos]);
       } else {
-        rank -= l12[l1_pos][l2_pos];
+        rank -= l12_[l1_pos][l2_pos];
       }
     } else if constexpr (use_linear_search(find_with)) {
-      auto tmp = l12[l1_pos].data >> 32;
+      auto tmp = l12_[l1_pos].data >> 32;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while ((l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+        while ((l2_pos + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                        ((tmp >> 12) & uint16_t(0b111111111111)) <
                    rank &&
                l2_pos < 7) {
@@ -259,71 +239,70 @@ public:
         }
       }
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        rank -= (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+        rank -= (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
                 (tmp & uint16_t(0b111111111111));
       } else {
         rank -= (tmp & uint16_t(0b111111111111));
       }
     } else if (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        auto tmp = l12[l1_pos].data >> 44;
-        if (uint16_t const mid =
-                (3 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
-                ((tmp >> 36) & uint16_t(0b111111111111));
+        auto tmp = l12_[l1_pos].data >> 44;
+        if (uint16_t const mid = (3 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
+                                 ((tmp >> 36) & uint16_t(0b111111111111));
             mid < rank) {
           if (uint16_t const right =
-                  (5 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  (5 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                   ((tmp >> 60) & uint16_t(0b111111111111));
               right < rank) {
             if (uint16_t const leaf =
-                    (6 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (6 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 72) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 7;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 6;
-              rank -= (right - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (right - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           } else {
             if (uint16_t const leaf =
-                    (4 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (4 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 48) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 5;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 4;
-              rank -= (mid - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (mid - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           }
         } else {
           if (uint16_t const left =
-                  (1 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  (1 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                   ((tmp >> 12) & uint16_t(0b111111111111));
               left < rank) {
             if (uint16_t const leaf =
-                    (2 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (2 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 24) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 3;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 2;
-              rank -= (left - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (left - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           } else {
             if (uint16_t const leaf =
-                    (0 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (0 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     (tmp & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 1;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           }
         }
       } else {
-        auto tmp = l12[l1_pos].data >> 44;
+        auto tmp = l12_[l1_pos].data >> 44;
         if (uint16_t const mid = ((tmp >> 36) & uint16_t(0b111111111111));
             mid < rank) {
           if (uint16_t const right = ((tmp >> 60) & uint16_t(0b111111111111));
@@ -373,8 +352,8 @@ public:
                     "Using unsupported search method for l2 entries");
     }
 
-    size_t last_pos = (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-                      (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
+    size_t last_pos = (FlatRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+                      (FlatRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
     while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos)) < rank) {
@@ -391,31 +370,29 @@ public:
    */
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
-    Array<BigL12Type> const& l12 = rank_.l12_;
-    size_t const l12_end = rank_.l12_end_;
+    size_t const l12_end = l12_end_;
 
     size_t const sample_pos =
-        ((rank - 1) / FlattenedRankSelectConfig::SELECT_SAMPLE_RATE);
+        ((rank - 1) / FlatRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = samples1_[sample_pos];
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while ((l1_pos + 1) < l12_end && l12[l1_pos + 1].l1() < rank) {
+      while ((l1_pos + 1) < l12_end && l12_[l1_pos + 1].l1() < rank) {
         ++l1_pos;
       }
-      rank -= l12[l1_pos].l1();
+      rank -= l12_[l1_pos].l1();
     } else {
       while (l1_pos + 1 < l12_end &&
-             ((l1_pos + 1) * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-                     l12[l1_pos + 1].l1() <
+             ((l1_pos + 1) * FlatRankSelectConfig::L1_BIT_SIZE) -
+                     l12_[l1_pos + 1].l1() <
                  rank) {
         ++l1_pos;
       }
-      rank -=
-          (l1_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) - l12[l1_pos].l1();
+      rank -= (l1_pos * FlatRankSelectConfig::L1_BIT_SIZE) - l12_[l1_pos].l1();
     }
     size_t l2_pos = 0;
     if constexpr (use_intrinsics(find_with)) {
       __m128i value =
-          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12[l1_pos]));
+          _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12_[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
                                                  11,
                                                  8,
@@ -452,15 +429,15 @@ public:
         // 16 bit max!
         value = _mm_insert_epi16(value, std::numeric_limits<int16_t>::max(), 4);
       } else {
-        __m128i const max_ones = _mm_setr_epi16(
-            uint16_t{5 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{4 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{3 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{2 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            std::numeric_limits<int16_t>::max(), // Sentinel
-            uint16_t{8 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{7 * FlattenedRankSelectConfig::L2_BIT_SIZE},
-            uint16_t{6 * FlattenedRankSelectConfig::L2_BIT_SIZE});
+        __m128i const max_ones =
+            _mm_setr_epi16(uint16_t{5 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{4 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{3 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{2 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           std::numeric_limits<int16_t>::max(), // Sentinel
+                           uint16_t{8 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{7 * FlatRankSelectConfig::L2_BIT_SIZE},
+                           uint16_t{6 * FlatRankSelectConfig::L2_BIT_SIZE});
 
         value = _mm_sub_epi16(max_ones, value);
       }
@@ -487,13 +464,13 @@ public:
       // based on the movemask-operation above.
       l2_pos = (16 - std::popcount(result)) / 2;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        rank -= l12[l1_pos][l2_pos];
+        rank -= l12_[l1_pos][l2_pos];
       } else {
-        rank -= ((l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
-                 l12[l1_pos][l2_pos]);
+        rank -= ((l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
+                 l12_[l1_pos][l2_pos]);
       }
     } else if constexpr (use_linear_search(find_with)) {
-      auto tmp = l12[l1_pos].data >> 32;
+      auto tmp = l12_[l1_pos].data >> 32;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         while (((tmp >> 12) & uint16_t(0b111111111111)) < rank && l2_pos < 7) {
           tmp >>= 12;
@@ -501,19 +478,19 @@ public:
         }
         rank -= (tmp & uint16_t(0b111111111111));
       } else {
-        while ((l2_pos + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+        while ((l2_pos + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                        ((tmp >> 12) & uint16_t(0b111111111111)) <
                    rank &&
                l2_pos < 7) {
           tmp >>= 12;
           ++l2_pos;
         }
-        rank -= (l2_pos * FlattenedRankSelectConfig::L2_BIT_SIZE) -
+        rank -= (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
                 (tmp & uint16_t(0b111111111111));
       }
     } else if constexpr (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        auto tmp = l12[l1_pos].data >> 44;
+        auto tmp = l12_[l1_pos].data >> 44;
         if (uint16_t const mid = ((tmp >> 36) & uint16_t(0b111111111111));
             mid < rank) {
           if (uint16_t const right = ((tmp >> 60) & uint16_t(0b111111111111));
@@ -556,59 +533,58 @@ public:
           }
         }
       } else {
-        auto tmp = l12[l1_pos].data >> 44;
-        if (uint16_t const mid =
-                (3 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
-                ((tmp >> 36) & uint16_t(0b111111111111));
+        auto tmp = l12_[l1_pos].data >> 44;
+        if (uint16_t const mid = (3 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
+                                 ((tmp >> 36) & uint16_t(0b111111111111));
             mid < rank) {
           if (uint16_t const right =
-                  (5 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  (5 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                   ((tmp >> 60) & uint16_t(0b111111111111));
               right < rank) {
             if (uint16_t const leaf =
-                    (6 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (6 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 72) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 7;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 6;
-              rank -= (right - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (right - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           } else {
             if (uint16_t const leaf =
-                    (4 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (4 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 48) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 5;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 4;
-              rank -= (mid - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (mid - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           }
         } else {
           if (uint16_t const left =
-                  (1 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                  (1 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                   ((tmp >> 12) & uint16_t(0b111111111111));
               left < rank) {
             if (uint16_t const leaf =
-                    (2 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (2 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     ((tmp >> 24) & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 3;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             } else {
               l2_pos = 2;
-              rank -= (left - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (left - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           } else {
             if (uint16_t const leaf =
-                    (0 + 2) * FlattenedRankSelectConfig::L2_BIT_SIZE -
+                    (0 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                     (tmp & uint16_t(0b111111111111));
                 leaf < rank) {
               l2_pos = 1;
-              rank -= (leaf - FlattenedRankSelectConfig::L2_BIT_SIZE);
+              rank -= (leaf - FlatRankSelectConfig::L2_BIT_SIZE);
             }
           }
         }
@@ -620,8 +596,8 @@ public:
                     "Using unsupported search method for l2 entries");
     }
 
-    size_t last_pos = (FlattenedRankSelectConfig::L2_WORD_SIZE * l2_pos) +
-                      (FlattenedRankSelectConfig::L1_WORD_SIZE * l1_pos);
+    size_t last_pos = (FlatRankSelectConfig::L2_WORD_SIZE * l2_pos) +
+                      (FlatRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
     while ((popcount = pasta::popcount<1>(data_ + last_pos)) < rank) {
@@ -636,41 +612,39 @@ public:
    * \return Number of bytes used by this data structure.
    */
   [[nodiscard("space usage computed but not used")]] size_t
-  space_usage() const {
+  space_usage() const final {
     return samples0_.size() * sizeof(uint32_t) +
-           samples1_.size() * sizeof(uint32_t) + rank_.space_usage() +
-           sizeof(*this) - sizeof(rank_); // included in sizeof(*this)
+           samples1_.size() * sizeof(uint32_t) + sizeof(*this);
   }
 
 private:
   //! Function used initializing data structure to reduce LOCs of constructor.
   void init() {
-    Array<BigL12Type> const& l12 = rank_.l12_;
-    size_t const l12_end = rank_.l12_.size();
+    size_t const l12_end = l12_.size();
     size_t next_sample0_value = 1;
     size_t next_sample1_value = 1;
     for (size_t l12_pos = 0; l12_pos < l12_end; ++l12_pos) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-                l12[l12_pos].l1() >=
+        if ((l12_pos * FlatRankSelectConfig::L1_BIT_SIZE) -
+                l12_[l12_pos].l1() >=
             next_sample0_value) {
           samples0_.push_back(l12_pos - 1);
-          next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          next_sample0_value += FlatRankSelectConfig::SELECT_SAMPLE_RATE;
         }
-        if (l12[l12_pos].l1() >= next_sample1_value) {
+        if (l12_[l12_pos].l1() >= next_sample1_value) {
           samples1_.push_back(l12_pos - 1);
-          next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          next_sample1_value += FlatRankSelectConfig::SELECT_SAMPLE_RATE;
         }
       } else {
-        if (l12[l12_pos].l1() >= next_sample0_value) {
+        if (l12_[l12_pos].l1() >= next_sample0_value) {
           samples0_.push_back(l12_pos - 1);
-          next_sample0_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          next_sample0_value += FlatRankSelectConfig::SELECT_SAMPLE_RATE;
         }
-        if ((l12_pos * FlattenedRankSelectConfig::L1_BIT_SIZE) -
-                l12[l12_pos].l1() >=
+        if ((l12_pos * FlatRankSelectConfig::L1_BIT_SIZE) -
+                l12_[l12_pos].l1() >=
             next_sample1_value) {
           samples1_.push_back(l12_pos - 1);
-          next_sample1_value += FlattenedRankSelectConfig::SELECT_SAMPLE_RATE;
+          next_sample1_value += FlatRankSelectConfig::SELECT_SAMPLE_RATE;
         }
       }
     }
@@ -682,7 +656,7 @@ private:
       samples1_.push_back(0);
     }
   }
-}; // class BitVectorFlatRankSelect
+}; // class FlatRankSelect
 
 //! \}
 

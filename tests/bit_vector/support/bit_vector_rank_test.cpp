@@ -20,7 +20,7 @@
 
 #include <cstdint>
 #include <pasta/bit_vector/bit_vector.hpp>
-#include <pasta/bit_vector/support/bit_vector_rank.hpp>
+#include <pasta/bit_vector/support/rank.hpp>
 #include <tlx/die.hpp>
 
 template <typename TestFunction>
@@ -69,7 +69,7 @@ int32_t main() {
 
     // Test optimized for one queries
     {
-      pasta::BitVectorRank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);
+      pasta::Rank<pasta::OptimizedFor::ONE_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
@@ -83,7 +83,7 @@ int32_t main() {
     }
     // Test optimized for zero queries
     {
-      pasta::BitVectorRank<pasta::OptimizedFor::ZERO_QUERIES> bvr(bv);
+      pasta::Rank<pasta::OptimizedFor::ZERO_QUERIES> bvr(bv);
 
       die_unequal(set_ones, bvr.rank1(N));
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {

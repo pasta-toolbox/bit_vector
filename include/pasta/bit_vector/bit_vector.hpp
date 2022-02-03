@@ -179,22 +179,22 @@ class BitVector {
 private:
   //! Forward declaration.
   template <OptimizedFor o>
-  friend class BitVectorRank;
+  friend class Rank;
   //! Forward declaration.
   template <OptimizedFor o>
-  friend class BitVectorFlatRank;
+  friend class FlatRank;
   //! Forward declaration.
   template <OptimizedFor o>
-  friend class BitVectorWideRank;
+  friend class WideRank;
   //! Forward declaration.
   template <OptimizedFor o>
-  friend class BitVectorRankSelect;
+  friend class RankSelect;
   //! Forward declaration.
   template <OptimizedFor o, FindL2FlatWith f>
-  friend class BitVectorFlatRankSelect;
+  friend class FlatRankSelect;
   //! Forward declaration.
   template <OptimizedFor o, FindL2WideWith f>
-  friend class BitVectorWideRankSelect;
+  friend class WideRankSelect;
 
   //! Size of the bit vector in bits.
   size_t bit_size_;

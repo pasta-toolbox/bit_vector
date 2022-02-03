@@ -46,14 +46,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <tlx/container/simple_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
+#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
 /*!
- * \brief Static configuration for \c BitVectorRank and
- * \c BitVectorRankSelect.
+ * \brief Static configuration for \c Rank and
+ * \c RankSelect.
  */
 struct PopcntRankSelectConfig {
   //! Bits covered by an L2-block.
@@ -87,18 +87,15 @@ struct PopcntRankSelectConfig {
  * regarding the popcount of the current block or all previous blocks.
  *
  * *Note* that rank support is also provided in addition to select support by
- * \c BitVectorRankSelect, which uses this rank support implementation
+ * \c RankSelect, which uses this rank support implementation
  * internally.
  *
  * \tparam OptimizedFor Compile time option to optimize data structure for
  * either 0, 1, or no specific type of query.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
-class BitVectorRank {
-  //! Friend class, using internal information l0_ and l12_, too.
-  template <OptimizedFor o>
-  friend class BitVectorRankSelect;
-
+class Rank {
+public:
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
   //! Pointer to the data of the bit vector.
@@ -114,14 +111,14 @@ class BitVectorRank {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorRank() = default;
+  Rank() = default;
 
   /*!
    * \brief Constructor. Creates the auxiliary information for efficient rank
    * queries.
    * \param bv \c BitVector the rank structure is created for.
    */
-  BitVectorRank(BitVector const& bv)
+  Rank(BitVector const& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
         bit_size_(bv.size()),
@@ -131,13 +128,13 @@ public:
   }
 
   // Default move constructor.
-  BitVectorRank(BitVectorRank&& other) = default;
+  Rank(Rank&& other) = default;
 
   // Default move assignment.
-  BitVectorRank& operator=(BitVectorRank&& other) = default;
+  Rank& operator=(Rank&& other) = default;
 
   //! Destructor. Deleting manually created arrays.
-  ~BitVectorRank() = default;
+  ~Rank() = default;
 
   /*!
    * \brief Computes rank of zeros.
@@ -201,7 +198,7 @@ public:
    * \brief Estimate for the space usage.
    * \return Number of bytes used by this data structure.
    */
-  [[nodiscard("space usage computed but not used")]] size_t
+  [[nodiscard("space usage computed but not used")]] virtual size_t
   space_usage() const {
     return l0_.size() * sizeof(uint64_t) + l12_.size() * sizeof(L12Type) +
            sizeof(*this);
@@ -283,7 +280,7 @@ private:
       l0_[l0_pos] = std::numeric_limits<uint64_t>::max();
     }
   }
-}; // class BitVectorRank
+}; // class Rank
 
 //! \}
 

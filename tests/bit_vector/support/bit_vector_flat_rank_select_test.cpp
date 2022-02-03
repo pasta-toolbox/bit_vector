@@ -20,8 +20,8 @@
 
 #include <cstdint>
 #include <pasta/bit_vector/bit_vector.hpp>
-#include <pasta/bit_vector/support/bit_vector_flat_rank_select.hpp>
 #include <pasta/bit_vector/support/find_l2_flat_with.hpp>
+#include <pasta/bit_vector/support/flat_rank_select.hpp>
 #include <tlx/die.hpp>
 
 template <typename TestFunction>
@@ -51,44 +51,6 @@ void run_test(TestFunction test_config) {
 }
 
 int32_t main() {
-  // Test rank
-  run_test([](size_t N, size_t K) {
-    pasta::BitVector bv(N, 0);
-    size_t set_ones = 0;
-    auto bv_data = bv.data();
-    for (size_t i = 0; i < bv_data.size(); ++i) {
-      uint64_t word = 0ULL;
-      for (size_t j = 0; j < 64; ++j) {
-        word >>= 1;
-        if (size_t bit_pos = ((i * 64) + j); bit_pos >= N) {
-          word >>= (63 - j);
-          break;
-        } else if (bit_pos % K == 0) {
-          ++set_ones;
-          word |= (1ULL << 63);
-        }
-      }
-      bv_data.data()[i] = word;
-    }
-
-    // Rank is extensively tested in the rank test, therefore, we do
-    // not have to be that thoroughly here.
-    size_t const query_pos_offset = (N > (1ULL << 30)) ? 7919 : 1;
-
-    // We test both configurations for rank in the rank test
-    pasta::BitVectorFlatRankSelect bvrs(bv);
-
-    die_unequal(set_ones, bvrs.rank1(N));
-    for (size_t i = 1; i <= N / K; i += query_pos_offset) {
-      die_unequal(i, bvrs.rank1((K * i)));
-    }
-
-    die_unequal((N - set_ones), bvrs.rank0(N));
-    for (size_t i = 1; i <= N / K; i += query_pos_offset) {
-      die_unequal((K - 1) * i, bvrs.rank0((K * i)));
-    }
-  });
-
   // Test select
   run_test([](size_t N, size_t K) {
     pasta::BitVector bv(N, 0);
@@ -111,8 +73,8 @@ int32_t main() {
 
     // Test optimized for one queries with linear search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::LINEAR_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -120,8 +82,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with linear search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::LINEAR_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -130,8 +92,8 @@ int32_t main() {
 
     // Test optimized for one queries with binary search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::BINARY_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -139,8 +101,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with binary search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::BINARY_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -149,8 +111,8 @@ int32_t main() {
 
     // Test optimized for one queries with intrinsics
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::INTRINSICS>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -158,8 +120,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with intrinsics
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::INTRINSICS>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += query_pos_offset) {
         die_unequal(K * (i - 1), bvrs.select1(i));
@@ -172,8 +134,8 @@ int32_t main() {
 
     // Test optimized for one queries with linear search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::LINEAR_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));
@@ -181,8 +143,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with linear search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::LINEAR_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::LINEAR_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));
@@ -191,8 +153,8 @@ int32_t main() {
 
     // Test optimized for one queries with binary search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::BINARY_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));
@@ -200,8 +162,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with binary search
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::BINARY_SEARCH>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::BINARY_SEARCH>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));
@@ -210,8 +172,8 @@ int32_t main() {
 
     // Test optimized for one queries with intrinsics
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ONE_QUERIES,
+                            pasta::FindL2FlatWith::INTRINSICS>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));
@@ -219,8 +181,8 @@ int32_t main() {
     }
     // Test optimized for zero queries with intrinsics
     {
-      pasta::BitVectorFlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
-                                     pasta::FindL2FlatWith::INTRINSICS>
+      pasta::FlatRankSelect<pasta::OptimizedFor::ZERO_QUERIES,
+                            pasta::FindL2FlatWith::INTRINSICS>
           bvrs(bv);
       for (size_t i = 1; i <= N / K; i += (std::max<size_t>(1, N / 100) + 1)) {
         die_unequal(K * (i - 1), bvrs.select0(i));

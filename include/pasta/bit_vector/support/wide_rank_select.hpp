@@ -21,11 +21,11 @@
 #pragma once
 
 #include "pasta/bit_vector/bit_vector.hpp"
-#include "pasta/bit_vector/support/bit_vector_wide_rank.hpp"
 #include "pasta/bit_vector/support/find_l2_wide_with.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
 #include "pasta/bit_vector/support/popcount.hpp"
 #include "pasta/bit_vector/support/select.hpp"
+#include "pasta/bit_vector/support/wide_rank.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -56,17 +56,22 @@ namespace pasta {
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
           FindL2WideWith find_with = FindL2WideWith::LINEAR_SEARCH>
-class BitVectorWideRankSelect {
+class WideRankSelect : public WideRank<optimized_for> {
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using WideRank<optimized_for>::data_size_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using WideRank<optimized_for>::data_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using WideRank<optimized_for>::l1_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using WideRank<optimized_for>::l2_;
+
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
-
-  //! Rank structure (requires a strict subset of data structures of select).
-  BitVectorWideRank<optimized_for> const rank_;
-
-  //! Size of the bit vector the select support is constructed for.
-  size_t data_size_;
-  //! Pointer to the data of the bit vector.
-  uint64_t const* data_;
 
   // Members for the structure (needed only for select)
   //! Positions of every \c SELECT_SAMPLE_RATE zero.
@@ -76,48 +81,25 @@ class BitVectorWideRankSelect {
 
 public:
   //! Default constructor w/o parameter.
-  BitVectorWideRankSelect() = default;
+  WideRankSelect() = default;
   /*!
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
    * \param bv \c BitVector the rank and select structure is created for.
    */
-  BitVectorWideRankSelect(BitVector const& bv)
-      : rank_(bv),
-        data_size_(bv.size_),
-        data_(bv.data_.data()) {
+  WideRankSelect(BitVector const& bv) : WideRank<optimized_for>(bv) {
     init();
   }
 
   //! Default move constructor.
-  BitVectorWideRankSelect(BitVectorWideRankSelect&& other) = default;
+  WideRankSelect(WideRankSelect&& other) = default;
 
   //! Default move assignment.
-  BitVectorWideRankSelect& operator=(BitVectorWideRankSelect&& other) = default;
+  WideRankSelect& operator=(WideRankSelect&& other) = default;
 
   //! Destructor. Deleting manually created arrays.
-  ~BitVectorWideRankSelect() = default;
-
-  /*!
-   * \brief Computes rank of zeros.
-   * \param index Index the rank of zeros is computed for.
-   * \return Numbers of zeros (rank) before position \c index.
-   */
-  [[nodiscard("rank0 computed but not used")]] inline size_t
-  rank0(size_t const index) const {
-    return rank_.rank0(index);
-  }
-
-  /*!
-   * \brief Computes rank of ones.
-   * \param index Index the rank of ones is computed for.
-   * \return Numbers of ones (rank) before position \c index.
-   */
-  [[nodiscard("rank1 computed but not used")]] inline size_t
-  rank1(size_t const index) const {
-    return rank_.rank1(index);
-  }
+  ~WideRankSelect() = default;
 
   /*!
    * \brief Get position of specific zero, i.e., select.
@@ -126,11 +108,8 @@ public:
    */
   [[nodiscard("select0 computed but not used")]] size_t
   select0(size_t rank) const {
-    Array<uint64_t> const& l1 = rank_.l1_;
-    Array<uint16_t> const& l2 = rank_.l2_;
-
-    size_t const l1_end = l1.size();
-    size_t const l2_end = l2.size();
+    size_t const l1_end = l1_.size();
+    size_t const l2_end = l2_.size();
 
     size_t l2_pos = ((rank - 1) / WideRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = l2_pos / 128;
@@ -138,16 +117,16 @@ public:
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos + 1 < l1_end &&
              ((l1_pos + 1) * WideRankSelectConfig::L1_BIT_SIZE) -
-                     l1[l1_pos + 1] <
+                     l1_[l1_pos + 1] <
                  rank) {
         ++l1_pos;
       }
-      rank -= (l1_pos * WideRankSelectConfig::L1_BIT_SIZE) - l1[l1_pos];
+      rank -= (l1_pos * WideRankSelectConfig::L1_BIT_SIZE) - l1_[l1_pos];
     } else {
-      while (l1_pos + 1 < l1_end && l1[l1_pos + 1] < rank) {
+      while (l1_pos + 1 < l1_end && l1_[l1_pos + 1] < rank) {
         ++l1_pos;
       }
-      rank -= l1[l1_pos];
+      rank -= l1_[l1_pos];
     }
 
     l2_pos = std::max(l1_pos * 128, l2_pos);
@@ -157,17 +136,17 @@ public:
         size_t added = 0;
         while (l2_pos + 1 < l2_end &&
                ((added + 1) * WideRankSelectConfig::L2_BIT_SIZE) -
-                       l2[l2_pos + 1] <
+                       l2_[l2_pos + 1] <
                    rank) {
           ++l2_pos;
           ++added;
         }
-        rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2[l2_pos];
+        rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       } else {
-        while (l2_pos + 1 < l2_end && l2[l2_pos + 1] < rank) {
+        while (l2_pos + 1 < l2_end && l2_[l2_pos + 1] < rank) {
           ++l2_pos;
         }
-        rank -= l2[l2_pos];
+        rank -= l2_[l2_pos];
       }
     } else if (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
@@ -190,12 +169,12 @@ public:
           // available in gcc) and we have an array containing 2 byte
           // elements (l2).
           if (size > 16) {
-            __builtin_prefetch(&l2[start_next_left + size], 0, 0);
-            __builtin_prefetch(&l2[start_next_right + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_left + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_right + size], 0, 0);
           }
           start_next_left =
-              (rank >
-               ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) - l2[mid]) ?
+              (rank > ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
+                          l2_[mid]) ?
                   start_next_right :
                   start_next_left;
           start_next_right = start_next_left + size;
@@ -203,11 +182,11 @@ public:
           size >>= 1;
         }
         l2_pos = (rank > ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
-                             l2[mid]) ?
+                             l2_[mid]) ?
                      mid :
                      start_next_left - 1;
         rank -= ((l2_pos - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
-                l2[l2_pos];
+                l2_[l2_pos];
       } else {
         while (size > 0) {
           // The search space does not fit into one cache line, so we do
@@ -217,17 +196,17 @@ public:
           // available in gcc) and we have an array containing 2 byte
           // elements (l2).
           if (size > 16) {
-            __builtin_prefetch(&l2[start_next_left + size], 0, 0);
-            __builtin_prefetch(&l2[start_next_right + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_left + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_right + size], 0, 0);
           }
           start_next_left =
-              (rank > l2[mid]) ? start_next_right : start_next_left;
+              (rank > l2_[mid]) ? start_next_right : start_next_left;
           start_next_right = start_next_left + size;
           mid = start_next_left + size - 1;
           size >>= 1;
         }
-        l2_pos = (rank > l2[mid]) ? mid : start_next_left - 1;
-        rank -= l2[l2_pos];
+        l2_pos = (rank > l2_[mid]) ? mid : start_next_left - 1;
+        rank -= l2_[l2_pos];
       }
     }
 
@@ -248,48 +227,45 @@ public:
    */
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
-    Array<uint64_t> const& l1 = rank_.l1_;
-    Array<uint16_t> const& l2 = rank_.l2_;
-
-    size_t const l1_end = l1.size();
-    size_t const l2_end = l2.size();
+    size_t const l1_end = l1_.size();
+    size_t const l2_end = l2_.size();
 
     size_t l2_pos = ((rank - 1) / WideRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = l2_pos / 128;
 
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l1_pos + 1 < l1_end && l1[l1_pos + 1] < rank) {
+      while (l1_pos + 1 < l1_end && l1_[l1_pos + 1] < rank) {
         ++l1_pos;
       }
-      rank -= l1[l1_pos];
+      rank -= l1_[l1_pos];
     } else {
       while (l1_pos + 1 < l1_end &&
              ((l1_pos + 1) * WideRankSelectConfig::L1_BIT_SIZE) -
-                     l1[l1_pos + 1] <
+                     l1_[l1_pos + 1] <
                  rank) {
         ++l1_pos;
       }
-      rank -= (l1_pos * WideRankSelectConfig::L1_BIT_SIZE) - l1[l1_pos];
+      rank -= (l1_pos * WideRankSelectConfig::L1_BIT_SIZE) - l1_[l1_pos];
     }
 
     l2_pos = std::max(l1_pos * 128, l2_pos);
 
     if constexpr (use_linear_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while (l2_pos + 1 < l2_end && l2[l2_pos + 1] < rank) {
+        while (l2_pos + 1 < l2_end && l2_[l2_pos + 1] < rank) {
           ++l2_pos;
         }
-        rank -= l2[l2_pos];
+        rank -= l2_[l2_pos];
       } else {
         size_t added = 0;
         while (l2_pos + 1 < l2_end &&
                ((added + 1) * WideRankSelectConfig::L2_BIT_SIZE) -
-                       l2[l2_pos + 1] <
+                       l2_[l2_pos + 1] <
                    rank) {
           ++l2_pos;
           ++added;
         }
-        rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2[l2_pos];
+        rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       }
     } else if (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
@@ -311,17 +287,17 @@ public:
           // available in gcc) and we have an array containing 2 byte
           // elements (l2).
           if (size > 16) {
-            __builtin_prefetch(&l2[start_next_left + size], 0, 0);
-            __builtin_prefetch(&l2[start_next_right + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_left + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_right + size], 0, 0);
           }
           start_next_left =
-              (rank > l2[mid]) ? start_next_right : start_next_left;
+              (rank > l2_[mid]) ? start_next_right : start_next_left;
           start_next_right = start_next_left + size;
           mid = start_next_left + size - 1;
           size >>= 1;
         }
-        l2_pos = (rank > l2[mid]) ? mid : start_next_left - 1;
-        rank -= l2[l2_pos];
+        l2_pos = (rank > l2_[mid]) ? mid : start_next_left - 1;
+        rank -= l2_[l2_pos];
       } else {
         size_t const offset = (128 * l1_pos);
         while (size > 0) {
@@ -332,12 +308,12 @@ public:
           // available in gcc) and we have an array containing 2 byte
           // elements (l2).
           if (size > 16) {
-            __builtin_prefetch(&l2[start_next_left + size], 0, 0);
-            __builtin_prefetch(&l2[start_next_right + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_left + size], 0, 0);
+            __builtin_prefetch(&l2_[start_next_right + size], 0, 0);
           }
           start_next_left =
-              (rank >
-               ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) - l2[mid]) ?
+              (rank > ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
+                          l2_[mid]) ?
                   start_next_right :
                   start_next_left;
           start_next_right = start_next_left + size;
@@ -345,11 +321,11 @@ public:
           size >>= 1;
         }
         l2_pos = (rank > ((mid - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
-                             l2[mid]) ?
+                             l2_[mid]) ?
                      mid :
                      start_next_left - 1;
         rank -= ((l2_pos - offset) * WideRankSelectConfig::L2_BIT_SIZE) -
-                l2[l2_pos];
+                l2_[l2_pos];
       }
     }
 
@@ -368,47 +344,44 @@ public:
    * \return Number of bytes used by this data structure.
    */
   [[nodiscard("space usage computed but not used")]] size_t
-  space_usage() const {
+  space_usage() const override {
     return samples0_.size() * sizeof(uint32_t) +
-           samples1_.size() * sizeof(uint32_t) + rank_.space_usage() +
-           sizeof(*this) - sizeof(rank_); // included in sizeof(*this)
+           samples1_.size() * sizeof(uint32_t) +
+           sizeof(*this); // included in sizeof(*this)
   }
 
 private:
   //! Function used initializing data structure to reduce LOCs of constructor.
   void init() {
-    Array<uint64_t> const& l1 = rank_.l1_;
-    Array<uint16_t> const& l2 = rank_.l2_;
-
-    size_t const l2_end = l2.size();
+    size_t const l2_end = l2_.size();
     size_t next_sample0_value = 1;
     size_t next_sample1_value = 1;
     for (size_t l2_pos = 0, offset = 0; l2_pos < l2_end; ++l2_pos) {
-      offset = l1[l2_pos / 128];
+      offset = l1_[l2_pos / 128];
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         if ((l2_pos * WideRankSelectConfig::L2_BIT_SIZE) -
-            (offset + l2[l2_pos] >= next_sample1_value)) {
+            (offset + l2_[l2_pos] >= next_sample1_value)) {
           samples0_.push_back(l2_pos - 1);
           next_sample0_value += WideRankSelectConfig::SELECT_SAMPLE_RATE;
         }
-        if (offset + l2[l2_pos] >= next_sample1_value) {
+        if (offset + l2_[l2_pos] >= next_sample1_value) {
           samples1_.push_back(l2_pos - 1);
           next_sample1_value += WideRankSelectConfig::SELECT_SAMPLE_RATE;
         }
       } else {
-        if (offset + l2[l2_pos] >= next_sample1_value) {
+        if (offset + l2_[l2_pos] >= next_sample1_value) {
           samples0_.push_back(l2_pos - 1);
           next_sample0_value += WideRankSelectConfig::SELECT_SAMPLE_RATE;
         }
         if ((l2_pos * WideRankSelectConfig::L2_BIT_SIZE) -
-            (offset + l2[l2_pos] >= next_sample1_value)) {
+            (offset + l2_[l2_pos] >= next_sample1_value)) {
           samples1_.push_back(l2_pos - 1);
           next_sample1_value += WideRankSelectConfig::SELECT_SAMPLE_RATE;
         }
       }
     }
   }
-}; // class   BitVectorWideRankSelect
+}; // class   WideRankSelect
 
 //! \}
 

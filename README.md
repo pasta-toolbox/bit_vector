@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/pasta-toolbox/bit_vector/branch/main/graph/badge.svg?token=2QD6ME44SU)](https://codecov.io/gh/pasta-toolbox/bit_vector)
 
 This header-only library contains a highly tuned (uncompressed) bit vector implementation with multiple space efficient rank and select support data structures.
-The our fastest rank and select support has a space overhead of only ~3% and makes use of data level parallelism via SIMD instructions.
+The our fastest rank and select support has a space overhead of only ~3.51% and makes use of data level parallelism via SIMD instructions.
 
 ## Contents
 This repository contains the following algorithms and data structures.
@@ -15,14 +15,14 @@ Bit vectors play an important role in many compressed text indices, e.g., the FM
 This repository contains the following bit vector implementations:
 
 - highly tuned [uncompressed bit vector][] with access operator
-- compact [rank][include/pasta/bit_vector/support/rank.hpp] and [select][include/pasta/bit_vector/support/rank_select.hpp] support for the uncompressed bit vector based on
+- compact [rank](include/pasta/bit_vector/support/rank.hpp) and [select](include/pasta/bit_vector/support/rank_select.hpp) support for the uncompressed bit vector based on
 
 > Dong Zhou and David G. Andersen and Michael Kaminsky,
 > Space-Efficient, High-Performance Rank and Select Structures on Uncompressed Bit Sequences,
 > SEA 2013.
 
-- improved [rank][include/pasta/bit_vector/support/flat_rank.hpp] and [select][include/pasta/bit_vector/support/flat_rank_select.hpp] support requiring the same amount of memory but providing faster rank (up to 8% speedup) and select (up to 16.5% speedup) queries, and
-- a very fast [rank][include/pasta/bit_vector/support/wide_rank.hpp] support that can also answer [select][include/pasta/bit_vector/support/wide_rank_select.hpp] queries.
+- improved [rank](include/pasta/bit_vector/support/flat_rank.hpp) and [select](include/pasta/bit_vector/support/flat_rank_select.hpp) support requiring the same amount of memory but providing faster rank (up to 8% speedup) and select (up to 16.5% speedup) queries, and
+- a very fast [rank](include/pasta/bit_vector/support/wide_rank.hpp) support that can also answer [select](include/pasta/bit_vector/support/wide_rank_select.hpp) queries.
 
 [uncompressed bit vector]: bit_vector/bit_vector.hpp
 

@@ -134,6 +134,7 @@ public:
     size_t const l0_end = l0_.size();
     size_t const l12_end = l12_.size();
     size_t l0_pos = 0;
+
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l0_pos + 1 < l0_end &&
              ((l0_pos + 1) * PopcntRankSelectConfig::L0_BIT_SIZE) -
@@ -168,10 +169,10 @@ public:
                              PopcntRankSelectConfig::L1_WORD_SIZE)),
             l12_end) -
         1;
-
+    l1_pos = std::min<size_t>(l1_pos, l0_block_end);
     size_t l2_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
-      while (l1_pos < l0_block_end &&
+      while (l1_pos + 1 < l0_block_end &&
              ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
                      l12_[l1_pos + 1].l1 <
                  rank) {
@@ -223,8 +224,8 @@ public:
   select1(size_t rank) const {
     size_t const l0_end = l0_.size();
     size_t const l12_end = l12_.size();
-
     size_t l0_pos = 0;
+
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l0_pos + 1 < l0_end && l0_[l0_pos + 1] < rank) {
         ++l0_pos;
@@ -249,6 +250,7 @@ public:
     size_t const sample_pos =
         ((rank - 1) / PopcntRankSelectConfig::SELECT_SAMPLE_RATE) +
         samples1_pos_[l0_pos];
+
     size_t l1_pos = samples1_[sample_pos];
     l1_pos += ((rank - 1) % PopcntRankSelectConfig::SELECT_SAMPLE_RATE) /
               PopcntRankSelectConfig::L1_BIT_SIZE;
@@ -258,7 +260,7 @@ public:
                              PopcntRankSelectConfig::L1_WORD_SIZE)),
             l12_end) -
         1;
-
+    l1_pos = std::min(l1_pos, l0_block_end);
     size_t l2_pos = 0;
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos + 1 < l0_block_end && l12_[l1_pos + 1].l1 < rank) {
@@ -272,7 +274,7 @@ public:
         ++l2_pos;
       }
     } else {
-      while (l1_pos < l0_block_end &&
+      while (l1_pos + 1 < l0_block_end &&
              ((l1_pos + 1) * PopcntRankSelectConfig::L1_BIT_SIZE) -
                      l12_[l1_pos + 1].l1 <
                  rank) {

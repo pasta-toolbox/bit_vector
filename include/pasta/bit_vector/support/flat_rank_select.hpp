@@ -240,9 +240,9 @@ public:
       }
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         rank -= (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
-                (tmp & uint16_t(0b111111111111));
+                (l12_[l1_pos][l2_pos]);
       } else {
-        rank -= (tmp & uint16_t(0b111111111111));
+        rank -= (l12_[l1_pos][l2_pos]);
       }
     } else if (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
@@ -476,7 +476,7 @@ public:
           tmp >>= 12;
           ++l2_pos;
         }
-        rank -= (tmp & uint16_t(0b111111111111));
+        rank -= (l12_[l1_pos][l2_pos]);
       } else {
         while ((l2_pos + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
                        ((tmp >> 12) & uint16_t(0b111111111111)) <
@@ -486,7 +486,7 @@ public:
           ++l2_pos;
         }
         rank -= (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
-                (tmp & uint16_t(0b111111111111));
+                (l12_[l1_pos][l2_pos]);
       }
     } else if constexpr (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {

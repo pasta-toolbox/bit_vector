@@ -15,34 +15,29 @@ Bit vectors play an important role in many compressed text indices, e.g., the FM
 This repository contains the following bit vector implementations:
 
 - highly tuned [uncompressed bit vector][] with access operator
-- compact [rank][] and [select][] support for the uncompressed bit vector based on
+- compact [rank][include/pasta/bit_vector/support/rank.hpp] and [select][include/pasta/bit_vector/support/rank_select.hpp] support for the uncompressed bit vector based on
 
 > Dong Zhou and David G. Andersen and Michael Kaminsky,
 > Space-Efficient, High-Performance Rank and Select Structures on Uncompressed Bit Sequences,
 > SEA 2013.
 
-- improved [rank][] and [select][] support requiring the same amount of memory but providing faster rank (most of the time) and select (always) queries, and
-- a very fast [rank][] support that can also answer [select][] queries
-
-TODO FIX THE LINKS
-TODO ADD BENCHMARK RESULTS
-TODO ADD EXAMPLES
-TODO REMOVE SDSL
-TODO MORE FOCUS ON THE RANK AND SELECT, LESS FOCUS ON THE BIT VECTOR
+- improved [rank][include/pasta/bit_vector/support/flat_rank.hpp] and [select][include/pasta/bit_vector/support/flat_rank_select.hpp] support requiring the same amount of memory but providing faster rank (up to 8% speedup) and select (up to 16.5% speedup) queries, and
+- a very fast [rank][include/pasta/bit_vector/support/wide_rank.hpp] support that can also answer [select][include/pasta/bit_vector/support/wide_rank_select.hpp] queries.
 
 [uncompressed bit vector]: bit_vector/bit_vector.hpp
-[rank]: bit_vectorsupport/bit_vector_rank.hpp
-[select]: bit_vector/bit_vector_rank_select.hpp
 
 ### Benchmarks and Tests
 
-There exist an easy to use [benchmark][], which helps to compare the implementations in this repository with the ones contained in the [SDSL][].
+There exist an easy to use [benchmark][], which helps to compare the implementations in this repository.
 To build the benchmark, run the CMake command with `-DPASTA_BIT_VECTOR_BUILD_BENCHMARKS=On`.
 Our tests are contained in the folder [tests][].
 To build the tests, run the CMake command with `-DPASTA_BIT_VECTOR_BUILD_TESTS=On`.
 
+We also conducted an extensive experimental evaluation.
+To this end, we use our [rank and select benchmark][] where we compare our implementations with many other compact rank and select data structures.
+
 [benchmark]: benchmarks/bit_vector_benchmark.cpp
-[SDSL]: https://github.com/simongog/sdsl-lite
+[rank and select benchmark]: https://github.com/pasta-toolbox/bit_vector_experiments
 [tests]: tests/
 
 ## How to Get This

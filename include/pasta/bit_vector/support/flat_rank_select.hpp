@@ -122,7 +122,6 @@ public:
     size_t l1_pos = samples0_[sample_pos];
     l1_pos += ((rank - 1) % FlatRankSelectConfig::SELECT_SAMPLE_RATE) /
               FlatRankSelectConfig::L1_BIT_SIZE;
-
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos + 1 < l12_end &&
              ((l1_pos + 1) * FlatRankSelectConfig::L1_BIT_SIZE) -
@@ -651,9 +650,13 @@ private:
     // Add at least one entry.
     if (samples0_.size() == 0) [[unlikely]] {
       samples0_.push_back(0);
+    } else {
+      samples0_.push_back(samples0_.back());
     }
     if (samples1_.size() == 0) [[unlikely]] {
       samples1_.push_back(0);
+    } else {
+      samples1_.push_back(samples1_.back());
     }
   }
 }; // class FlatRankSelect

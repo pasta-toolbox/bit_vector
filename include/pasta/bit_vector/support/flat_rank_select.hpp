@@ -243,7 +243,7 @@ public:
       } else {
         rank -= (l12_[l1_pos][l2_pos]);
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         auto tmp = l12_[l1_pos].data >> 44;
         if (uint16_t const mid = (3 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -

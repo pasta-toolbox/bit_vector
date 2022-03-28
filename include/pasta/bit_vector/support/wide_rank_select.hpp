@@ -148,7 +148,7 @@ public:
         }
         rank -= l2_[l2_pos];
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);
@@ -267,7 +267,7 @@ public:
         }
         rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);

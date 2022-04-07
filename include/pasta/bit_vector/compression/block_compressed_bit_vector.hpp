@@ -22,11 +22,34 @@
 
 namespace pasta {
 
-  class BlockCompressedBitVector {
+class BlockCompressedBitVector {
+public:
+  /*! Constructor for a block compressed bit vector that takes a \c BitVector
+   * and prepares the compression.
+   *
+   * To easier work with the rank and select data structures, the bit vector is
+   * only compressed as soon as compress() is called. If a rank and select data
+   * structure is computed for this compressed bit vector, this happens
+   * automatically, e.g.,
+   * ```cpp
+   * BitVector bv(1000);
+   * // Fill bv
+   * BlockCompressedBitVector bcbv(bv);
+   * FlatRankSelect(std::move(bcbv));
+   * ```
+   * results in a compressed bit vector `bcbv`.
+   *
+   * \param bv Bit vector for which the block compressed bit vector is computed.
+   */
+  BlockCompressedBitVector(BitVector&& bv) {}
 
-  }; // class BlockCompressedBitVector
-  
+  /*! Creates a compressed version of the bit vector passed in the constructor
+   * and discards the uncompressed version.
+   */
+  void compress() {}
+
+}; // class BlockCompressedBitVector
+
 } // namespace pasta
 
 /******************************************************************************/
-

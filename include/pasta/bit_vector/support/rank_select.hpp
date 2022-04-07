@@ -69,9 +69,12 @@ namespace pasta {
  *
  * \tparam OptimizedFor Compile time option to optimize data structure for
  * either 0, 1, or no specific type of query.
+ * \tparam VectorType Type of the vector the rank and select data structure is
+ * constructed for, e.g., plain \c BitVector or a compressed bit vector.
  */
-template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
-class RankSelect final : public Rank<optimized_for> {
+template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
+          typename VectorType = BitVector>
+class RankSelect final : public Rank<optimized_for, VectorType> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
   using Rank<optimized_for>::data_size_;
@@ -106,9 +109,10 @@ public:
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
-   * \param bv \c BitVector the rank and select structure is created for.
+   * \param bv Vector of \c VectorType the rank and select structure is created
+   * for.
    */
-  RankSelect(BitVector const& bv)
+  RankSelect(VectorType& bv)
       : Rank<optimized_for>(bv),
         samples0_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
         samples1_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1) {

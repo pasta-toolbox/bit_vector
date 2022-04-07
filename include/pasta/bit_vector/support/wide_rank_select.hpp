@@ -53,9 +53,12 @@ namespace pasta {
  *
  * \tparam OptimizedFor Compile time option to optimize data structure for
  * either 0, 1, or no specific type of query.
+ * \tparam VectorType Type of the vector the rank and select data structure is
+ * constructed for, e.g., plain \c BitVector or a compressed bit vector.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
-          FindL2WideWith find_with = FindL2WideWith::LINEAR_SEARCH>
+          FindL2WideWith find_with = FindL2WideWith::LINEAR_SEARCH,
+          typename VectorType = BitVector>
 class WideRankSelect : public WideRank<optimized_for> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
@@ -86,9 +89,10 @@ public:
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
-   * \param bv \c BitVector the rank and select structure is created for.
+   * \param bv Vector of type \c VectorType the rank and select structure is
+   * created for.
    */
-  WideRankSelect(BitVector const& bv) : WideRank<optimized_for>(bv) {
+  WideRankSelect(VectorType& bv) : WideRank<optimized_for, VectorType>(bv) {
     init();
   }
 

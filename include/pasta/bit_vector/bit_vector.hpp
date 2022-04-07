@@ -178,32 +178,43 @@ private:
 class BitVector {
 private:
   //! Forward declaration.
-  template <OptimizedFor o>
+  template <OptimizedFor o, typename v>
   friend class Rank;
   //! Forward declaration.
-  template <OptimizedFor o>
+  template <OptimizedFor o, typename v>
   friend class FlatRank;
   //! Forward declaration.
-  template <OptimizedFor o>
+  template <OptimizedFor o, typename v>
   friend class WideRank;
   //! Forward declaration.
-  template <OptimizedFor o>
+  template <OptimizedFor o, typename v>
   friend class RankSelect;
   //! Forward declaration.
-  template <OptimizedFor o, FindL2FlatWith f>
+  template <OptimizedFor o, FindL2FlatWith f, typename v>
   friend class FlatRankSelect;
   //! Forward declaration.
-  template <OptimizedFor o, FindL2WideWith f>
+  template <OptimizedFor o, FindL2WideWith f, typename v>
   friend class WideRankSelect;
 
+public:
+  //! Type that is used to store the raw data of the bit vector.
+  using RawDataType = uint64_t;
+  //! Pointer to the data type that is used to store the raw data of the bit
+  //! vector.
+  using RawDataPointer = RawDataType*;
+  //! Type that can be used to access constant values of the raw data used to
+  //! represent the bit vector.
+  using RawDataConstAccess = RawDataType const*;
+
+private:
   //! Size of the bit vector in bits.
   size_t bit_size_;
   //! Size of the underlying data used to store the bits.
   size_t size_;
   //! Array of 64-bit words used to store the content of the bit vector.
-  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> data_;
+  tlx::SimpleVector<RawDataType, tlx::SimpleVectorMode::NoInitNoDestroy> data_;
   //! Pointer to the raw data of the bit vector.
-  uint64_t* raw_data_;
+  RawDataPointer raw_data_;
 
 public:
   /*!
@@ -282,8 +293,10 @@ public:
   //! Default empty constructor.
   BitVector() = default;
 
+  //! Deleted copy constructor.
   BitVector(BitVector const&) = delete;
 
+  //! Deleted copy assignment.
   BitVector& operator=(BitVector const&) = delete;
 
   /*!
@@ -378,6 +391,19 @@ public:
    */
   std::span<uint64_t> data() const noexcept {
     return std::span{raw_data_, size_};
+  }
+
+  /*!
+   * \brief Direct access to one 64-bit element of the raw data of the bit
+   * vector.
+   *
+   * Note that the raw data does not contain the bits from left to right. A
+   * detailed description can be found at the top of this file.
+   * \param index Index of the 64-bit bit word that should be returned.
+   * \return index-th 64-bit word of the raw bit vector data.
+   */
+  uint64_t data(size_t const index) const noexcept {
+    return raw_data_[index];
   }
 
   /*!

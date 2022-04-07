@@ -72,18 +72,21 @@ struct FlatRankSelectConfig {
  *
  * \tparam OptimizedFor Compile time option to optimize data structure for
  * either 0, 1, or no specific type of query.
+ * \tparam VectorType Type of the vector the rank data structure is constructed
+ * for, e.g., plain \c BitVector or a compressed bit vector.
  */
-template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
+template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
+          typename VectorType = BitVector>
 class FlatRank {
   //! Friend class, using internal information l12_.
-  template <OptimizedFor o, FindL2FlatWith f>
+  template <OptimizedFor o, FindL2FlatWith f, typename v>
   friend class FlatRankSelect;
 
 protected:
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
   //! Pointer to the data of the bit vector.
-  uint64_t const* data_;
+  VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
@@ -97,9 +100,9 @@ public:
   /*!
    * \brief Constructor. Creates the auxiliary information for efficient rank
    * queries.
-   * \param bv \c BitVector the rank structure is created for.
+   * \param bv Vector of \c VectorType the rank structure is created for.
    */
-  FlatRank(BitVector const& bv)
+  FlatRank(VectorType& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
         l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1) {

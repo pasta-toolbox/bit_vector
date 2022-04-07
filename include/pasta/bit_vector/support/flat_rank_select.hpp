@@ -60,9 +60,13 @@ namespace pasta {
  * \tparam use_intrinsic \c bool flag that specifies whether intrinsics should
  * be used during select queries (currently using them is slower). Default is
  * \c false.
+ *
+ * \tparam VectorType Type of the vector the rank and select data structure is
+ * constructed for, e.g., plain \c BitVector or a compressed bit vector.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
-          FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH>
+          FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH,
+          typename VectorType = BitVector>
 class FlatRankSelect final : public FlatRank<optimized_for> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
@@ -93,9 +97,10 @@ public:
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
-   * \param bv \c BitVector the rank and select structure is created for.
+   * \param bv Vector of type \c VectorType the rank and select structure is
+   * created for.
    */
-  FlatRankSelect(BitVector const& bv) : FlatRank<optimized_for>(bv) {
+  FlatRankSelect(VectorType& bv) : FlatRank<optimized_for, VectorType>(bv) {
     init();
   }
 

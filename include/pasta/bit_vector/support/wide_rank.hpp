@@ -64,17 +64,20 @@ struct WideRankSelectConfig {
  *
  * \tparam OptimizedFor Compile time option to optimize data
  * structure for either 0, 1, or no specific type of query.
+ * \tparam VectorType Type of the vector the rank data structure is constructed
+ * for, e.g., plain \c BitVector or a compressed bit vector.
  */
-template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE>
+template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
+          typename VectorType = BitVector>
 class WideRank {
   //! Friend class, using internal information l12_.
-  template <OptimizedFor o, FindL2WideWith f>
+  template <OptimizedFor o, FindL2WideWith f, typename v>
   friend class WideRankSelect;
 
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
   //! Pointer to the data of the bit vector.
-  uint64_t const* data_;
+  VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1-blocks.
   tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l1_;
@@ -88,9 +91,9 @@ public:
   /*!
    * \brief Constructor. Creates the auxiliary information for efficient rank
    * queries.
-   * \param bv \c BitVector the rank structure is created for.
+   * \param bv Vector of type \c VectorType the rank structure is created for.
    */
-  WideRank(BitVector const& bv)
+  WideRank(VectorType& bv)
       : data_size_(bv.size_),
         data_(bv.data_.data()),
         l1_((data_size_ / WideRankSelectConfig::L1_WORD_SIZE) + 1),

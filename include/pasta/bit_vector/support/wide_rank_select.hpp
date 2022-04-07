@@ -53,9 +53,12 @@ namespace pasta {
  *
  * \tparam OptimizedFor Compile time option to optimize data structure for
  * either 0, 1, or no specific type of query.
+ * \tparam VectorType Type of the vector the rank and select data structure is
+ * constructed for, e.g., plain \c BitVector or a compressed bit vector.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
-          FindL2WideWith find_with = FindL2WideWith::LINEAR_SEARCH>
+          FindL2WideWith find_with = FindL2WideWith::LINEAR_SEARCH,
+          typename VectorType = BitVector>
 class WideRankSelect : public WideRank<optimized_for> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
@@ -86,9 +89,10 @@ public:
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
-   * \param bv \c BitVector the rank and select structure is created for.
+   * \param bv Vector of type \c VectorType the rank and select structure is
+   * created for.
    */
-  WideRankSelect(BitVector const& bv) : WideRank<optimized_for>(bv) {
+  WideRankSelect(VectorType& bv) : WideRank<optimized_for, VectorType>(bv) {
     init();
   }
 
@@ -148,7 +152,7 @@ public:
         }
         rank -= l2_[l2_pos];
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);
@@ -267,7 +271,7 @@ public:
         }
         rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);

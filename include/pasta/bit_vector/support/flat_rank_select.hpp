@@ -60,9 +60,13 @@ namespace pasta {
  * \tparam use_intrinsic \c bool flag that specifies whether intrinsics should
  * be used during select queries (currently using them is slower). Default is
  * \c false.
+ *
+ * \tparam VectorType Type of the vector the rank and select data structure is
+ * constructed for, e.g., plain \c BitVector or a compressed bit vector.
  */
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
-          FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH>
+          FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH,
+          typename VectorType = BitVector>
 class FlatRankSelect final : public FlatRank<optimized_for> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
@@ -93,9 +97,10 @@ public:
    * \brief Constructor. Creates the auxiliary information for
    * efficient rank and select queries.
    *
-   * \param bv \c BitVector the rank and select structure is created for.
+   * \param bv Vector of type \c VectorType the rank and select structure is
+   * created for.
    */
-  FlatRankSelect(BitVector const& bv) : FlatRank<optimized_for>(bv) {
+  FlatRankSelect(VectorType& bv) : FlatRank<optimized_for, VectorType>(bv) {
     init();
   }
 
@@ -122,7 +127,6 @@ public:
     size_t l1_pos = samples0_[sample_pos];
     l1_pos += ((rank - 1) % FlatRankSelectConfig::SELECT_SAMPLE_RATE) /
               FlatRankSelectConfig::L1_BIT_SIZE;
-
     if constexpr (optimize_one_or_dont_care(optimized_for)) {
       while (l1_pos + 1 < l12_end &&
              ((l1_pos + 1) * FlatRankSelectConfig::L1_BIT_SIZE) -
@@ -244,7 +248,7 @@ public:
       } else {
         rank -= (l12_[l1_pos][l2_pos]);
       }
-    } else if (use_binary_search(find_with)) {
+    } else if constexpr (use_binary_search(find_with)) {
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         auto tmp = l12_[l1_pos].data >> 44;
         if (uint16_t const mid = (3 + 2) * FlatRankSelectConfig::L2_BIT_SIZE -
@@ -651,9 +655,13 @@ private:
     // Add at least one entry.
     if (samples0_.size() == 0) [[unlikely]] {
       samples0_.push_back(0);
+    } else {
+      samples0_.push_back(samples0_.back());
     }
     if (samples1_.size() == 0) [[unlikely]] {
       samples1_.push_back(0);
+    } else {
+      samples1_.push_back(samples1_.back());
     }
   }
 }; // class FlatRankSelect

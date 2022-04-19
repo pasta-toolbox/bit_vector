@@ -274,6 +274,18 @@ public:
                                                   min_length_);
   }
 
+  /*!
+   * \brief Compute space usage of the block compressed bit vector in bytes.
+   * \return Space usage of block compressed bit vector in bytes.
+   */
+  [[nodiscard("space usage computed but not used")]] size_t
+  space_usage() const {
+    return sampled_pos_.size() * sizeof(size_t) +
+           blocks_.size() * sizeof(uint64_t) +
+           block_ends_.size() * sizeof(size_t) + last_word_of_length_.size() +
+           sizeof(size_t) + sizeof(*this);
+  }
+
 private:
   /*!
    * \brief Computes histogram of blocks of the (uncompressed bit vector). The

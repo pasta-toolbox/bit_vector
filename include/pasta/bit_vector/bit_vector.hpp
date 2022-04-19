@@ -293,11 +293,18 @@ public:
   //! Default empty constructor.
   BitVector() = default;
 
-  //! Deleted copy constructor.
-  BitVector(BitVector const&) = delete;
+  //! Default  move constructor.
+  BitVector(BitVector&&) = default;
 
-  //! Deleted copy assignment.
+  //! Default copy constructor.
+  BitVector(BitVector const&) = default;
+
+  //! Deleted copy assignment, due to \c SimpleVector not supporting copy
+  //! assignment.
   BitVector& operator=(BitVector const&) = delete;
+
+  //! Default move assignment.
+  BitVector& operator=(BitVector&&) = default;
 
   /*!
    * \brief Constructor. Creates a bit vector that holds a specific, fixed

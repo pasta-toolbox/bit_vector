@@ -85,11 +85,13 @@ class FlatRank {
 protected:
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
-  //! Pointer to the data of the bit vector.
-  VectorType::RawDataConstAccess data_;
-
+  //! Pointer to the data of the uncompressed bit vector. Can be invalid in
+  //! after compressable bit vector is compressed.
+  uint64_t const* data_;
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+  //! Pointer to the data of the bit vector.
+  VectorType::RawDataConstAccess data_access_;
   //! Number of actual existing BigL12-blocks (important for scanning)
   size_t l12_end_ = 0;
 
@@ -103,9 +105,10 @@ public:
    * \param bv Vector of \c VectorType the rank structure is created for.
    */
   FlatRank(VectorType& bv)
-      : data_size_(bv.size_),
-        data_(bv.data_.data()),
-        l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1) {
+      : data_size_(bv.data().size()),
+        data_(bv.data().data()),
+        l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1),
+        data_access_() {
     init();
   }
 
@@ -127,7 +130,7 @@ public:
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
     size_t offset = ((index / 512) * 8);
-    __builtin_prefetch(&data_[offset], 0, 0);
+    __builtin_prefetch(&data_access_[offset], 0, 0);
     size_t const l1_pos = index / FlatRankSelectConfig::L1_BIT_SIZE;
     __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = ((index % FlatRankSelectConfig::L1_BIT_SIZE) /
@@ -150,10 +153,10 @@ public:
                  "Trying to access bits that should be "
                  "covered in an L1-block");
     for (size_t i = 0; i < index / 64; ++i) {
-      result += std::popcount(data_[offset++]);
+      result += std::popcount(data_access_[offset++]);
     }
     if (index %= 64; index > 0) [[likely]] {
-      uint64_t const remaining = (data_[offset]) << (64 - index);
+      uint64_t const remaining = (data_access_[offset]) << (64 - index);
       result += std::popcount(remaining);
     }
     return result;

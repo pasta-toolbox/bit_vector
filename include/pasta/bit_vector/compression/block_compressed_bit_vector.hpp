@@ -81,7 +81,6 @@ public:
     } else {
       size_t blocks_till_match = index % SampleRate;
       size_t bit_pos = sampled_pos_[index / SampleRate];
-      size_t cur_pos = 0;
       for (size_t i = 0; i < blocks_till_match; ++i) {
         for (size_t j = 0; j < 64 / block_width_; ++j) {
           uint64_t code_word = 0ULL;

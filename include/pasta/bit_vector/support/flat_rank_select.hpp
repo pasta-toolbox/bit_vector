@@ -108,6 +108,8 @@ public:
     if constexpr (!std::is_same_v<VectorType, BitVector>) {
       bv.compress();
       data_access_ = bv.compresed_data();
+    } else {
+      data_access_ = data_;
     }
   }
 

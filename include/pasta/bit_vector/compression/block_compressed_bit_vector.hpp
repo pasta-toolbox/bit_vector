@@ -80,7 +80,7 @@ public:
       bit_pos = cached_bit_pos_;
     } else {
       size_t blocks_till_match = index % SampleRate;
-      size_t bit_pos = sampled_pos_[index / SampleRate];
+      bit_pos = sampled_pos_[index / SampleRate];
       for (size_t i = 0; i < blocks_till_match; ++i) {
         for (size_t j = 0; j < 64 / block_width_; ++j) {
           uint64_t code_word = 0ULL;
@@ -162,7 +162,7 @@ public:
    */
   BlockCompressedBitVector(BitVector&& bv)
       : bv_(std::forward<BitVector>(bv)),
-        sampled_pos_(bv_.data().size() / 64) {}
+        sampled_pos_((bv_.data().size() / 64) + 1) {}
 
   /*! Creates a compressed version of the bit vector passed in the constructor
    * and discards the uncompressed version.

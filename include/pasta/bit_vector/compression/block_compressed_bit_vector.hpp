@@ -279,10 +279,12 @@ public:
    */
   [[nodiscard("space usage computed but not used")]] size_t
   space_usage() const {
-    return sampled_pos_.size() * sizeof(size_t) +
-           blocks_.size() * sizeof(uint64_t) +
-           block_ends_.size() * sizeof(size_t) + last_word_of_length_.size() +
-           sizeof(size_t) + sizeof(*this);
+    return (sampled_pos_.size() * sizeof(size_t)) +
+      (blocks_.size() * sizeof(uint64_t)) +
+      (block_ends_.size() * sizeof(size_t)) +
+      (last_word_of_length_.size() * sizeof(size_t)) +
+      (compressed_bv_.data().size() * sizeof(uint64_t)) +
+      sizeof(*this);
   }
 
 private:

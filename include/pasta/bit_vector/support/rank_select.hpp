@@ -77,16 +77,16 @@ template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
 class RankSelect final : public Rank<optimized_for, VectorType> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using Rank<optimized_for>::data_size_;
+  using Rank<optimized_for, VectorType>::data_size_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using Rank<optimized_for>::data_;
+  using Rank<optimized_for, VectorType>::data_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using Rank<optimized_for>::l0_;
+  using Rank<optimized_for, VectorType>::l0_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using Rank<optimized_for>::l12_;
+  using Rank<optimized_for, VectorType>::l12_;
 
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
@@ -113,7 +113,7 @@ public:
    * for.
    */
   RankSelect(VectorType& bv)
-      : Rank<optimized_for>(bv),
+    : Rank<optimized_for, VectorType>(bv),
         samples0_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
         samples1_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1) {
     init();

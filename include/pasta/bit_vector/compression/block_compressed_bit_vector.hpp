@@ -22,6 +22,7 @@
 
 #include <pasta/utils/drop.hpp>
 #include <queue>
+#include <unordered_map>
 
 namespace pasta {
 
@@ -52,9 +53,17 @@ class BlockCompressedBlockAccess {
   size_t const* block_ends_;
   uint64_t const* blocks_;
   size_t min_length_;
+  uint64_t* bv_data_;
 
   size_t cached_index_ = 0;
   size_t cached_bit_pos_ = 0;
+
+  size_t tmp_cached_index_ = 0;
+  size_t tmp_cached_bit_pos_ = 0;
+
+  uint64_t tmp_cur_word = 0ULL;
+  size_t tmp_cur_word_pos = 0;
+  size_t tmp_bit_pos_in_word = 0;
 
 public:
   BlockCompressedBlockAccess() = default;
@@ -72,7 +81,79 @@ public:
         last_word_of_length_(last_word_of_length),
         block_ends_(block_ends),
         blocks_(blocks),
-        min_length_(min_length) {}
+        min_length_(min_length),
+        bv_data_(compressed_bv->data().data()) {}
+
+  uint64_t tmp_op(size_t const index) {
+    size_t blocks_till_match = index % SampleRate;
+    size_t bit_pos = sampled_pos_[index / SampleRate];
+    tmp_cur_word_pos = bit_pos / 64;
+    tmp_bit_pos_in_word = bit_pos % 64;
+    tmp_cur_word = (bv_data_[tmp_cur_word_pos] >> tmp_bit_pos_in_word);
+    for (size_t i = 0; i < blocks_till_match; ++i) {
+      for (size_t j = 0; j < 64 / block_width_; ++j) {
+        uint64_t code_word = 0ULL;
+        size_t code_length = 0;
+        for (; code_length < min_length_; ++code_length) {
+          code_word <<= 1;
+          code_word |= (tmp_cur_word & 1ULL);
+          if (++tmp_bit_pos_in_word == 64) [[unlikely]] {
+            ++tmp_cur_word_pos;
+            tmp_cur_word = bv_data_[tmp_cur_word_pos];
+            tmp_bit_pos_in_word = 0;
+          } else {
+            tmp_cur_word >>= 1;
+          }
+        }
+        while (code_word > last_word_of_length_[code_length]) {
+          code_word <<= 1;
+          code_word |= (tmp_cur_word & 1ULL);
+          if (++tmp_bit_pos_in_word == 64) [[unlikely]] {
+            ++tmp_cur_word_pos;
+            tmp_cur_word = bv_data_[tmp_cur_word_pos];
+            tmp_bit_pos_in_word = 0;
+          } else {
+            tmp_cur_word >>= 1;
+          }
+          ++code_length;
+        }
+      }
+    }
+    uint64_t decoded = 0ULL;
+    for (size_t i = 0; i < 64 / block_width_; ++i) {
+      decoded <<= block_width_;
+      uint64_t code_word = 0ULL;
+      size_t code_length = 0;
+      for (; code_length < min_length_; ++code_length) {
+        code_word <<= 1;
+        code_word |= (tmp_cur_word & 1ULL);
+        if (++tmp_bit_pos_in_word == 64) [[unlikely]] {
+          ++tmp_cur_word_pos;
+          tmp_cur_word = bv_data_[tmp_cur_word_pos];
+          tmp_bit_pos_in_word = 0;
+        } else {
+          tmp_cur_word >>= 1;
+        }
+      }
+      while (code_word > last_word_of_length_[code_length]) {
+        code_word <<= 1;
+        code_word |= (tmp_cur_word & 1ULL);
+        if (++tmp_bit_pos_in_word == 64) [[unlikely]] {
+          ++tmp_cur_word_pos;
+          tmp_cur_word = bv_data_[tmp_cur_word_pos];
+          tmp_bit_pos_in_word = 0;
+        } else {
+          tmp_cur_word >>= 1;
+        }
+        ++code_length;
+      }
+      size_t block_pos = block_ends_[code_length] -
+                         (last_word_of_length_[code_length] - (code_word));
+      uint64_t block = blocks_[block_pos];
+      decoded |= block;
+    }
+    return decoded;
+  }
 
   uint64_t operator[](size_t const index) {
     size_t bit_pos = 0;
@@ -280,11 +361,10 @@ public:
   [[nodiscard("space usage computed but not used")]] size_t
   space_usage() const {
     return (sampled_pos_.size() * sizeof(size_t)) +
-      (blocks_.size() * sizeof(uint64_t)) +
-      (block_ends_.size() * sizeof(size_t)) +
-      (last_word_of_length_.size() * sizeof(size_t)) +
-      (compressed_bv_.data().size() * sizeof(uint64_t)) +
-      sizeof(*this);
+           (blocks_.size() * sizeof(uint64_t)) +
+           (block_ends_.size() * sizeof(size_t)) +
+           (last_word_of_length_.size() * sizeof(size_t)) +
+           (compressed_bv_.data().size() * sizeof(uint64_t)) + sizeof(*this);
   }
 
 private:

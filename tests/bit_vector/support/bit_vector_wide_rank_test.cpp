@@ -22,6 +22,7 @@
 #include <pasta/bit_vector/bit_vector.hpp>
 #include <pasta/bit_vector/support/wide_rank.hpp>
 #include <tlx/die.hpp>
+#include <vector>
 
 template <typename TestFunction>
 void run_test(TestFunction test_config) {

@@ -13,7 +13,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets.PRIVATE_SUBMODULE_ACCESS }}
         submodules: true
     - name: Run clang-format style check
       uses: jidicula/clang-format-action@v4.4.1

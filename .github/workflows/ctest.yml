@@ -18,7 +18,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets.PRIVATE_SUBMODULE_ACCESS }}
         submodules: true
 
     - name: Prepare build environment

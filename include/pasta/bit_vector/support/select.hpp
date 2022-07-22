@@ -22,7 +22,9 @@
 
 #pragma once
 
-#include <immintrin.h>
+#if defined(__x86_64__)
+#  include <immintrin.h>
+#endif
 
 namespace pasta {
 

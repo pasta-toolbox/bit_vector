@@ -159,6 +159,47 @@ public:
     return result;
   }
 
+  inline void prefetch(size_t index) const {
+    __builtin_prefetch(&l12_[index / FlatRankSelectConfig::L1_BIT_SIZE], 0, 0);
+  }
+
+  inline void prefetch_block(size_t const index) const {
+    __builtin_prefetch(&l12_[index], 0, 0);
+  }
+
+  [[nodiscard("rank1 computed but not used")]] size_t
+  rank1_no_prefetch(size_t index) const {
+    size_t offset = ((index / 512) * 8);
+    size_t const l1_pos = index / FlatRankSelectConfig::L1_BIT_SIZE;
+    size_t const l2_pos = ((index % FlatRankSelectConfig::L1_BIT_SIZE) /
+                           FlatRankSelectConfig::L2_BIT_SIZE);
+    size_t result = l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];
+
+    // It is faster to not have a specialized rank0 function when
+    // optimized for zero queries, because there is no popcount for
+    // zero equivalent and for all popcounts in this code, the words
+    // would have to be bit-wise negated, which is more expensive than
+    // the computation below.
+    if constexpr (!optimize_one_or_dont_care(optimized_for)) {
+      result = ((l1_pos * FlatRankSelectConfig::L1_BIT_SIZE) +
+                (l2_pos * FlatRankSelectConfig::L2_BIT_SIZE)) -
+               result;
+    }
+
+    index %= FlatRankSelectConfig::L2_BIT_SIZE;
+    PASTA_ASSERT(index < 512,
+                 "Trying to access bits that should be "
+                 "covered in an L1-block");
+    for (size_t i = 0; i < index / 64; ++i) {
+      result += std::popcount(data_[offset++]);
+    }
+    if (index %= 64; index > 0) [[likely]] {
+      uint64_t const remaining = (data_[offset]) << (64 - index);
+      result += std::popcount(remaining);
+    }
+    return result;
+  }
+  
   /*!
    * \brief Estimate for the space usage.
    * \return Number of bytes used by this data structure.

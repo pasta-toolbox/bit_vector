@@ -30,8 +30,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <emmintrin.h>
-#include <immintrin.h>
+#if defined(__x86_64__)
+#  include <emmintrin.h>
+#  include <immintrin.h>
+#endif
 #include <limits>
 #include <pasta/utils/debug_asserts.hpp>
 #include <tlx/container/simple_vector.hpp>
@@ -152,6 +154,7 @@ public:
     }
     size_t l2_pos = 0;
     if constexpr (use_intrinsics(find_with)) {
+#if defined(__x86_64__)
       __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12_[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
@@ -235,6 +238,7 @@ public:
       } else {
         rank -= l12_[l1_pos][l2_pos];
       }
+#endif
     } else if constexpr (use_linear_search(find_with)) {
       auto tmp = l12_[l1_pos].data >> 32;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
@@ -404,6 +408,7 @@ public:
     }
     size_t l2_pos = 0;
     if constexpr (use_intrinsics(find_with)) {
+#if defined(__x86_64__)
       __m128i value =
           _mm_loadu_si128(reinterpret_cast<__m128i const*>(&l12_[l1_pos]));
       __m128i const shuffle_mask = _mm_setr_epi8(10,
@@ -482,6 +487,7 @@ public:
         rank -= ((l2_pos * FlatRankSelectConfig::L2_BIT_SIZE) -
                  l12_[l1_pos][l2_pos]);
       }
+#endif
     } else if constexpr (use_linear_search(find_with)) {
       auto tmp = l12_[l1_pos].data >> 32;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {

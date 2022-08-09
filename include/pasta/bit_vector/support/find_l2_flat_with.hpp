@@ -65,7 +65,11 @@ constexpr bool use_binary_search(FindL2FlatWith const find_with) {
  * \return \c true if intrinsics should be used and \c false otherwise.
  */
 constexpr bool use_intrinsics(FindL2FlatWith const find_with) {
+#if defined(__x86_64__)
   return find_with == FindL2FlatWith::INTRINSICS;
+#else
+  return false;
+#endif
 }
 
 } // namespace pasta

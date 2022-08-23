@@ -20,6 +20,7 @@
 
 #include <pasta/bit_vector/bit_vector.hpp>
 #include <tlx/die.hpp>
+#include <vector>
 
 static constexpr size_t FIB_MAX = 94; // largest 64 bit Fibonacci number
 
@@ -300,10 +301,10 @@ void resize_test() {
     bv.resize(200, 1);
 
     for (size_t i = 0; i < 100; ++i) {
-      die_unequal(bool{bv[i]}, false);
+      die_unless(bv[i] == false);
     }
     for (size_t i = 100; i < 200; ++i) {
-      die_unequal(bool{bv[i]}, true);
+      die_unless(bv[i] == true);
     }
   }
   {
@@ -311,10 +312,10 @@ void resize_test() {
     bv.resize(2051, 0);
 
     for (size_t i = 0; i < 1000; ++i) {
-      die_unequal(bool{bv[i]}, true);
+      die_unless(bv[i] == true);
     }
-    for (size_t i = 100; i < 2051; ++i) {
-      die_unequal(bool{bv[i]}, false);
+    for (size_t i = 1000; i < 2051; ++i) {
+      die_unless(bv[i] == false);
     }
   }
   {
@@ -322,15 +323,33 @@ void resize_test() {
     bv.resize(63, 0);
 
     for (size_t i = 0; i < 63; ++i) {
-      die_unequal(bool{bv[i]}, true);
+      die_unless(bv[i] == true);
+    }
+  }
+  {
+    size_t size = 714010;
+    pasta::BitVector H(size);
+    std::vector<bool> content(size);
+    for (size_t i = 0; i < size; i++) {
+      H[i] = rand() % 2;
+      content[i] = H[i];
+    }
+    //H.resize(2 * size);
+    H.resize(2 * size, 0); // <-- Causes assertion error
+    for (size_t i = 0; i < size; i++) {
+      die_unless(content[i] == H[i]);
+    }
+    for (size_t i = size; i < H.size(); ++i) {
+      die_unless(H[i] == false);
     }
   }
 }
 
 int32_t main() {
-  direct_access_test();
-  iterator_test();
-
+  //direct_access_test();
+  //iterator_test();
+  resize_test();
+  
   return 0;
 }
 

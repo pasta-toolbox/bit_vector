@@ -373,9 +373,9 @@ public:
     data_.resize(size_);
     raw_data_ = data_.data();
 
-    if (old_size < size) {
-      size_t max_manuel = std::min(size, ((old_bit_size + 63) / 64) * 64);
-      for (size_t i = old_size; i < max_manuel; ++i) {
+    if (old_size < bit_size_) {
+      size_t max_bitwise = std::min(bit_size_, ((old_bit_size + 63) / 64) * 64);
+      for (size_t i = old_bit_size; i < max_bitwise; ++i) {
         operator[](i) = init_value;
       }
       uint64_t const fill_value = init_value ? ~(0ULL) : 0ULL;

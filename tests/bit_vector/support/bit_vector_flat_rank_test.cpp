@@ -19,7 +19,6 @@
  ******************************************************************************/
 
 #include <cstdint>
-#include <vector>
 #include <pasta/bit_vector/bit_vector.hpp>
 #include <pasta/bit_vector/support/flat_rank.hpp>
 #include <tlx/die.hpp>

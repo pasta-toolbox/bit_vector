@@ -23,6 +23,7 @@
 #include <pasta/bit_vector/support/find_l2_wide_with.hpp>
 #include <pasta/bit_vector/support/wide_rank_select.hpp>
 #include <tlx/die.hpp>
+#include <vector>
 
 template <typename TestFunction>
 void run_test(TestFunction test_config) {

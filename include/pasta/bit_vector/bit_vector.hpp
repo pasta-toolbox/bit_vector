@@ -342,7 +342,7 @@ public:
   }
 
   /*!
-   * \brief Resize the bit vector to contain size bits.
+   * \brief Resize the bit vector to contain \c size bits.
    * \param size Number of bits the resized bit vector contains.
    */
   void resize(size_t const size) noexcept {
@@ -350,6 +350,30 @@ public:
     size_ = (bit_size_ >> 6) + 1;
     data_.resize(size_);
     raw_data_ = data_.data();
+  }
+
+  /*!
+   * \brief Resize the bit vector to contain \c size bits and fill new bits with
+   * default value. \param size Number of bits the resized bit vector contains.
+   * \param init_value Value all bits that are appended to the bit vector (if
+   * any) will have.
+   */
+  void resize(size_t const size, bool const init_value) noexcept {
+    size_t const old_bit_size = bit_size_;
+    size_t const old_size = size_;
+    bit_size_ = size;
+    size_ = (bit_size_ >> 6) + 1;
+    data_.resize(size_);
+    raw_data_ = data_.data();
+
+    if (old_size < size) {
+      size_t max_manuel = std::min(size, ((old_bit_size + 63) / 64) * 64);
+      for (size_t i = old_size; i < max_manuel; ++i) {
+        operator[](i) = init_value;
+      }
+      uint64_t const fill_value = init_value ? ~(0ULL) : 0ULL;
+      std::fill_n(raw_data_ + old_size, size_ - old_size, fill_value);
+    }
   }
 
   /*!

@@ -294,6 +294,39 @@ void iterator_test() {
   }
 }
 
+void resize_test() {
+  {
+    pasta::BitVector bv(100, 0);
+    bv.resize(200, 1);
+
+    for (size_t i = 0; i < 100; ++i) {
+      die_unequal(bool{bv[i]}, false);
+    }
+    for (size_t i = 100; i < 200; ++i) {
+      die_unequal(bool{bv[i]}, true);
+    }
+  }
+  {
+    pasta::BitVector bv(1000, 1);
+    bv.resize(2051, 0);
+
+    for (size_t i = 0; i < 1000; ++i) {
+      die_unequal(bool{bv[i]}, true);
+    }
+    for (size_t i = 100; i < 2051; ++i) {
+      die_unequal(bool{bv[i]}, false);
+    }
+  }
+  {
+    pasta::BitVector bv(221341, 1);
+    bv.resize(63, 0);
+
+    for (size_t i = 0; i < 63; ++i) {
+      die_unequal(bool{bv[i]}, true);
+    }
+  }
+}
+
 int32_t main() {
   direct_access_test();
   iterator_test();

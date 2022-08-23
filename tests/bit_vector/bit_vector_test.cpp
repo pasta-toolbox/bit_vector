@@ -334,8 +334,7 @@ void resize_test() {
       H[i] = rand() % 2;
       content[i] = H[i];
     }
-    //H.resize(2 * size);
-    H.resize(2 * size, 0); // <-- Causes assertion error
+    H.resize(2 * size, 0);
     for (size_t i = 0; i < size; i++) {
       die_unless(content[i] == H[i]);
     }
@@ -346,10 +345,10 @@ void resize_test() {
 }
 
 int32_t main() {
-  //direct_access_test();
-  //iterator_test();
+  direct_access_test();
+  iterator_test();
   resize_test();
-  
+
   return 0;
 }
 

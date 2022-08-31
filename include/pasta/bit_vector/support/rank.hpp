@@ -1,7 +1,7 @@
 /*******************************************************************************
- * bit_vector/bit_vector_rank.hpp
+ * This file is part of pasta::bit_vector.
  *
- * Copyright (C) 2019-2021 Florian Kurpicz <florian@kurpicz.org>
+ * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
  * pasta::bit_vector is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

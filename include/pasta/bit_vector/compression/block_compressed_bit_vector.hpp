@@ -1,20 +1,20 @@
 /*******************************************************************************
- * pasta/container/support/bit_vector_wide_rank_select.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2019-2021 Florian Kurpicz <florian@kurpicz.org>
  *
- * PaStA is free software: you can redistribute it and/or modify
+ * pasta::bit_vector is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * PaStA is distributed in the hope that it will be useful,
+ * pasta::bit_vector is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with PaStA.  If not, see <http://www.gnu.org/licenses/>.
+ * along with pasta::bit_vector.  If not, see <http://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -22,9 +22,19 @@
 
 namespace pasta {
 
+  /*! \file */
+  
+  /*!
+   * \brief Interface for compressed bit vectors that use pasta's rank and select
+   * interface.
+   *
+   * This interface is currently work in progress and should not yet be used in
+   * production.
+   */
 class BlockCompressedBitVector {
 public:
-  /*! Constructor for a block compressed bit vector that takes a \c BitVector
+  /*!
+   * \brief Constructor for a block compressed bit vector that takes a \c BitVector
    * and prepares the compression.
    *
    * To easier work with the rank and select data structures, the bit vector is
@@ -43,7 +53,8 @@ public:
    */
   BlockCompressedBitVector(BitVector&& bv) {}
 
-  /*! Creates a compressed version of the bit vector passed in the constructor
+  /*!
+   * \brief Creates a compressed version of the bit vector passed in the constructor
    * and discards the uncompressed version.
    */
   void compress() {}

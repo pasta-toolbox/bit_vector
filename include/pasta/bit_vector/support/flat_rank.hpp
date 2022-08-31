@@ -1,5 +1,5 @@
 /*******************************************************************************
- * bit_vector/bit_vector_flat_rank.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *

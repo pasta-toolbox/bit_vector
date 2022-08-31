@@ -1,5 +1,5 @@
 /*******************************************************************************
- * pasta/bit_vector/support/optimized_for.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *

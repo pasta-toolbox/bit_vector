@@ -4,15 +4,28 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-documentation:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: DenverCoder1/doxygen-github-pages-action@v1.1.0
-        with:
-          github_token: ${{ secrets.KURPICZ_ACCESS_TOKEN }}
-          branch: gh-pages
-          folder: docs/html
-          config_file: docs/Doxyfile
+    - uses: actions/checkout@v3
+    
+    # Build the HTML documentation
+    - name: Doxygen Action
+      uses: mattnotmitt/doxygen-action@v1.9.4
+      with:
+          doxyfile-path: docs/Doxyfile
+          working-directory: .
+    
+    # Deploy the HTML documentation to GitHub Pages
+    - name: GH Pages Deployment
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.KURPICZ_ACCESS_TOKEN }}
+        publish_dir: docs/html/
+        enable_jekyll: false
+        allow_empty_commit: false
+        force_orphan: true
+        publish_branch: gh-pages

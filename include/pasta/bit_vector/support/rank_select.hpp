@@ -130,7 +130,7 @@ public:
 
   /*!
    * \brief Get position of specific zero, i.e., select.
-   * \param index Rank of zero the position is searched for.
+   * \param rank Rank of zero the position is searched for.
    * \return Position of the rank-th zero.
    */
   [[nodiscard("select0 computed but not used")]] size_t
@@ -221,7 +221,7 @@ public:
 
   /*!
    * \brief Get position of specific one, i.e., select.
-   * \param index Rank of one the position is searched for.
+   * \param rank Rank of one the position is searched for.
    * \return Position of the rank-th one.
    */
   [[nodiscard("select1 computed but not used")]] size_t

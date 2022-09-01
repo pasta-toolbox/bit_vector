@@ -131,10 +131,16 @@ public:
     init();
   }
 
-  // Default move constructor.
+  /*!
+   * \brief Default move constructor.
+   * \param other Other rank data structure.
+   */
   Rank(Rank&& other) = default;
 
-  // Default move assignment.
+  /*!
+   * \brief Default move assignment.
+   * \param other Other rank data structure.
+   */
   Rank& operator=(Rank&& other) = default;
 
   //! Destructor. Deleting manually created arrays.

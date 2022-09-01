@@ -46,12 +46,12 @@ namespace pasta {
 
 /*!
  * \brief Select support for \ref BitVector that can be used as an alternative
- * to \ref BitVectorRankSelect for bit vectors up to length 2^40
+ * to \ref RankSelect for bit vectors up to length 2^40
  *
  * The select support is an extended and engineered version of the popcount
  * select support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. Similar
- * to the \ref BitVectorFlatRank support, the highest utility array (L0) is
- * removed. For more details see \ref BitVectorFlatRank and \ref BigL12Type.
+ * to the \ref FlatRank support, the highest utility array (L0) is
+ * removed. For more details see \ref FlatRank and \ref BigL12Type.
  *
  * \tparam use_intrinsic Set \c true if intrinsic functions should be used to
  * find L2-block where the select query has to search the last 512 bits.
@@ -117,7 +117,7 @@ public:
 
   /*!
    * \brief Get position of specific zero, i.e., select.
-   * \param index Rank of zero the position is searched for.
+   * \param rank Rank of zero the position is searched for.
    * \return Position of the rank-th zero.
    */
   [[nodiscard("select0 computed but not used")]] size_t
@@ -373,7 +373,7 @@ public:
 
   /*!
    * \brief Get position of specific one, i.e., select.
-   * \param index Rank of one the position is searched for.
+   * \param rank Rank of one the position is searched for.
    * \return Position of the rank-th one.
    */
   [[nodiscard("select1 computed but not used")]] size_t

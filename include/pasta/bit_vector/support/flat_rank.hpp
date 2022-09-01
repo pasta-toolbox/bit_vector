@@ -59,8 +59,8 @@ struct FlatRankSelectConfig {
 //! \{
 
 /*!
- * \brief Rank support for \red BitVector that can be used as an alternative
- * to \ref BitVectorRank for bit vectors up to length 2^40.
+ * \brief Rank support for \ref BitVector that can be used as an alternative
+ * to \ref Rank for bit vectors up to length 2^40.
  *
  * The rank support is an extended and engineered version of the popcount rank
  * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank

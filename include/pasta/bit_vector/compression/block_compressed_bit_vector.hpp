@@ -22,20 +22,20 @@
 
 namespace pasta {
 
-  /*! \file */
-  
-  /*!
-   * \brief Interface for compressed bit vectors that use pasta's rank and select
-   * interface.
-   *
-   * This interface is currently work in progress and should not yet be used in
-   * production.
-   */
+/*! \file */
+
+/*!
+ * \brief Interface for compressed bit vectors that use pasta's rank and select
+ * interface.
+ *
+ * This interface is currently work in progress and should not yet be used in
+ * production.
+ */
 class BlockCompressedBitVector {
 public:
   /*!
-   * \brief Constructor for a block compressed bit vector that takes a \c BitVector
-   * and prepares the compression.
+   * \brief Constructor for a block compressed bit vector that takes a \c
+   * BitVector and prepares the compression.
    *
    * To easier work with the rank and select data structures, the bit vector is
    * only compressed as soon as compress() is called. If a rank and select data
@@ -54,8 +54,8 @@ public:
   BlockCompressedBitVector(BitVector&& bv) {}
 
   /*!
-   * \brief Creates a compressed version of the bit vector passed in the constructor
-   * and discards the uncompressed version.
+   * \brief Creates a compressed version of the bit vector passed in the
+   * constructor and discards the uncompressed version.
    */
   void compress() {}
 

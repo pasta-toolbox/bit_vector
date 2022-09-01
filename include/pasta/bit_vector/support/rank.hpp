@@ -52,6 +52,7 @@
 namespace pasta {
 
 /*!
+ * \ingroup pasta_bit_vector_configuration
  * \brief Static configuration for \c Rank and
  * \c RankSelect.
  */
@@ -75,7 +76,7 @@ struct PopcntRankSelectConfig {
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
 }; // struct PopcountRankSelectConfiguration
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank
 //! \{
 
 /*!

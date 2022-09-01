@@ -154,7 +154,7 @@ private:
   BitAccess(BitAccess const&) = default;
 }; // class BitAccess
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector
 //! \{
 
 /*!\brief Uncompressed, highly tuned, fixed size bit vector

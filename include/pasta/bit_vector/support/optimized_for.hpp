@@ -24,7 +24,7 @@ namespace pasta {
 
 /*! \file */
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_configuration
 //! \{
 
 /*!

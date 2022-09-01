@@ -41,7 +41,7 @@
 
 namespace pasta {
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank_select
 //! \{
 
 /*!

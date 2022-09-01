@@ -32,6 +32,7 @@
 namespace pasta {
 
 /*!
+ * \ingroup pasta_bit_vector_configuration
  * \brief Static configuration for \c FlatRank and
  * \c FlatRankSelect
  */
@@ -55,11 +56,11 @@ struct FlatRankSelectConfig {
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
 }; // struct FlatRankSelectConfig
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank
 //! \{
 
 /*!
- * \brief Rank support for \ref BitVector that can be used as an alternative
+ * \brief %Rank support for \ref BitVector that can be used as an alternative
  * to \ref Rank for bit vectors up to length 2^40.
  *
  * The rank support is an extended and engineered version of the popcount rank

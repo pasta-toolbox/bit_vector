@@ -22,6 +22,9 @@
 
 namespace pasta {
 
+//! \addtogroup pasta_bit_vector_configuration
+//! \{
+
 /*!
  * \brief Enum used to specify whether intrinsic functions should be used.
  *
@@ -38,7 +41,7 @@ enum class FindL2FlatWith {
 /*! \brief Helper function indicating whether a linear search
  * function should be used.
  *
- * \param find_with \ref FindL2FlatWith indicating whether intrinsics
+ * \param find_with FindL2FlatWith indicating whether intrinsics
  * should be used.
  * \return \c true if intrinsics should be used and \c false otherwise.
  */
@@ -49,7 +52,7 @@ constexpr bool use_linear_search(FindL2FlatWith const find_with) {
 /*! \brief Helper function indicating whether a binary search
  * function should be used.
  *
- * \param find_with \ref FindL2FlatWith indicating whether intrinsics
+ * \param find_with FindL2FlatWith indicating whether intrinsics
  * should be used.
  * \return \c true if intrinsics should be used and \c false otherwise.
  */
@@ -60,7 +63,7 @@ constexpr bool use_binary_search(FindL2FlatWith const find_with) {
 /*! \brief Helper function indicating whether intrinsic function should be
  * used.
  *
- * \param find_with \ref FindL2FlatWith indicating whether intrinsics
+ * \param find_with FindL2FlatWith indicating whether intrinsics
  * should be used.
  * \return \c true if intrinsics should be used and \c false otherwise.
  */
@@ -71,6 +74,8 @@ constexpr bool use_intrinsics(FindL2FlatWith const find_with) {
   return false;
 #endif
 }
+
+//! \)
 
 } // namespace pasta
 

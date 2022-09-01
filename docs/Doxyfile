@@ -38,20 +38,20 @@ PROJECT_NAME           = pasta::bit_vector
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 1.0.0
+PROJECT_NUMBER         = v1.0.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Compact Rank and Select Data Structure for Bit Vectors"
+PROJECT_BRIEF          = "Compact and Fast Rank and Select Data Structure for Bit Vectors"
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-# PROJECT_LOGO           = docs/images/icon.svg
+# PROJECT_LOGO           = docs/images/logo_pasta_bit_vector.svg
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -1214,7 +1214,6 @@ HTML_STYLESHEET        =
 
 HTML_EXTRA_STYLESHEET  = extlib/doxygen-awesome-css/doxygen-awesome.css \
                          extlib/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
-                         extlib/doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css \
                          docs/custom_doxygen/custom.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
@@ -1225,7 +1224,9 @@ HTML_EXTRA_STYLESHEET  = extlib/doxygen-awesome-css/doxygen-awesome.css \
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = extern/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js
+HTML_EXTRA_FILES       = extlib/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
+                         extlib/doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
+                         extlib/doxygen-awesome-css/doxygen-awesome-interactive-toc.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to

@@ -2,7 +2,7 @@ namespace pasta {
 
   /** @mainpage Documentation Overview
 
-  ## Functionallity
+  ## Functionality
   - \ref pasta_bit_vector : \ref BitVector
   - \ref pasta_bit_vector_rank : \ref Rank, \ref FlatRank, and \ref WideRank
   - \ref pasta_bit_vector_rank_select : \ref RankSelect, \ref FlatRankSelect, and \ref WideRankSelect
@@ -11,7 +11,7 @@ namespace pasta {
   ## Examples
   The code in this repository is very easy to use.
   To use our fastest implementation you can simply use the code below.
-  If further tuning is required, we reccomend to see the \ref pasta_bit_vector_configuration .
+  If further tuning is required, we recommend to see the \ref pasta_bit_vector_configuration .
 
   ```cpp
   #include <pasta/bit_vector/bit_vector.hpp>
@@ -79,7 +79,7 @@ namespace pasta {
   - \ref WideRankSelect
 
   \defgroup pasta_bit_vector_configuration Configuration
-  \brief Configuration that can be used to change the behaviour of the algorithms.
+  \brief Configuration that can be used to change the behavior of the algorithms.
 
 */
 

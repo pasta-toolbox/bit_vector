@@ -163,7 +163,9 @@ public:
     __builtin_prefetch(&l12_[index / FlatRankSelectConfig::L1_BIT_SIZE], 0, 0);
   }
 
+  __attribute__((always_inline))
   inline void prefetch_block(size_t const index) const {
+    //_mm_prefetch (&l12_[index], _MM_HINT_T0);
     __builtin_prefetch(&l12_[index], 0, 0);
   }
 

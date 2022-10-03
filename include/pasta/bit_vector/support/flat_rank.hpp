@@ -27,6 +27,7 @@
 #include "pasta/bit_vector/support/popcount.hpp"
 
 #include <numeric>
+#include <pasta/utils/container/aligned_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
 
 namespace pasta {
@@ -90,7 +91,7 @@ protected:
   VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1- and L2-blocks.
-  tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+  AlignedVector<32, BigL12Type> l12_;
   //! Number of actual existing BigL12-blocks (important for scanning)
   size_t l12_end_ = 0;
 
@@ -128,9 +129,7 @@ public:
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
     size_t offset = ((index / 512) * 8);
-    __builtin_prefetch(&data_[offset], 0, 0);
     size_t const l1_pos = index / FlatRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = ((index % FlatRankSelectConfig::L1_BIT_SIZE) /
                            FlatRankSelectConfig::L2_BIT_SIZE);
     size_t result = l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];

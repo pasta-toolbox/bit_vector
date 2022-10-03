@@ -25,6 +25,7 @@
 #include "pasta/bit_vector/support/l12_type.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
 #include "pasta/bit_vector/support/popcount.hpp"
+#include "pasta/utils/container/aligned_vector.hpp"
 
 namespace pasta {
 
@@ -81,9 +82,9 @@ class WideRank {
   VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1-blocks.
-  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l1_;
+  AlignedVector<8, uint64_t> l1_;
   //! Array containing the information about the L2-blocks.
-  tlx::SimpleVector<uint16_t, tlx::SimpleVectorMode::NoInitNoDestroy> l2_;
+  AlignedVector<8, uint16_t> l2_;
 
 public:
   //! Default constructor w/o parameter.
@@ -120,17 +121,13 @@ public:
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
     size_t const l1_pos = index / WideRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l1_[l1_pos], 0, 0);
     size_t const l2_pos = index / WideRankSelectConfig::L2_BIT_SIZE;
-    __builtin_prefetch(&l2_[l2_pos], 0, 0);
     size_t result = l1_[l1_pos] + l2_[l2_pos];
     if constexpr (!optimize_one_or_dont_care(optimized_for)) {
       result = (l2_pos * WideRankSelectConfig::L2_BIT_SIZE) - result;
     }
 
     size_t offset = l2_pos * WideRankSelectConfig::L2_WORD_SIZE;
-    __builtin_prefetch(&data_[offset], 0, 0);
-
     size_t const full_words = (index % WideRankSelectConfig::L2_BIT_SIZE) / 64;
 
     for (size_t i = 0; i < full_words; ++i) {

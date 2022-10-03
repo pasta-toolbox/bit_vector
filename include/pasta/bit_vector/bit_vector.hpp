@@ -23,6 +23,7 @@
 #include "pasta/bit_vector/support/find_l2_flat_with.hpp"
 #include "pasta/bit_vector/support/find_l2_wide_with.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
+#include "pasta/utils/container/aligned_vector.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -212,7 +213,7 @@ private:
   //! Size of the underlying data used to store the bits.
   size_t size_;
   //! Array of 64-bit words used to store the content of the bit vector.
-  tlx::SimpleVector<RawDataType, tlx::SimpleVectorMode::NoInitNoDestroy> data_;
+  AlignedVector<8, RawDataType> data_;
   //! Pointer to the raw data of the bit vector.
   RawDataPointer raw_data_;
 

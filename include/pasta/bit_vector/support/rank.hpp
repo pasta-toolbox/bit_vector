@@ -46,8 +46,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <pasta/utils/container/aligned_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
-#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
@@ -108,10 +108,10 @@ public:
   size_t const bit_size_;
 
   //! Array containing the number of set bits in the L0-blocks.
-  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
+  AlignedVector<8, uint64_t> l0_;
 
   //! Array containing the information about the L1- and L2-blocks.
-  tlx::SimpleVector<L12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
+  AlignedVector<8, L12Type> l12_;
 
 public:
   //! Default constructor w/o parameter.
@@ -167,9 +167,7 @@ public:
   rank1(size_t index) const {
     PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
     size_t offset = ((index / PopcntRankSelectConfig::L2_BIT_SIZE) * 8);
-    __builtin_prefetch(&data_[offset], 0, 0);
     size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
                           PopcntRankSelectConfig::L2_BIT_SIZE;
     size_t result =

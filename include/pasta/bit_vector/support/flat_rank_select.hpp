@@ -34,8 +34,9 @@
 #  include <emmintrin.h>
 #  include <immintrin.h>
 #endif
+#include "pasta/utils/debug_asserts.hpp"
+
 #include <limits>
-#include <pasta/utils/debug_asserts.hpp>
 #include <tlx/container/simple_vector.hpp>
 #include <vector>
 

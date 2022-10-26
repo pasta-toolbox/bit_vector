@@ -113,6 +113,7 @@ public:
   [[nodiscard("select0 computed but not used")]] size_t
   select0(size_t rank) const {
     size_t const l1_end = l1_.size();
+    size_t const l2_end = l2_.size();
 
     size_t l2_pos = ((rank - 1) / WideRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = l2_pos / 128;
@@ -132,13 +133,12 @@ public:
       rank -= l1_[l1_pos];
     }
 
-    l2_pos = l1_pos * 128;
+    l2_pos = std::max(l1_pos * 128, l2_pos);
 
     if constexpr (use_linear_search(find_with)) {
-      size_t const local_l2_end = l2_pos + 128;
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
         size_t added = 0;
-        while (l2_pos + 1 < local_l2_end &&
+        while (l2_pos + 1 < l2_end &&
                ((added + 1) * WideRankSelectConfig::L2_BIT_SIZE) -
                        l2_[l2_pos + 1] <
                    rank) {
@@ -147,13 +147,12 @@ public:
         }
         rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       } else {
-        while (l2_pos + 1 < local_l2_end && l2_[l2_pos + 1] < rank) {
+        while (l2_pos + 1 < l2_end && l2_[l2_pos + 1] < rank) {
           ++l2_pos;
         }
         rank -= l2_[l2_pos];
       }
     } else if constexpr (use_binary_search(find_with)) {
-      size_t const l2_end = l2_.size();
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);
@@ -233,6 +232,7 @@ public:
   [[nodiscard("select1 computed but not used")]] size_t
   select1(size_t rank) const {
     size_t const l1_end = l1_.size();
+    size_t const l2_end = l2_.size();
 
     size_t l2_pos = ((rank - 1) / WideRankSelectConfig::SELECT_SAMPLE_RATE);
     size_t l1_pos = l2_pos / 128;
@@ -252,17 +252,17 @@ public:
       rank -= (l1_pos * WideRankSelectConfig::L1_BIT_SIZE) - l1_[l1_pos];
     }
 
-    l2_pos = l1_pos * 128;
+    l2_pos = std::max(l1_pos * 128, l2_pos);
+
     if constexpr (use_linear_search(find_with)) {
-      size_t const local_l2_end = std::min(l2_.size(), l2_pos + 128);
       if constexpr (optimize_one_or_dont_care(optimized_for)) {
-        while (l2_pos + 1 < local_l2_end && l2_[l2_pos + 1] < rank) {
+        while (l2_pos + 1 < l2_end && l2_[l2_pos + 1] < rank) {
           ++l2_pos;
         }
         rank -= l2_[l2_pos];
       } else {
         size_t added = 0;
-        while (l2_pos + 1 < local_l2_end &&
+        while (l2_pos + 1 < l2_end &&
                ((added + 1) * WideRankSelectConfig::L2_BIT_SIZE) -
                        l2_[l2_pos + 1] <
                    rank) {
@@ -272,7 +272,6 @@ public:
         rank -= (added * WideRankSelectConfig::L2_BIT_SIZE) - l2_[l2_pos];
       }
     } else if constexpr (use_binary_search(find_with)) {
-      size_t const l2_end = l2_.size();
       size_t const end = std::min((l1_pos + 1) * 128, l2_end);
       size_t const iterations = tlx::integer_log2_ceil(end - l2_pos + 1);
       size_t size = 1ULL << (iterations - 1);

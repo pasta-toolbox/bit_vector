@@ -31,6 +31,7 @@
 #include <iostream>
 #include <iterator>
 #include <span>
+
 #include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
@@ -213,7 +214,7 @@ private:
   //! Size of the underlying data used to store the bits.
   size_t size_;
   //! Array of 64-bit words used to store the content of the bit vector.
-  AlignedVector<8, RawDataType> data_;
+  tlx::SimpleVector<RawDataType, tlx::SimpleVectorMode::NoInitNoDestroy> data_;
   //! Pointer to the raw data of the bit vector.
   RawDataPointer raw_data_;
 

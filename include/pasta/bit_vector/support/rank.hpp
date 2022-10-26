@@ -48,6 +48,7 @@
 #include <limits>
 #include <pasta/utils/container/aligned_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
+#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
@@ -108,10 +109,10 @@ public:
   size_t const bit_size_;
 
   //! Array containing the number of set bits in the L0-blocks.
-  AlignedVector<8, uint64_t> l0_;
+  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l0_;
 
   //! Array containing the information about the L1- and L2-blocks.
-  AlignedVector<8, L12Type> l12_;
+  tlx::SimpleVector<L12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
 
 public:
   //! Default constructor w/o parameter.

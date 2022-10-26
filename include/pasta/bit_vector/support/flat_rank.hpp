@@ -27,8 +27,8 @@
 #include "pasta/bit_vector/support/popcount.hpp"
 
 #include <numeric>
-#include <pasta/utils/container/aligned_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
+#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
@@ -91,7 +91,7 @@ protected:
   VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1- and L2-blocks.
-  AlignedVector<32, BigL12Type> l12_;
+  tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
   //! Number of actual existing BigL12-blocks (important for scanning)
   size_t l12_end_ = 0;
 

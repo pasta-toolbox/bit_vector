@@ -27,6 +27,8 @@
 #include "pasta/bit_vector/support/popcount.hpp"
 #include "pasta/utils/container/aligned_vector.hpp"
 
+#include <tlx/container/simple_vector.hpp>
+
 namespace pasta {
 
 /*!
@@ -82,9 +84,9 @@ class WideRank {
   VectorType::RawDataConstAccess data_;
 
   //! Array containing the information about the L1-blocks.
-  AlignedVector<8, uint64_t> l1_;
+  tlx::SimpleVector<uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy> l1_;
   //! Array containing the information about the L2-blocks.
-  AlignedVector<8, uint16_t> l2_;
+  tlx::SimpleVector<uint16_t, tlx::SimpleVectorMode::NoInitNoDestroy> l2_;
 
 public:
   //! Default constructor w/o parameter.

@@ -31,7 +31,6 @@
 #include <iostream>
 #include <iterator>
 #include <span>
-
 #include <tlx/container/simple_vector.hpp>
 
 namespace pasta {

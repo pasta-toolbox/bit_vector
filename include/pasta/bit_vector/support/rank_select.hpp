@@ -113,7 +113,7 @@ public:
    * for.
    */
   RankSelect(VectorType& bv)
-    : Rank<optimized_for, VectorType>(bv),
+      : Rank<optimized_for, VectorType>(bv),
         samples0_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1),
         samples1_pos_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 1) {
     init();

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <limits>
 #include <pasta/utils/drop.hpp>
 #include <queue>
 #include <unordered_map>

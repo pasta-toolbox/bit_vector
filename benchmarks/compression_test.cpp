@@ -27,7 +27,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <pasta/utils/timer.hpp>
+#include <pasta/utils/benchmark/timer.hpp>
 #include <queue>
 #include <random>
 #include <string>
@@ -402,7 +402,7 @@ int32_t main(int32_t argc, char const* const argv[]) {
             << '\n';
 
   pasta::BlockCompressedBitVector bcbv(std::move(bitVectorToCompress));
-  // bcbv.compress();
+  bcbv.compress();
 
   std::cout << "bitVector.size() " << bitVector.size() << '\n';
   [[maybe_unused]] pasta::FlatRankSelect rs(bcbv);

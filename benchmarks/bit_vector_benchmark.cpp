@@ -27,13 +27,13 @@
 #include <pasta/bit_vector/support/rank_select.hpp>
 #include <pasta/bit_vector/support/wide_rank.hpp>
 #include <pasta/bit_vector/support/wide_rank_select.hpp>
-#include <pasta/utils/do_not_optimize.hpp>
+#include <pasta/utils/benchmark/do_not_optimize.hpp>
 #if defined(DNDEBUG)
-#  include <pasta/utils/memory_monitor.hpp>
+#  include <pasta/utils/benchmark/memory_monitor.hpp>
 #endif
 #include <cstdint>
 #include <iostream>
-#include <pasta/utils/timer.hpp>
+#include <pasta/utils/benchmark/timer.hpp>
 #include <random>
 #include <tlx/cmdline_parser.hpp>
 #include <tlx/die.hpp>

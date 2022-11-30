@@ -84,6 +84,16 @@ if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
     tlx
     pasta_utils
     optimized pasta_memory_monitor)
+
+  add_executable(compression_test
+    benchmarks/compression_test.cpp)
+
+  target_link_libraries(compression_test PUBLIC
+    pasta_bit_vector
+    tlx
+    pasta_utils
+    optimized pasta_memory_monitor)
+  
 endif()
 
 ################################################################################

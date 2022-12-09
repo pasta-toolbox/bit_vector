@@ -1,7 +1,7 @@
 # pasta::bit_vector
 
 <p align="center">
-   <img width=250 height=175 src="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.svg"\>
+   <img width=250 height=175 src="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.svg" />
 </p>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -9,17 +9,20 @@
 [![codecov](https://codecov.io/gh/pasta-toolbox/bit_vector/branch/main/graph/badge.svg?token=2QD6ME44SU)](https://codecov.io/gh/pasta-toolbox/bit_vector)
 
 This header-only library contains a highly tuned (uncompressed) bit vector implementation with multiple space efficient rank and select support data structures.
-The our fastest rank and select support has a space overhead of only ~3.51% and makes use of data level parallelism via SIMD instructions.
+Our fastest rank and select support has a space overhead of only ~3.51% and makes use of data level parallelism via SIMD instructions.
 
 If you use this code in a scientific context, please cite our paper.
 ```bibtex
-@article{Kurpicz2022CompactRankSelect,
+@inproceedings{Kurpicz2022CompactRankSelect,
   author    = {Florian Kurpicz},
   title     = {Engineering Compact Data Structures for Rank and Select Queries on Bit Vectors},
-  journal   = {CoRR},
-  volume    = {abs/2206.01149},
+  booktitle = {{SPIRE}},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {13617},
+  pages     = {257--272},
+  publisher = {Springer},
   year      = {2022},
-  doi       = {10.48550/arXiv.2206.01149},
+  doi       = {10.1007/978-3-031-20643-6\_19}
 }
 ```
 
@@ -28,7 +31,7 @@ This repository contains the following algorithms and data structures.
 Our [documentation][] contains in-depth on the usage of all these algorithms and data structures including easy to follow examples.
 You can find the example in the screenshot below as text, too.
 
-![Screenshot Documentation](https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/screenshot_documentation_v1.0.0.png)
+[![Screenshot Documentation](https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/screenshot_documentation_v1.0.0.png)](https://www.pasta-toolbox.org/bit_vector/)
 
 ### Bit Vectors
 Bit vectors play an important role in many compressed text indices, e.g., the FM-index.
@@ -44,7 +47,7 @@ This repository contains the following bit vector implementations:
 - improved [rank](include/pasta/bit_vector/support/flat_rank.hpp) and [select](include/pasta/bit_vector/support/flat_rank_select.hpp) support requiring the same amount of memory but providing faster rank (up to 8% speedup) and select (up to 16.5% speedup) queries, and
 - a very fast [rank](include/pasta/bit_vector/support/wide_rank.hpp) support that can also answer [select](include/pasta/bit_vector/support/wide_rank_select.hpp) queries.
 
-[uncompressed bit vector]: bit_vector/bit_vector.hpp
+[uncompressed bit vector]: include/pasta/bit_vector/bit_vector.hpp
 
 ### Easy to Use
 
@@ -132,4 +135,4 @@ cmake --build --preset=[debug|release|relwithdeb]
 ctest --test-dir [debug|build|relwithdeb]
 ```
 
-[documentation]: https://pasta-toolbox.github.io/bit_vector/
+[documentation]: https://www.pasta-toolbox.org/bit_vector/

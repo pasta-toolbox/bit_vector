@@ -1,5 +1,5 @@
 /*******************************************************************************
- * pasta/bit_vector/support/optimized_for.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
@@ -22,7 +22,9 @@
 
 namespace pasta {
 
-//! \addtogroup pasta_bit_vectors
+/*! \file */
+
+//! \addtogroup pasta_bit_vector_configuration
 //! \{
 
 /*!
@@ -48,11 +50,11 @@ enum class OptimizedFor {
  * \brief Helper function indicating if queries should be optimized for one
  * queries or the caller does not care.
  *
- * \param optimized_for \ref OptimizedFor indicating for what type of queries
+ * \param optimized_for Parameter indicating for what type of queries
  * the data structure should be optimized.
  * \return \c true if the data structure should be optimized for one queries
  * or the caller does not care for what queries the data structure is
- * optimized for. \false otherwise.
+ * optimized for. `false` otherwise.
  */
 constexpr bool optimize_one_or_dont_care(OptimizedFor const optimized_for) {
   return ((optimized_for == OptimizedFor::DONT_CARE) ||

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * bit_vector/bit_vector_flat_rank.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
@@ -28,10 +28,12 @@
 
 #include <numeric>
 #include <pasta/utils/debug_asserts.hpp>
+#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
 /*!
+ * \ingroup pasta_bit_vector_configuration
  * \brief Static configuration for \c FlatRank and
  * \c FlatRankSelect
  */
@@ -55,12 +57,12 @@ struct FlatRankSelectConfig {
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
 }; // struct FlatRankSelectConfig
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank
 //! \{
 
 /*!
- * \brief Rank support for \red BitVector that can be used as an alternative
- * to \ref BitVectorRank for bit vectors up to length 2^40.
+ * \brief %Rank support for \ref BitVector that can be used as an alternative
+ * to \ref Rank for bit vectors up to length 2^40.
  *
  * The rank support is an extended and engineered version of the popcount rank
  * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank
@@ -131,11 +133,7 @@ public:
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
     size_t offset = ((index / 512) * 8);
-    if constexpr (std::is_same_v<VectorType, BitVector>) {
-      __builtin_prefetch(&data_access_[offset], 0, 0);
-    }
     size_t const l1_pos = index / FlatRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = ((index % FlatRankSelectConfig::L1_BIT_SIZE) /
                            FlatRankSelectConfig::L2_BIT_SIZE);
     size_t result = l12_[l1_pos].l1() + l12_[l1_pos][l2_pos];

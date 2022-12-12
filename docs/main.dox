@@ -1,0 +1,86 @@
+namespace pasta {
+
+  /** @mainpage Documentation Overview
+
+  ## Functionality
+  - \ref pasta_bit_vector : \ref BitVector
+  - \ref pasta_bit_vector_rank : \ref Rank, \ref FlatRank, and \ref WideRank
+  - \ref pasta_bit_vector_rank_select : \ref RankSelect, \ref FlatRankSelect, and \ref WideRankSelect
+  - \ref pasta_bit_vector_configuration : See all options to configure the query algorithms and data structures
+
+  ## Examples
+  The code in this repository is very easy to use.
+  To use our fastest implementation you can simply use the code below.
+  If further tuning is required, we recommend to see the \ref pasta_bit_vector_configuration .
+
+  ```cpp
+  #include <pasta/bit_vector/bit_vector.hpp>
+  #include <pasta/bit_vector/support/flat_rank_select.hpp>
+
+  // Create a bit vector of size 1000 containing only zeros and flip every other bit.
+  pasta::BitVector bv(1000, 0);
+  for (size_t i = 0; i < bv.size(); ++i) {
+    if (i % 2 == 0) {  bv[i] = 1; }
+  }
+  // Print the bit vector to see that everything worked ;-)
+  for (auto it = bv.begin(); it != bv.end(); ++it) {
+    std::cout << ((*it == true) ? '1' : '0');
+  }
+  std::cout << std::endl;
+
+  // Create rank and select support and print the result of some queries.
+  pasta::FlatRankSelect rs(bv);
+  std::cout << rs.rank0(250) << ", " << rs.rank1(250)
+            << ", "
+            << rs.select0(250) << ", " << rs.rank1(250)
+            << std::endl;
+  ```
+
+  ## Benchmarks
+  Here, we present the most interesting results from our paper \cite Kurpicz2022CompactRankSelect.
+  For more information on the hardware used and our competitors, please look to the paper where we explain the experiments in detail.
+  Additionally, you can look at our <a href="https://github.com/pasta-toolbox/bit_vector_experiments">repository</a> that contains all scripts needed to reproduce the results.
+
+  First, we compare the _additional_ space that is required for the rank and select data structures.
+  <img src="space_requirements_v1.0.0.png">
+
+  Next, we look at the query time for rank queries w.r.t. different fill counts of the bit vector.
+  <img src="rank_times_v1.0.0.png">
+
+  Then, we look at select queries in the same setting.
+  <img src="select_times_v1.0.0.png">
+
+  Finally, we compare our own implementations that can be easily switched using the \ref pasta_bit_vector_configuration .
+  <img src="select_times_pasta_only_v1.0.0.png">
+
+  */
+
+
+/**
+  \defgroup pasta_bit_vector Bit Vectors
+  \brief Bit vector implementations that can be used with the \ref pasta_bit_vector_rank and \ref pasta_bit_vector_rank_select.
+
+  - \ref BitVector
+
+  \defgroup pasta_bit_vector_rank Rank Data Structures
+  \brief %Rank data structures that can be used with the \ref pasta_bit_vector implemented in this repository.
+
+  - \ref Rank
+  - \ref FlatRank
+  - \ref WideRank
+
+  \defgroup pasta_bit_vector_rank_select Select Data Structures
+  \brief Select data structures that can be used with the \ref pasta_bit_vector implemented in this repository.
+
+  Usually, these data structures can also answer rank queries.
+
+  - \ref RankSelect
+  - \ref FlatRankSelect
+  - \ref WideRankSelect
+
+  \defgroup pasta_bit_vector_configuration Configuration
+  \brief Configuration that can be used to change the behavior of the algorithms.
+
+*/
+
+} // namespace pasta

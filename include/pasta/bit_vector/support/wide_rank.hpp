@@ -1,20 +1,20 @@
 /*******************************************************************************
- * pasta/container/support/bit_vector_wide_rank_select.hpp
+ * This file is part of pasta::bit_vector.
  *
  * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
- * PaStA is free software: you can redistribute it and/or modify
+ * pasta::bit_vector is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * PaStA is distributed in the hope that it will be useful,
+ * pasta::bit_vector is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with PaStA.  If not, see <http://www.gnu.org/licenses/>.
+ * along with pasta::bit_vector.  If not, see <http://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -25,10 +25,14 @@
 #include "pasta/bit_vector/support/l12_type.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
 #include "pasta/bit_vector/support/popcount.hpp"
+#include "pasta/utils/container/aligned_vector.hpp"
+
+#include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
 /*!
+ * \ingroup pasta_bit_vector_configuration
  * \brief Static configuration for \c WideRank and
  * \c WideRankSelect
  */
@@ -47,12 +51,12 @@ struct WideRankSelectConfig {
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
 }; // struct WideRankSelectConfig
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank
 //! \{
 
 /*!
- * \brief Rank support for \red BitVector that can be used as an alternative
- * to \ref BitVectorRank for bit vectors up to length 2^40.
+ * \brief %Rank support for \ref BitVector that can be used as an alternative
+ * to \ref Rank for bit vectors up to length 2^40.
  *
  * The rank support is an extended and engineered version of the popcount rank
  * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank
@@ -119,17 +123,13 @@ public:
   [[nodiscard("rank1 computed but not used")]] size_t
   rank1(size_t index) const {
     size_t const l1_pos = index / WideRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l1_[l1_pos], 0, 0);
     size_t const l2_pos = index / WideRankSelectConfig::L2_BIT_SIZE;
-    __builtin_prefetch(&l2_[l2_pos], 0, 0);
     size_t result = l1_[l1_pos] + l2_[l2_pos];
     if constexpr (!optimize_one_or_dont_care(optimized_for)) {
       result = (l2_pos * WideRankSelectConfig::L2_BIT_SIZE) - result;
     }
 
     size_t offset = l2_pos * WideRankSelectConfig::L2_WORD_SIZE;
-    __builtin_prefetch(&data_[offset], 0, 0);
-
     size_t const full_words = (index % WideRankSelectConfig::L2_BIT_SIZE) / 64;
 
     for (size_t i = 0; i < full_words; ++i) {

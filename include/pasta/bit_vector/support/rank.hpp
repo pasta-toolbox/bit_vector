@@ -1,7 +1,7 @@
 /*******************************************************************************
- * bit_vector/bit_vector_rank.hpp
+ * This file is part of pasta::bit_vector.
  *
- * Copyright (C) 2019-2021 Florian Kurpicz <florian@kurpicz.org>
+ * Copyright (C) 2021 Florian Kurpicz <florian@kurpicz.org>
  *
  * pasta::bit_vector is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,12 +46,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <pasta/utils/container/aligned_vector.hpp>
 #include <pasta/utils/debug_asserts.hpp>
 #include <tlx/container/simple_vector.hpp>
 
 namespace pasta {
 
 /*!
+ * \ingroup pasta_bit_vector_configuration
  * \brief Static configuration for \c Rank and
  * \c RankSelect.
  */
@@ -75,7 +77,7 @@ struct PopcntRankSelectConfig {
   static constexpr size_t SELECT_SAMPLE_RATE = 8192;
 }; // struct PopcountRankSelectConfiguration
 
-//! \addtogroup pasta_bit_vectors
+//! \addtogroup pasta_bit_vector_rank
 //! \{
 
 /*!
@@ -131,10 +133,16 @@ public:
     init();
   }
 
-  // Default move constructor.
+  /*!
+   * \brief Default move constructor.
+   * \param other Other rank data structure.
+   */
   Rank(Rank&& other) = default;
 
-  // Default move assignment.
+  /*!
+   * \brief Default move assignment.
+   * \param other Other rank data structure.
+   */
   Rank& operator=(Rank&& other) = default;
 
   //! Destructor. Deleting manually created arrays.
@@ -160,9 +168,7 @@ public:
   rank1(size_t index) const {
     PASTA_ASSERT(index <= bit_size_, "Index outside of bit vector");
     size_t offset = ((index / PopcntRankSelectConfig::L2_BIT_SIZE) * 8);
-    __builtin_prefetch(&data_[offset], 0, 0);
     size_t const l1_pos = index / PopcntRankSelectConfig::L1_BIT_SIZE;
-    __builtin_prefetch(&l12_[l1_pos], 0, 0);
     size_t const l2_pos = (index % PopcntRankSelectConfig::L1_BIT_SIZE) /
                           PopcntRankSelectConfig::L2_BIT_SIZE;
     size_t result =

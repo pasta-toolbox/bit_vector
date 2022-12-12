@@ -97,7 +97,7 @@ public:
     run_pasta<pasta_bv_flat_rs_i_one>("pasta_bv_flat_rs_i_one", gen);
     run_pasta<pasta_bv_flat_rs_i_zero>("pasta_bv_flat_rs_i_zero", gen);
     run_pasta<pasta_bv_wide_rs_ls_one>("pasta_bv_wide_rs_ls_one", gen);
-    run_pasta<pasta_bv_wide_rs_ls_zero>("pasta_bv_wide_rs_lss_zero", gen);
+    run_pasta<pasta_bv_wide_rs_ls_zero>("pasta_bv_wide_rs_ls_zero", gen);
     run_pasta<pasta_bv_wide_rs_bs_one>("pasta_bv_wide_rs_bs_one", gen);
     run_pasta<pasta_bv_wide_rs_bs_zero>("pasta_bv_wide_rs_bs_zero", gen);
   }

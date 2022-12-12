@@ -208,13 +208,13 @@ public:
 
 private:
   //! Size of the bit vector in bits.
-  size_t bit_size_;
+  size_t bit_size_ = 0;
   //! Size of the underlying data used to store the bits.
-  size_t size_;
+  size_t size_ = 0;
   //! Array of 64-bit words used to store the content of the bit vector.
   tlx::SimpleVector<RawDataType, tlx::SimpleVectorMode::NoInitNoDestroy> data_;
   //! Pointer to the raw data of the bit vector.
-  RawDataPointer raw_data_;
+  RawDataPointer raw_data_ = nullptr;
 
 public:
   /*!
@@ -293,7 +293,7 @@ public:
   //! Default empty constructor.
   BitVector() = default;
 
-  //! Default  move constructor.
+  //! Default move constructor.
   BitVector(BitVector&&) = default;
 
   //! Default copy constructor.

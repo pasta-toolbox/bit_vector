@@ -5,6 +5,7 @@
 </p>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://zenodo.org/badge/419381885.svg)](https://zenodo.org/badge/latestdoi/419381885)
 [![pasta::bit_vector CI](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml/badge.svg)](https://github.com/pasta-toolbox/bit_vector/actions/workflows/ctest.yml)
 [![codecov](https://codecov.io/gh/pasta-toolbox/bit_vector/branch/main/graph/badge.svg?token=2QD6ME44SU)](https://codecov.io/gh/pasta-toolbox/bit_vector)
 

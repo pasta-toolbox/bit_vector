@@ -367,7 +367,7 @@ public:
     data_.resize(size_);
     raw_data_ = data_.data();
 
-    if (old_size < bit_size_) {
+    if (old_bit_size < bit_size_) {
       size_t max_bitwise = std::min(bit_size_, ((old_bit_size + 63) / 64) * 64);
       for (size_t i = old_bit_size; i < max_bitwise; ++i) {
         operator[](i) = init_value;

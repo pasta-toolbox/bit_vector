@@ -432,6 +432,15 @@ public:
   }
 
   /*!
+   * \brief Estimate for the space usage.
+   * \return Number of bytes used by this data structure.
+   */
+  [[nodiscard("space usage computed but not used")]] size_t
+  space_usage() const {
+    return (data_.size() * sizeof(RawDataType)) + sizeof(*this);
+  }
+  
+  /*!
    * \brief Get the size of the bit vector in bits.
    * \return Size of the bit vector in bits.
    */

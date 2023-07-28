@@ -439,7 +439,7 @@ public:
   space_usage() const {
     return (data_.size() * sizeof(RawDataType)) + sizeof(*this);
   }
-  
+
   /*!
    * \brief Get the size of the bit vector in bits.
    * \return Size of the bit vector in bits.

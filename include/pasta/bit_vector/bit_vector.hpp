@@ -368,7 +368,6 @@ public:
    */
   void resize(size_t const size, bool const init_value) noexcept {
     size_t const old_bit_size = bit_size_;
-    size_t const old_size = size_;
     bit_size_ = size;
     size_ = (bit_size_ >> 6) + 1;
     data_.resize(size_);
@@ -379,6 +378,7 @@ public:
       for (size_t i = old_bit_size; i < max_bitwise; ++i) {
         operator[](i) = init_value;
       }
+      size_t const old_size = (old_bit_size + 63) / 64;
       uint64_t const fill_value = init_value ? ~(0ULL) : 0ULL;
       std::fill_n(raw_data_ + old_size, size_ - old_size, fill_value);
     }
@@ -436,6 +436,15 @@ public:
    */
   uint64_t data(size_t const index) const noexcept {
     return raw_data_[index];
+  }
+
+  /*!
+   * \brief Estimate for the space usage.
+   * \return Number of bytes used by this data structure.
+   */
+  [[nodiscard("space usage computed but not used")]] size_t
+  space_usage() const {
+    return (data_.size() * sizeof(RawDataType)) + sizeof(*this);
   }
 
   /*!

@@ -1,0 +1,8 @@
+var searchData=
+[
+  ['rank_0',['Rank',['../classpasta_1_1Rank.html#ac9b72dca25729ce1c1ddfdcca56ea39a',1,'pasta::Rank::Rank()=default'],['../classpasta_1_1Rank.html#aca7797e2037bee2b5e782e48482e26dd',1,'pasta::Rank::Rank(VectorType &amp;bv)'],['../classpasta_1_1Rank.html#a1eabb41ed3eb78ea3f3e22fc91fb876e',1,'pasta::Rank::Rank(Rank &amp;&amp;other)=default']]],
+  ['rank0_1',['rank0',['../classpasta_1_1FlatRank.html#aa7fe722b09312e57188472600e6f73f4',1,'pasta::FlatRank::rank0()'],['../classpasta_1_1Rank.html#af4e8a1247c1fe57cec182113a73bc14d',1,'pasta::Rank::rank0()'],['../classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903',1,'pasta::WideRank::rank0()']]],
+  ['rank1_2',['rank1',['../classpasta_1_1FlatRank.html#a719e520bc4aa7e85e9b5092d393c7ce3',1,'pasta::FlatRank::rank1()'],['../classpasta_1_1Rank.html#a328430e25dd7dac012c99b20c4c0e743',1,'pasta::Rank::rank1()'],['../classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543',1,'pasta::WideRank::rank1()']]],
+  ['rankselect_3',['RankSelect',['../classpasta_1_1RankSelect.html#a0d7c493aa5fc2d2e18d3906055b71cb7',1,'pasta::RankSelect::RankSelect()=default'],['../classpasta_1_1RankSelect.html#a6b4cbc4efe9619410f464823cdf0d245',1,'pasta::RankSelect::RankSelect(VectorType &amp;bv)'],['../classpasta_1_1RankSelect.html#ab13003537091450d0e480fb10a26b5c2',1,'pasta::RankSelect::RankSelect(RankSelect &amp;&amp;other)=default']]],
+  ['resize_4',['resize',['../classpasta_1_1BitVector.html#a901a64e33cee94fe11a772e49c2b65b8',1,'pasta::BitVector::resize(size_t const size) noexcept'],['../classpasta_1_1BitVector.html#abb5911994f5ecaac8571d007c2bd162c',1,'pasta::BitVector::resize(size_t const size, bool const init_value) noexcept']]]
+];

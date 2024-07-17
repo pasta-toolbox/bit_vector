@@ -84,6 +84,12 @@ if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
     tlx
     pasta_utils
     optimized pasta_memory_monitor)
+
+  add_executable(ads_data_generation
+    benchmarks/ads_data_generation.cpp)
+
+  target_link_libraries(ads_data_generation PRIVATE
+    tlx)
 endif()
 
 ################################################################################

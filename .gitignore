@@ -2,3 +2,8 @@
 /build_with_debug_info/**
 /debug/**
 /docs/html**
+plots.aux
+plots.log
+plots.pdf
+plots.synctex.gz
+result.txt

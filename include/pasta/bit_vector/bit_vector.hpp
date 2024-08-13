@@ -196,6 +196,9 @@ private:
   //! Forward declaration.
   template <OptimizedFor o, FindL2WideWith f, typename v>
   friend class WideRankSelect;
+  //! Forward declaration
+  template <typename v>
+  friend class HackathonSelect;
 
 public:
   //! Type that is used to store the raw data of the bit vector.

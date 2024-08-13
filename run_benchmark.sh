@@ -15,3 +15,5 @@ do
 done
 
 sqlplot-tools plots.tex
+pdflatex plots.tex
+

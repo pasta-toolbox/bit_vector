@@ -18,7 +18,7 @@
 #
 ################################################################################
 
-cmake_minimum_required(VERSION 3.4.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,17 +36,6 @@ option(PASTA_BIT_VECTOR_BUILD_BENCHMARKS
 option(PASTA_BIT_VECTOR_COVERAGE_REPORTING
   "Enable coverage reporting for pasta::bit_vector" OFF)
 
-# Add tlx subdirectory only, if it has not been added by another project already
-if(NOT TARGET tlx)
-  add_subdirectory(extlib/tlx)
-endif()
-
-# Add pasta::utils subdirectory only, if it has not been added by another
-# project already
-if (NOT TARGET pasta_utils)
-  add_subdirectory(extlib/utils)
-endif()
-
 # Optional code coverage (library compile options are only set if coverage
 # reporting is enabled
 add_library(pasta_bit_vector_coverage_config INTERFACE)
@@ -61,11 +50,21 @@ endif()
 # pasta::bit_vector interface definitions
 add_library(pasta_bit_vector INTERFACE)
 target_include_directories(pasta_bit_vector INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${TLX_INCLUDE_DIRS})
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(pasta_bit_vector INTERFACE
   pasta_utils
   pasta_bit_vector_coverage_config)
+
+
+# Use FetchContent to load dependencies
+include(FetchContent)
+
+FetchContent_Declare(
+  pasta_utils
+  GIT_REPOSITORY https://github.com/pasta-toolbox/utils.git
+  GIT_TAG origin/main
+)
+FetchContent_MakeAvailable(pasta_utils)
 
 # Optional test
 if(PASTA_BIT_VECTOR_BUILD_TESTS)
@@ -76,6 +75,13 @@ endif()
 # Optional benchmarks
 
 if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
+  FetchContent_Declare(
+    tlx
+    GIT_REPOSITORY https://github.com/tlx/tlx.git
+    GIT_TAG origin/main
+  )
+  FetchContent_MakeAvailable(tlx)
+
   add_executable(bit_vector_benchmark
     benchmarks/bit_vector_benchmark.cpp)
 

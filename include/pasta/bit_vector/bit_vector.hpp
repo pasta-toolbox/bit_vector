@@ -23,7 +23,6 @@
 #include "pasta/bit_vector/support/find_l2_flat_with.hpp"
 #include "pasta/bit_vector/support/find_l2_wide_with.hpp"
 #include "pasta/bit_vector/support/optimized_for.hpp"
-#include "pasta/utils/container/aligned_vector.hpp"
 
 #include <algorithm>
 #include <cstddef>

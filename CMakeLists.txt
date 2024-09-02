@@ -73,7 +73,6 @@ if(PASTA_BIT_VECTOR_BUILD_TESTS)
 endif()
 
 # Optional benchmarks
-
 if(PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
   FetchContent_Declare(
     tlx

@@ -30,6 +30,13 @@ macro(pasta_build_test TESTNAME)
     COMMAND ${TESTNAME_REPLACED} ${ARGN})
 endmacro(pasta_build_test)
 
+FetchContent_Declare(
+  tlx
+  GIT_REPOSITORY https://github.com/tlx/tlx.git
+  GIT_TAG origin/main
+)
+FetchContent_MakeAvailable(tlx)
+
 pasta_build_test(bit_vector/bit_vector_test)
 pasta_build_test(bit_vector/support/bit_vector_rank_test)
 pasta_build_test(bit_vector/support/bit_vector_flat_rank_test)

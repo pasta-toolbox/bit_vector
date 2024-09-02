@@ -145,7 +145,7 @@ inline int nu(uint64_t word) {
  *
  */
 [[nodiscard]] uint64_t select(uint64_t x, uint64_t k) {
-  #if !defined(__BMI2__)
+#if !defined(__BMI2__)
   constexpr uint64_t kOnesStep4 = 0x1111111111111111ULL;
   constexpr uint64_t kOnesStep8 = 0x0101010101010101ULL;
   constexpr uint64_t kLAMBDAsStep8 = 0x80ULL * kOnesStep8;
@@ -161,19 +161,19 @@ inline int nu(uint64_t word) {
   uint64_t place = nu(geqKStep8) * 8;
   uint64_t byteRank = k - (((byteSums << 8) >> place) & uint64_t(0xFF));
   return place + kSelectInByte[((x >> place) & 0xFF) | (byteRank << 8)];
-  #elif defined(__GNUC__) || defined(__clang__)
-    // GCC and Clang won't inline the intrinsics.
-    uint64_t result = uint64_t(1) << k;
+#elif defined(__GNUC__) || defined(__clang__)
+  // GCC and Clang won't inline the intrinsics.
+  uint64_t result = uint64_t(1) << k;
 
-    asm("pdep %1, %0, %0\n\t"
-        "tzcnt %0, %0"
-        : "+r"(result)
-        : "r"(x));
+  asm("pdep %1, %0, %0\n\t"
+      "tzcnt %0, %0"
+      : "+r"(result)
+      : "r"(x));
 
-    return result;
-  #else
-    return _tzcnt_u64(_pdep_u64(1ULL << k, x));
-  #endif
+  return result;
+#else
+  return _tzcnt_u64(_pdep_u64(1ULL << k, x));
+#endif
 }
 
 } // namespace pasta

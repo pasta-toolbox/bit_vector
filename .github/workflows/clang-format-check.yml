@@ -14,8 +14,14 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Run clang-format style check
-      uses: jidicula/clang-format-action@v4.4.1
-      with:
-        clang-format-version: '14'
-        exclude-regex: 'extlib/'
+    - name: Prepare build environment
+      run: |
+        sudo apt update
+        sudo apt-get install ninja-build gcovr
+
+    - name: Configure CMake
+      run: cmake --preset=release
+    - name: Check C++ Formatting
+      run: cmake --build build --target check-clang-format
+    - name: Check CMake Formatting
+      run: cmake --build build --target check-cmake-format

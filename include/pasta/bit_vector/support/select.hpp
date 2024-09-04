@@ -1,9 +1,10 @@
 /*******************************************************************************
  * pasta/container/support/select.hpp
  *
- * Copyright (C) 2019-2020 Emmanuel Esposito,
- *                         Stefano Marchini, and
- *                         Sebastiano Vigna
+ * Copyright (C) 2019-2024 Emmanuel Esposito,
+ *                         Stefano Marchini,
+ *                         Sebastiano Vigna, and
+ *                         Florian Kurpicz
  *
  * pasta::bit_vector is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +31,10 @@ namespace pasta {
 
 /*! \file */
 
-// Required by select64
+/*!
+ * \brief Required lookup table by select64 in case version without intrinsics
+ * is used.
+ */
 constexpr uint8_t kSelectInByte[2048] = {
     8, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3,
     0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0,
@@ -115,10 +119,6 @@ constexpr uint8_t kSelectInByte[2048] = {
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7};
 
-inline int nu(uint64_t word) {
-  return __builtin_popcountll(word);
-}
-
 /*!
  * \brief Select set bit in 64-bit word and return its position starting from
  * the LSB (starting from the left).
@@ -136,13 +136,10 @@ inline int nu(uint64_t word) {
  *
  * [4] Facebook Folly library: https://github.com/facebook/folly
  *
- * \param data 64-bit word the bit is selected in.
- * \param rank Rank of the bit that is selected, i.e., 1st to 64-th set bit.
+ * \param x 64-bit word the bit is selected in.
+ * \param k Rank of the bit that is selected, i.e., 1st to 64-th set bit.
  * \return Position of the rank-th bit starting from the LSB (starting from
  * the left).
- *
- * Note that the code that is commented out is slower on all tested systems.
- *
  */
 [[nodiscard]] uint64_t select(uint64_t x, uint64_t k) {
 #if !defined(__BMI2__)
@@ -158,7 +155,7 @@ inline int nu(uint64_t word) {
 
   uint64_t kStep8 = k * kOnesStep8;
   uint64_t geqKStep8 = (((kStep8 | kLAMBDAsStep8) - byteSums) & kLAMBDAsStep8);
-  uint64_t place = nu(geqKStep8) * 8;
+  uint64_t place = std::popcount(geqKStep8) * 8;
   uint64_t byteRank = k - (((byteSums << 8) >> place) & uint64_t(0xFF));
   return place + kSelectInByte[((x >> place) & 0xFF) | (byteRank << 8)];
 #elif defined(__GNUC__) || defined(__clang__)

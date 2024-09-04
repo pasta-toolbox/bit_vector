@@ -35,6 +35,8 @@ if (PROJECT_IS_TOP_LEVEL)
     GIT_TAG v1.8.1
   )
   FetchContent_MakeAvailable(Format.cmake)
+
+  add_subdirectory(docs)
 endif ()
 
 # Options when compiling pasta::bit_vector Build tests

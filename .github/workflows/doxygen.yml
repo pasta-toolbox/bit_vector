@@ -10,7 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Prepare build environment
+      run: |
+        sudo apt update
+        sudo apt-get install ninja-build
     - name: Configure project
       run: cmake --preset=release
     - name: Build documentation

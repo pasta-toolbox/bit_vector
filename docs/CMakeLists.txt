@@ -18,7 +18,6 @@
 #
 # ##############################################################################
 
-
 # find Doxygen
 find_package(Doxygen)
 
@@ -55,7 +54,9 @@ if (DOXYGEN_FOUND)
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/custom_doxygen/header.html)
   set(DOXYGEN_HTML_COLORSTYLE LIGHT)
 
-  set(DOXYGEN_PROJECT_LOGO "${CMAKE_CURRENT_LIST_DIR}/images/logo_pasta_bit_vector.svg")
+  set(DOXYGEN_PROJECT_LOGO
+      "${CMAKE_CURRENT_LIST_DIR}/images/logo_pasta_bit_vector.svg"
+  )
   set(DOXYGEN_IMAGE_PATH "${CMAKE_CURRENT_LIST_DIR}/images")
   set(DOXYGEN_GENERATE_TODOLIST NO)
   set(DOXYGEN_EXTRACT_STATIC YES)

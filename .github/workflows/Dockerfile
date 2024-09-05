@@ -5,7 +5,7 @@ RUN apt-get update -y --fix-missing
 RUN apt-get upgrade -y
 
 # Build dependencies
-RUN apt-get install git gcc curl ca-certificates cmake wget gnupg lsb-release build-essential -y
+RUN apt-get install git gcc curl ca-certificates cmake wget gnupg lsb-release ninja-build build-essential -y
 
 # Doxygen dependencies
 RUN apt-get install flex bison graphviz texlive-full -y 

@@ -9,7 +9,7 @@ jobs:
   build-documentation:
     runs-on: ubuntu-latest
     container:
-      image: "ghcr.io/pasta-toolbox/pasta-ci:latest"
+      image: "ghcr.io/pasta-toolbox/pasta-ci:2024.09"
 
     steps:
     - name: Checkout repository

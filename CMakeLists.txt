@@ -20,10 +20,12 @@
 
 cmake_minimum_required(VERSION 3.25)
 
-project(pasta_bit_vector
+project(
+  pasta_bit_vector
   DESCRIPTION "Bit Vector with Compact and Fast Rank and Select Support"
   LANGUAGES CXX
-  VERSION 0.1.1)
+  VERSION 1.0.1
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

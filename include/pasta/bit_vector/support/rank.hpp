@@ -125,8 +125,8 @@ public:
    * for.
    */
   Rank(VectorType& bv)
-      : data_size_(bv.size_),
-        data_(bv.data_.data()),
+      : data_size_(bv.data().size()),
+        data_(bv.data().data()),
         bit_size_(bv.size()),
         l0_((data_size_ / PopcntRankSelectConfig::L0_WORD_SIZE) + 2),
         l12_((data_size_ / PopcntRankSelectConfig::L1_WORD_SIZE) + 1) {

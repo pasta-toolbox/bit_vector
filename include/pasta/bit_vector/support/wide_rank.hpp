@@ -98,8 +98,8 @@ public:
    * \param bv Vector of type \c VectorType the rank structure is created for.
    */
   WideRank(VectorType& bv)
-      : data_size_(bv.size_),
-        data_(bv.data_.data()),
+      : data_size_(bv.data().size()),
+        data_(bv.data().data()),
         l1_((data_size_ / WideRankSelectConfig::L1_WORD_SIZE) + 1),
         l2_((data_size_ / WideRankSelectConfig::L2_WORD_SIZE) + 1) {
     init();

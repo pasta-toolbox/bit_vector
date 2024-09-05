@@ -176,26 +176,6 @@ private:
  * \c std::vector<bool>).
  */
 class BitVector {
-private:
-  //! Forward declaration.
-  template <OptimizedFor o, typename v>
-  friend class Rank;
-  //! Forward declaration.
-  template <OptimizedFor o, typename v>
-  friend class FlatRank;
-  //! Forward declaration.
-  template <OptimizedFor o, typename v>
-  friend class WideRank;
-  //! Forward declaration.
-  template <OptimizedFor o, typename v>
-  friend class RankSelect;
-  //! Forward declaration.
-  template <OptimizedFor o, FindL2FlatWith f, typename v>
-  friend class FlatRankSelect;
-  //! Forward declaration.
-  template <OptimizedFor o, FindL2WideWith f, typename v>
-  friend class WideRankSelect;
-
 public:
   //! Type that is used to store the raw data of the bit vector.
   using RawDataType = uint64_t;

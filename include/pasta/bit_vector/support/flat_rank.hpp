@@ -105,8 +105,8 @@ public:
    * \param bv Vector of \c VectorType the rank structure is created for.
    */
   FlatRank(VectorType& bv)
-      : data_size_(bv.size_),
-        data_(bv.data_.data()),
+      : data_size_(bv.data().size()),
+        data_(bv.data().data()),
         l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1) {
     init();
   }

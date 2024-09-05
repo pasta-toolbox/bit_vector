@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Kurpicz
+    given-names: Florian
+    orcid: https://orcid.org/0000-0002-2379-9455
+title: "pasta::bit_vector"
+version: 1.0.1
+identifiers:
+  - type: doi
+    value: https://doi.org/10.5281/zenodo.7446380
+date-released: 2022-12-22
+url: "https://github.com/pasta-toolbox/bit_vector"
+preferred-citation:
+  type: proceedings
+  title: "Engineering Compact Data Structures for Rank and Select Queries on Bit Vectors"
+  authors:
+    - family-names: Kurpicz
+      given-names: Florian
+  publisher:
+    name: "Springer"
+  doi: "https://doi.org/10.1007/978-3-031-20643-6_19"
+  year: 2022

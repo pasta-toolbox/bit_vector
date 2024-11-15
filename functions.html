@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.12.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image:src" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<!-- END twitter metadata -->
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="pasta::bit_vector" />
+<meta property="og:image" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<meta property="og:image:alt" content="Logo of pasta::bit_vector." />
+<meta property="og:description" content="Fast and highly tuned bit vector implementation including space efficient rank and select support having only 3.51% space overhead." />
+<meta property="og:url" content="https://pasta-toolbox.github.io/bit_vector/" />
+<!-- END opengraph metadata -->
+<title>pasta_bit_vector: Class Members</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<link itemprop="thumbnailUrl" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject"> 
+  <link itemprop="url" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+</span>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/pasta-toolbox/bit_vector" class="github-corner" title="View source on GitHub" target="_blank">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo_pasta_bit_vector.svg"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">pasta_bit_vector
+   &#160;<span id="projectnumber">1.0.1</span>
+   </div>
+   <div id="projectbrief">Bit Vector with Compact and Fast Rank and Select Support</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.12.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('functions.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="contents">
+<div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div>
+
+<h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
+<li>begin()&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a056dd0e32ff6560fdad4082ce19770e9">pasta::BitVector</a></li>
+<li>BigL12Type()&#160;:&#160;<a class="el" href="structpasta_1_1BigL12Type.html#a8818c0f16784c512e810c885efea79bd">pasta::BigL12Type</a></li>
+<li>bit_size_&#160;:&#160;<a class="el" href="classpasta_1_1Rank.html#aaf55f78204bf83405d3f2bc4ac63152a">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>BitAccess()&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a88f82d5b088ed73c288b7b19b485ca2a">pasta::BitAccess</a></li>
+<li>BitVector&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a36e8ce805d9208092c1351bd2d513e2d">pasta::BitAccess</a>, <a class="el" href="classpasta_1_1BitVector.html#a172dd24213632d89ed0e00bc92222ca7">pasta::BitVector</a></li>
+</ul>
+
+
+<h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
+<li>data&#160;:&#160;<a class="el" href="structpasta_1_1BigL12Type.html#af7e455beba578dd964a597edcd71b795">pasta::BigL12Type</a>, <a class="el" href="classpasta_1_1BitVector.html#ab5f0df2e39b424e512551a3c2b7ff8c8">pasta::BitVector</a></li>
+<li>data_&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#afe6dcc40ffb6adf2d3b55a379d55414a">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#a1732dfa71bc52d2da15ec2feaaaa4fd7">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>data_size_&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#af1d6bfa4bbf0a981244e8b591c1924f6">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#acd59eb7529dc8e5ebe86c968e615431d">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>differece_type&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#aed11e6fd5809e9fd647be004c9a90a4b">pasta::BitVector::Iterator</a></li>
+<li>distance()&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a20e6d4116aabd9337a31ec21872eb798">pasta::BitAccess</a></li>
+</ul>
+
+
+<h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
+<li>end()&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a7b867867883d5961dcf4a52cc0411d69">pasta::BitVector</a></li>
+</ul>
+
+
+<h3><a id="index_f" name="index_f"></a>- f -</h3><ul>
+<li>FlatRank()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#a5c06e54ae130139d44ea3b8fed603526">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a></li>
+<li>FlatRankSelect&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#a1fd1e8f7a7c023167414be0805bc6a22">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1FlatRankSelect.html#a62ea22485a77c5e90540f636a97a1110">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+</ul>
+
+
+<h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
+<li>Iterator()&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a4873b83e18004cca43fd931839ca3c72">pasta::BitVector::Iterator</a></li>
+<li>iterator_category&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a43ad86cb47e6c4110a5ed4ff4071a7ed">pasta::BitVector::Iterator</a></li>
+</ul>
+
+
+<h3><a id="index_l" name="index_l"></a>- l -</h3><ul>
+<li>l0_&#160;:&#160;<a class="el" href="classpasta_1_1Rank.html#a16dbbdf8684b092e7854d9ca6da1bb49">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>L0_BIT_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#ae002d1661afea0cc24153172dbdf1297">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#abf03a0fcf92b90ac1297ca36b9f1aa12">pasta::PopcntRankSelectConfig</a></li>
+<li>L0_WORD_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#a985b499ff17abe5b8bd9555c1aa9c61a">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#a1207e6ec8156b2efe57c43234b25c78f">pasta::PopcntRankSelectConfig</a></li>
+<li>l1()&#160;:&#160;<a class="el" href="structpasta_1_1BigL12Type.html#a69f2ba7226297540903b4b134ac3b130">pasta::BigL12Type</a>, <a class="el" href="structpasta_1_1L12Type.html#aa63eae347cd45cc503679c75cef82978">pasta::L12Type</a></li>
+<li>l12_&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#a65681a458c6c83a460af607185ae9443">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#ae2d41d09a0e7f8d23106154ab097a6f4">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>l12_end_&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#ad1b536a8c3aacf3fad5d5b4bcd703618">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a></li>
+<li>L12Type()&#160;:&#160;<a class="el" href="structpasta_1_1L12Type.html#a10288925405d915d2ba5ab76a3ce4230">pasta::L12Type</a></li>
+<li>L1_BIT_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#a59784c8724df2b3ffba6e0a5448ac860">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#adbc6e0cbe2612883d62481479c8f210a">pasta::PopcntRankSelectConfig</a>, <a class="el" href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">pasta::WideRankSelectConfig</a></li>
+<li>L1_WORD_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#af0dd75bf1fbdc4fa8d027a7b9371375f">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#af9f69c4e50a8b9a9dee3ab54751c018a">pasta::PopcntRankSelectConfig</a>, <a class="el" href="structpasta_1_1WideRankSelectConfig.html#a1cf0ebcabd662a65cb3a9836d55f0e59">pasta::WideRankSelectConfig</a></li>
+<li>L2_BIT_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#ab3b6a48fe7ac59fc002b2fe7c651a670">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#a9d7dafd57935e0cfa9ad67bacd0448a7">pasta::PopcntRankSelectConfig</a>, <a class="el" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">pasta::WideRankSelectConfig</a></li>
+<li>l2_values&#160;:&#160;<a class="el" href="structpasta_1_1L12Type.html#a54f92e291f313d29c21e5dc6abe04cd6">pasta::L12Type</a></li>
+<li>L2_WORD_SIZE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#a0744301821bd47bf795a174f39fee118">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#a75f5975c5de3d768760e924fb036c979">pasta::PopcntRankSelectConfig</a>, <a class="el" href="structpasta_1_1WideRankSelectConfig.html#a2404e7c823ae10d4d5f594c5a896803c">pasta::WideRankSelectConfig</a></li>
+</ul>
+
+
+<h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
+<li>operator bool()&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a2f89f05c903741998933d96ac8b4c1e6">pasta::BitAccess</a></li>
+<li>operator!=&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#ae3daac0e61124cc73d010f0b1a47ebf5">pasta::BitAccess</a>, <a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a50aed915b0a583aeb2df084a06e9ce4e">pasta::BitVector::Iterator</a></li>
+<li>operator*()&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#af6e1c9919f83742d877c0ee2b3ec0bfe">pasta::BitVector::Iterator</a></li>
+<li>operator++()&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a3e132d493abf32fb54ca129f1bf92812">pasta::BitVector::Iterator</a></li>
+<li>operator-&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#aab8722366b24c0e645e1d9e3ea9a660f">pasta::BitVector::Iterator</a></li>
+<li>operator-&gt;()&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a8da2ef5cbe410abd1e25a07b4f7565d5">pasta::BitVector::Iterator</a></li>
+<li>operator&lt;&lt;&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a36b24c248cb1c5af71229dbba97795b3">pasta::BitVector</a></li>
+<li>operator=()&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a303a97c627b75c694b1aedd306b44243">pasta::BitAccess</a>, <a class="el" href="classpasta_1_1BitVector.html#a0d0a6f91b1db0434f630a4d6a272a5fb">pasta::BitVector</a>, <a class="el" href="classpasta_1_1FlatRankSelect.html#a9233cfeeed6d64ab59d36b6ff73482b7">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#a8a474d283aa08ae435f83b8323465e6e">pasta::Rank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1RankSelect.html#a0b7539b352b3738f0306fc164e39f9ce">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRankSelect.html#aa8174ce3471e5f15528940afc825819d">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+<li>operator==&#160;:&#160;<a class="el" href="classpasta_1_1BitAccess.html#a9f5d1c365e46497d48711af65c2b862c">pasta::BitAccess</a>, <a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a17a89c609a6eb7ee3f8391795db4dd54">pasta::BitVector::Iterator</a></li>
+<li>operator[]()&#160;:&#160;<a class="el" href="structpasta_1_1BigL12Type.html#a2b20c138845a3a61a74c5dbecfe3a3e6">pasta::BigL12Type</a>, <a class="el" href="classpasta_1_1BitVector.html#af702d458693e03cb40a55f7578fa4237">pasta::BitVector</a>, <a class="el" href="structpasta_1_1L12Type.html#a8173465c54d65f4e60d2b7a51e9cf325">pasta::L12Type</a></li>
+</ul>
+
+
+<h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
+<li>pointer&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a046d1379ab8a861ee6b0f03e2faa8be2">pasta::BitVector::Iterator</a></li>
+</ul>
+
+
+<h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
+<li>Rank()&#160;:&#160;<a class="el" href="classpasta_1_1Rank.html#ac9b72dca25729ce1c1ddfdcca56ea39a">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>rank0()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#aa7fe722b09312e57188472600e6f73f4">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#af4e8a1247c1fe57cec182113a73bc14d">pasta::Rank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903">pasta::WideRank&lt; optimized_for, VectorType &gt;</a></li>
+<li>rank1()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRank.html#a719e520bc4aa7e85e9b5092d393c7ce3">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#a328430e25dd7dac012c99b20c4c0e743">pasta::Rank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">pasta::WideRank&lt; optimized_for, VectorType &gt;</a></li>
+<li>RankSelect()&#160;:&#160;<a class="el" href="classpasta_1_1RankSelect.html#a0d7c493aa5fc2d2e18d3906055b71cb7">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a></li>
+<li>RawDataConstAccess&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a24e84559e391985cb26bcaa2c6ce0e68">pasta::BitVector</a></li>
+<li>RawDataPointer&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a3e9c2f68d72a831430f553665cf13bb3">pasta::BitVector</a></li>
+<li>RawDataType&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a14e9c80c96ea2aed6cad8db630f06a0c">pasta::BitVector</a></li>
+<li>reference&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a52a609a4f30f16b318f43c75eca94bda">pasta::BitVector::Iterator</a></li>
+<li>resize()&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a901a64e33cee94fe11a772e49c2b65b8">pasta::BitVector</a></li>
+</ul>
+
+
+<h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
+<li>select0()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRankSelect.html#a0029ee23bf5b03a2035c068d084bb849">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a>, <a class="el" href="classpasta_1_1RankSelect.html#ab467cd63419bd6778e79be148438e937">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRankSelect.html#a5748966572f00cb390bdf1f20d60efcc">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+<li>select1()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRankSelect.html#a46679a068b32d2e4bd258588c419807c">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a>, <a class="el" href="classpasta_1_1RankSelect.html#a40cd7091a59cc7fba1c755691cd4b3a3">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRankSelect.html#a681c5a2e02a7170fec67231a79e8da5f">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+<li>SELECT_SAMPLE_RATE&#160;:&#160;<a class="el" href="structpasta_1_1FlatRankSelectConfig.html#ab5c9d5ca73b6673463319fc2afbfc09d">pasta::FlatRankSelectConfig</a>, <a class="el" href="structpasta_1_1PopcntRankSelectConfig.html#a6aff810257f1496283522aa505c0ff62">pasta::PopcntRankSelectConfig</a>, <a class="el" href="structpasta_1_1WideRankSelectConfig.html#a7ba30fe752ca9bf2145740073e7fd7c3">pasta::WideRankSelectConfig</a></li>
+<li>size()&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#a3eea8b44f67d09bd156f6c1fe8171dfc">pasta::BitVector</a></li>
+<li>space_usage()&#160;:&#160;<a class="el" href="classpasta_1_1BitVector.html#ad58d83432eae686ed023bb7712cd63a6">pasta::BitVector</a>, <a class="el" href="classpasta_1_1FlatRank.html#a2f12f56a81312471f2d51ab70a1ac3f0">pasta::FlatRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1FlatRankSelect.html#a1fd45a1b2237c5ee79ec0d770103c151">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a>, <a class="el" href="classpasta_1_1Rank.html#a438baf2ffe341c5e14537f56a882d2f0">pasta::Rank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1RankSelect.html#a9a7e5bf4968a5e9da30d1fbfa3f1c90b">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRank.html#ab43ed7b93e8dbbd2cd4f97c3293d7a8a">pasta::WideRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRankSelect.html#a1dcaa7a59341b37bff23fbbc52d1cf76">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+</ul>
+
+
+<h3><a id="index_v" name="index_v"></a>- v -</h3><ul>
+<li>value_type&#160;:&#160;<a class="el" href="structpasta_1_1BitVector_1_1Iterator.html#a0be47f3f271340309448022bc23ce5f3">pasta::BitVector::Iterator</a></li>
+</ul>
+
+
+<h3><a id="index_w" name="index_w"></a>- w -</h3><ul>
+<li>WideRank()&#160;:&#160;<a class="el" href="classpasta_1_1WideRank.html#abedd356912d5b85190cd2b3ee62c8c0f">pasta::WideRank&lt; optimized_for, VectorType &gt;</a></li>
+<li>WideRankSelect&#160;:&#160;<a class="el" href="classpasta_1_1WideRank.html#a28ffba791e0977b266d282012cb080a1">pasta::WideRank&lt; optimized_for, VectorType &gt;</a>, <a class="el" href="classpasta_1_1WideRankSelect.html#aa26a99c778800635fb9ba5328a6a7fe6">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+</ul>
+
+
+<h3><a id="index__7E" name="index__7E"></a>- ~ -</h3><ul>
+<li>~FlatRankSelect()&#160;:&#160;<a class="el" href="classpasta_1_1FlatRankSelect.html#a69f57f2a46e68be20a306045046693a9">pasta::FlatRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+<li>~Rank()&#160;:&#160;<a class="el" href="classpasta_1_1Rank.html#aa2307f9a1f8419e8f9f995b2e5d8b6ae">pasta::Rank&lt; optimized_for, VectorType &gt;</a></li>
+<li>~RankSelect()&#160;:&#160;<a class="el" href="classpasta_1_1RankSelect.html#a1394342cece2169a51c367346c652a6a">pasta::RankSelect&lt; optimized_for, VectorType &gt;</a></li>
+<li>~WideRankSelect()&#160;:&#160;<a class="el" href="classpasta_1_1WideRankSelect.html#aa9040eca0ea82c9080e59ba400754494">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.12.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.12.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image:src" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<!-- END twitter metadata -->
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="pasta::bit_vector" />
+<meta property="og:image" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<meta property="og:image:alt" content="Logo of pasta::bit_vector." />
+<meta property="og:description" content="Fast and highly tuned bit vector implementation including space efficient rank and select support having only 3.51% space overhead." />
+<meta property="og:url" content="https://pasta-toolbox.github.io/bit_vector/" />
+<!-- END opengraph metadata -->
+<title>pasta_bit_vector: include/pasta/bit_vector/support/wide_rank.hpp Source File</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<link itemprop="thumbnailUrl" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject"> 
+  <link itemprop="url" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+</span>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/pasta-toolbox/bit_vector" class="github-corner" title="View source on GitHub" target="_blank">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo_pasta_bit_vector.svg"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">pasta_bit_vector
+   &#160;<span id="projectnumber">1.0.1</span>
+   </div>
+   <div id="projectbrief">Bit Vector with Compact and Fast Rank and Select Support</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.12.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('wide__rank_8hpp_source.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">wide_rank.hpp</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/*******************************************************************************</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * This file is part of pasta::bit_vector.</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * Copyright (C) 2021 Florian Kurpicz &lt;florian@kurpicz.org&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> * pasta::bit_vector is free software: you can redistribute it and/or modify</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment"> * it under the terms of the GNU General Public License as published by</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment"> * the Free Software Foundation, either version 3 of the License, or</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment"> * (at your option) any later version.</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment"> * pasta::bit_vector is distributed in the hope that it will be useful,</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment"> * GNU General Public License for more details.</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment"> * You should have received a copy of the GNU General Public License</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment"> * along with pasta::bit_vector.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"> ******************************************************************************/</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;pasta/bit_vector/bit_vector.hpp&quot;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;pasta/bit_vector/support/find_l2_wide_with.hpp&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;pasta/bit_vector/support/l12_type.hpp&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;<a class="code" href="optimized__for_8hpp.html">pasta/bit_vector/support/optimized_for.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;<a class="code" href="popcount_8hpp.html">pasta/bit_vector/support/popcount.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;pasta/utils/container/aligned_vector.hpp&quot;</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &lt;tlx/container/simple_vector.hpp&gt;</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">namespace </span>pasta {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment"></span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">/*!</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment"> * \ingroup pasta_bit_vector_configuration</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment"> * \brief Static configuration for \c WideRank and</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment"> * \c WideRankSelect</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment"> */</span></div>
+<div class="foldopen" id="foldopen00039" data-start="{" data-end="};">
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html">   39</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structpasta_1_1WideRankSelectConfig.html">WideRankSelectConfig</a> {<span class="comment"></span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment">  //! Bits covered by an L2-block.</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">   41</a></span><span class="comment"></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">L2_BIT_SIZE</a> = 512;<span class="comment"></span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">  //! Bits covered by an L1-block.</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">   43</a></span><span class="comment"></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">L1_BIT_SIZE</a> = 128 * <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">L2_BIT_SIZE</a>;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment"></span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">  //! Number of 64-bit words covered by an L2-block.</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html#a2404e7c823ae10d4d5f594c5a896803c">   46</a></span><span class="comment"></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a2404e7c823ae10d4d5f594c5a896803c">L2_WORD_SIZE</a> = <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">L2_BIT_SIZE</a> / (<span class="keyword">sizeof</span>(uint64_t) * 8);<span class="comment"></span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">  //! Number of 64-bit words covered by an L1-block.</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html#a1cf0ebcabd662a65cb3a9836d55f0e59">   48</a></span><span class="comment"></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a1cf0ebcabd662a65cb3a9836d55f0e59">L1_WORD_SIZE</a> = <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">L1_BIT_SIZE</a> / (<span class="keyword">sizeof</span>(uint64_t) * 8);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment"></span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment">  //! Sample rate of positions for faster select queries.</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="structpasta_1_1WideRankSelectConfig.html#a7ba30fe752ca9bf2145740073e7fd7c3">   51</a></span><span class="comment"></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a7ba30fe752ca9bf2145740073e7fd7c3">SELECT_SAMPLE_RATE</a> = 8192;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>}; <span class="comment">// struct WideRankSelectConfig</span></div>
+</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment"></span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">//! \addtogroup pasta_bit_vector_rank</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">//! \{</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment"></span><span class="comment"></span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">/*!</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment"> * \brief %Rank support for \ref BitVector that can be used as an alternative</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment"> * to \ref Rank for bit vectors up to length 2^40.</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="comment"> * The rank support is an extended and engineered version of the popcount rank</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment"> * support by Zhou et al. \cite ZhouAK2013PopcountRankSelect. This flat rank</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="comment"> * support hoverer removes the highest utility array (L0) and also groups</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="comment"> * twice as many L2-blocks in a single L1-block. This allows us to store more</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="comment"> * information---most importantly the number of ones w.r.t. the beginning of</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="comment"> * the L1-block---in the L2-blocks. For the L1/2-block layout see</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="comment"> * \ref BigL12Type.</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="comment"> * \tparam OptimizedFor Compile time option to optimize data</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="comment"> * structure for either 0, 1, or no specific type of query.</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="comment"> * \tparam VectorType Type of the vector the rank data structure is constructed</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment"> * for, e.g., plain \c BitVector or a compressed bit vector.</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keyword">template</span> &lt;<a class="code hl_enumeration" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = <a class="code hl_enumvalue" href="group__pasta__bit__vector__configuration.html#gga153ca8106e9e2ff4333eb77b77f48ddba3d241dc381afd54422199a5e6864275a">OptimizedFor::DONT_CARE</a>,</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>          <span class="keyword">typename</span> VectorType = <a class="code hl_class" href="classpasta_1_1BitVector.html">BitVector</a>&gt;</div>
+<div class="foldopen" id="foldopen00076" data-start="{" data-end="};">
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html">   76</a></span><span class="keyword">class </span><a class="code hl_class" href="classpasta_1_1WideRank.html">WideRank</a> {<span class="comment"></span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment">  //! Friend class, using internal information l12_.</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment"></span>  <span class="keyword">template</span> &lt;OptimizedFor o, FindL2W<span class="keywordtype">id</span>eWith f, <span class="keyword">typename</span> v&gt;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#a28ffba791e0977b266d282012cb080a1">   79</a></span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classpasta_1_1WideRankSelect.html">WideRankSelect</a>;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment"></span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment">  //! Size of the bit vector the rank support is constructed for.</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment"></span>  <span class="keywordtype">size_t</span> data_size_;<span class="comment"></span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="comment">  //! Pointer to the data of the bit vector.</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="comment"></span>  VectorType::RawDataConstAccess data_;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="comment"></span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="comment">  //! Array containing the information about the L1-blocks.</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="comment"></span>  tlx::SimpleVector&lt;uint64_t, tlx::SimpleVectorMode::NoInitNoDestroy&gt; l1_;<span class="comment"></span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="comment">  //! Array containing the information about the L2-blocks.</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="comment"></span>  tlx::SimpleVector&lt;uint16_t, tlx::SimpleVectorMode::NoInitNoDestroy&gt; l2_;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="comment">  //! Default constructor w/o parameter.</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#abedd356912d5b85190cd2b3ee62c8c0f">   93</a></span><span class="comment"></span>  <a class="code hl_function" href="classpasta_1_1WideRank.html#abedd356912d5b85190cd2b3ee62c8c0f">WideRank</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment"></span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment">  /*!</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="comment">   * \brief Constructor. Creates the auxiliary information for efficient rank</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="comment">   * queries.</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="comment">   * \param bv Vector of type \c VectorType the rank structure is created for.</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="comment">   */</span></div>
+<div class="foldopen" id="foldopen00100" data-start="{" data-end="}">
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#a9f65673fd290469aa9c27eff12325e3b">  100</a></span>  <a class="code hl_function" href="classpasta_1_1WideRank.html#a9f65673fd290469aa9c27eff12325e3b">WideRank</a>(VectorType&amp; bv)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>      : data_size_(bv.data().size()),</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        data_(bv.data().data()),</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        l1_((data_size_ / <a class="code hl_struct" href="structpasta_1_1WideRankSelectConfig.html">WideRankSelectConfig</a>::L1_WORD_SIZE) + 1),</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        l2_((data_size_ / <a class="code hl_struct" href="structpasta_1_1WideRankSelectConfig.html">WideRankSelectConfig</a>::L2_WORD_SIZE) + 1) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    init();</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  }</div>
+</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="comment"></span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">  /*!</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="comment">   * \brief Computes rank of zeros.</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="comment">   * \param index Index the rank of zeros is computed for.</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="comment">   * \return Number of zeros (rank) before position \c index.</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="comment">   */</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  [[nodiscard(<span class="stringliteral">&quot;rank0 computed but not used&quot;</span>)]] <span class="keywordtype">size_t</span></div>
+<div class="foldopen" id="foldopen00114" data-start="{" data-end="}">
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903">  114</a></span>  <a class="code hl_function" href="classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903">rank0</a>(<span class="keywordtype">size_t</span> index)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">return</span> index - <a class="code hl_function" href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">rank1</a>(index);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  }</div>
+</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="comment"></span> </div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="comment">  /*!</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="comment">   * \brief Computes rank of ones.</span></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="comment">   * \param index Index the rank of ones is computed for.</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="comment">   * \return Number of ones (rank) before position \c index.</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="comment">   */</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  [[nodiscard(<span class="stringliteral">&quot;rank1 computed but not used&quot;</span>)]] <span class="keywordtype">size_t</span></div>
+<div class="foldopen" id="foldopen00124" data-start="{" data-end="}">
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">  124</a></span>  <a class="code hl_function" href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">rank1</a>(<span class="keywordtype">size_t</span> index)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordtype">size_t</span> <span class="keyword">const</span> l1_pos = index / <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">WideRankSelectConfig::L1_BIT_SIZE</a>;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordtype">size_t</span> <span class="keyword">const</span> l2_pos = index / <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">WideRankSelectConfig::L2_BIT_SIZE</a>;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">size_t</span> result = l1_[l1_pos] + l2_[l2_pos];</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (!<a class="code hl_function" href="group__pasta__bit__vector__configuration.html#gac0e48dc2b01112c8b289b5762034abd6">optimize_one_or_dont_care</a>(optimized_for)) {</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>      result = (l2_pos * <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">WideRankSelectConfig::L2_BIT_SIZE</a>) - result;</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    }</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordtype">size_t</span> offset = l2_pos * <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#a2404e7c823ae10d4d5f594c5a896803c">WideRankSelectConfig::L2_WORD_SIZE</a>;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keywordtype">size_t</span> <span class="keyword">const</span> full_words = (index % <a class="code hl_variable" href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">WideRankSelectConfig::L2_BIT_SIZE</a>) / 64;</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; full_words; ++i) {</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>      result += std::popcount(data_[offset++]);</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    }</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <span class="keywordflow">if</span> (index %= 64; index &gt; 0) [[likely]] {</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>      uint64_t <span class="keyword">const</span> remaining = data_[offset] &lt;&lt; (64 - index);</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>      result += std::popcount(remaining);</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    }</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">return</span> result;</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  }</div>
+</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="comment"></span> </div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="comment">  /*!</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="comment">   * \brief Estimate for the space usage.</span></div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="comment">   * \return Number of bytes used by this data structure.</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="comment">   */</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  [[nodiscard(<span class="stringliteral">&quot;space useage computed but not used&quot;</span>)]] <span class="keyword">virtual</span> <span class="keywordtype">size_t</span></div>
+<div class="foldopen" id="foldopen00151" data-start="{" data-end="}">
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno"><a class="line" href="classpasta_1_1WideRank.html#ab43ed7b93e8dbbd2cd4f97c3293d7a8a">  151</a></span>  <a class="code hl_function" href="classpasta_1_1WideRank.html#ab43ed7b93e8dbbd2cd4f97c3293d7a8a">space_usage</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="keywordflow">return</span> (l1_.size() * <span class="keyword">sizeof</span>(uint64_t)) + (l2_.size() * <span class="keyword">sizeof</span>(uint16_t)) +</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>           <span class="keyword">sizeof</span>(*this);</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  }</div>
+</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span><span class="comment">  //! Function used for initializing data structure to reduce LOCs of</span></div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="comment">  //! constructor.</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="comment"></span>  <span class="keywordtype">void</span> init() {</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    uint64_t <span class="keyword">const</span>* data = data_;</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    uint64_t <span class="keyword">const</span>* <span class="keyword">const</span> data_end = data_ + data_size_;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    l1_[0] = 0;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    l2_[0] = 0;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">size_t</span> l1_pos = 0;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">size_t</span> l2_pos = 0;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordtype">size_t</span> l2_entry = 0;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordflow">while</span> (data + 8 &lt; data_end) {</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      l2_[l2_pos++] = l2_entry;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (<a class="code hl_function" href="group__pasta__bit__vector__configuration.html#gac0e48dc2b01112c8b289b5762034abd6">optimize_one_or_dont_care</a>(optimized_for)) {</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        l2_entry += popcount&lt;8&gt;(data);</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>      } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        l2_entry += popcount_zeros&lt;8&gt;(data);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>      }</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>      data += 8;</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>      <span class="keywordflow">if</span> (l2_pos % 128 == 0 &amp;&amp; l2_pos &gt; 0) [[unlikely]] {</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        ++l1_pos;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        l1_[l1_pos] = l1_[l1_pos - 1] + l2_entry;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>        l2_entry = 0;</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>      }</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    }</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    l2_[l2_pos++] = l2_entry;</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  }</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>}; <span class="comment">// class BitVectorFlatRank</span></div>
+</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment"></span> </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="comment">//! \}</span></div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="comment"></span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>} <span class="comment">// namespace pasta</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="comment">/******************************************************************************/</span></div>
+<div class="ttc" id="aclasspasta_1_1BitVector_html"><div class="ttname"><a href="classpasta_1_1BitVector.html">pasta::BitVector</a></div><div class="ttdoc">Uncompressed, highly tuned, fixed size bit vector.</div><div class="ttdef"><b>Definition</b> bit_vector.hpp:178</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRankSelect_html"><div class="ttname"><a href="classpasta_1_1WideRankSelect.html">pasta::WideRankSelect</a></div><div class="ttdoc">Select support for BitVector.</div><div class="ttdef"><b>Definition</b> wide_rank_select.hpp:62</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html"><div class="ttname"><a href="classpasta_1_1WideRank.html">pasta::WideRank</a></div><div class="ttdoc">Rank support for BitVector that can be used as an alternative to Rank for bit vectors up to length 2^...</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:76</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html_a0872f8331b040fcbcde309db8f638543"><div class="ttname"><a href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">pasta::WideRank::rank1</a></div><div class="ttdeci">size_t rank1(size_t index) const</div><div class="ttdoc">Computes rank of ones.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:124</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html_a9f65673fd290469aa9c27eff12325e3b"><div class="ttname"><a href="classpasta_1_1WideRank.html#a9f65673fd290469aa9c27eff12325e3b">pasta::WideRank::WideRank</a></div><div class="ttdeci">WideRank(VectorType &amp;bv)</div><div class="ttdoc">Constructor. Creates the auxiliary information for efficient rank queries.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:100</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html_ab43ed7b93e8dbbd2cd4f97c3293d7a8a"><div class="ttname"><a href="classpasta_1_1WideRank.html#ab43ed7b93e8dbbd2cd4f97c3293d7a8a">pasta::WideRank::space_usage</a></div><div class="ttdeci">virtual size_t space_usage() const</div><div class="ttdoc">Estimate for the space usage.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:151</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html_abedd356912d5b85190cd2b3ee62c8c0f"><div class="ttname"><a href="classpasta_1_1WideRank.html#abedd356912d5b85190cd2b3ee62c8c0f">pasta::WideRank::WideRank</a></div><div class="ttdeci">WideRank()=default</div><div class="ttdoc">Default constructor w/o parameter.</div></div>
+<div class="ttc" id="aclasspasta_1_1WideRank_html_ade8bc64ab69579554c8324bf3c289903"><div class="ttname"><a href="classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903">pasta::WideRank::rank0</a></div><div class="ttdeci">size_t rank0(size_t index) const</div><div class="ttdoc">Computes rank of zeros.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:114</div></div>
+<div class="ttc" id="agroup__pasta__bit__vector__configuration_html_ga153ca8106e9e2ff4333eb77b77f48ddb"><div class="ttname"><a href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">pasta::OptimizedFor</a></div><div class="ttdeci">OptimizedFor</div><div class="ttdoc">Enum used to specify which queries the rank (and select) data structures should be optimized for.</div><div class="ttdef"><b>Definition</b> optimized_for.hpp:40</div></div>
+<div class="ttc" id="agroup__pasta__bit__vector__configuration_html_gac0e48dc2b01112c8b289b5762034abd6"><div class="ttname"><a href="group__pasta__bit__vector__configuration.html#gac0e48dc2b01112c8b289b5762034abd6">pasta::optimize_one_or_dont_care</a></div><div class="ttdeci">constexpr bool optimize_one_or_dont_care(OptimizedFor const optimized_for)</div><div class="ttdoc">Helper function indicating if queries should be optimized for one queries or the caller does not care...</div><div class="ttdef"><b>Definition</b> optimized_for.hpp:59</div></div>
+<div class="ttc" id="agroup__pasta__bit__vector__configuration_html_gga153ca8106e9e2ff4333eb77b77f48ddba3d241dc381afd54422199a5e6864275a"><div class="ttname"><a href="group__pasta__bit__vector__configuration.html#gga153ca8106e9e2ff4333eb77b77f48ddba3d241dc381afd54422199a5e6864275a">pasta::OptimizedFor::DONT_CARE</a></div><div class="ttdeci">@ DONT_CARE</div><div class="ttdoc">It does not matter (both types are called equally often).</div></div>
+<div class="ttc" id="aoptimized__for_8hpp_html"><div class="ttname"><a href="optimized__for_8hpp.html">optimized_for.hpp</a></div></div>
+<div class="ttc" id="apopcount_8hpp_html"><div class="ttname"><a href="popcount_8hpp.html">popcount.hpp</a></div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html">pasta::WideRankSelectConfig</a></div><div class="ttdoc">Static configuration for WideRank and WideRankSelect.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:39</div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html_a1cf0ebcabd662a65cb3a9836d55f0e59"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html#a1cf0ebcabd662a65cb3a9836d55f0e59">pasta::WideRankSelectConfig::L1_WORD_SIZE</a></div><div class="ttdeci">static constexpr size_t L1_WORD_SIZE</div><div class="ttdoc">Number of 64-bit words covered by an L1-block.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:48</div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html_a2404e7c823ae10d4d5f594c5a896803c"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html#a2404e7c823ae10d4d5f594c5a896803c">pasta::WideRankSelectConfig::L2_WORD_SIZE</a></div><div class="ttdeci">static constexpr size_t L2_WORD_SIZE</div><div class="ttdoc">Number of 64-bit words covered by an L2-block.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:46</div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html_a2ecd4517bca4f47bee4665f85304cbc0"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html#a2ecd4517bca4f47bee4665f85304cbc0">pasta::WideRankSelectConfig::L1_BIT_SIZE</a></div><div class="ttdeci">static constexpr size_t L1_BIT_SIZE</div><div class="ttdoc">Bits covered by an L1-block.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:43</div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html_a7ba30fe752ca9bf2145740073e7fd7c3"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html#a7ba30fe752ca9bf2145740073e7fd7c3">pasta::WideRankSelectConfig::SELECT_SAMPLE_RATE</a></div><div class="ttdeci">static constexpr size_t SELECT_SAMPLE_RATE</div><div class="ttdoc">Sample rate of positions for faster select queries.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:51</div></div>
+<div class="ttc" id="astructpasta_1_1WideRankSelectConfig_html_aa7ea96fac3dad3c4324b684fa077fb46"><div class="ttname"><a href="structpasta_1_1WideRankSelectConfig.html#aa7ea96fac3dad3c4324b684fa077fb46">pasta::WideRankSelectConfig::L2_BIT_SIZE</a></div><div class="ttdeci">static constexpr size_t L2_BIT_SIZE</div><div class="ttdoc">Bits covered by an L2-block.</div><div class="ttdef"><b>Definition</b> wide_rank.hpp:41</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_661b2411fc91acf6678dc3b62139fa61.html">pasta</a></li><li class="navelem"><a class="el" href="dir_47eb230dc13dd9c7146f9011a145b1da.html">bit_vector</a></li><li class="navelem"><a class="el" href="dir_553464791f87643396bc66cdd8b5f462.html">support</a></li><li class="navelem"><b>wide_rank.hpp</b></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.12.0 </li>
+  </ul>
+</div>
+</body>
+</html>

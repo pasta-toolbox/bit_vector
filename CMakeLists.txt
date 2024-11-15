@@ -71,7 +71,7 @@ target_include_directories(
   pasta_bit_vector INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(
-  pasta_bit_vector INTERFACE pasta_utils pasta_bit_vector_coverage_config
+  pasta_bit_vector INTERFACE pasta_utils pasta_bit_vector_coverage_config tlx
 )
 
 # Use FetchContent to load dependencies
@@ -82,6 +82,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pasta_utils)
 
+FetchContent_Declare(
+  tlx
+  GIT_REPOSITORY https://github.com/tlx/tlx.git
+  GIT_TAG origin/main
+)
+FetchContent_MakeAvailable(tlx)
+
 # Optional test
 if (PASTA_BIT_VECTOR_BUILD_TESTS)
   enable_testing()
@@ -90,13 +97,6 @@ endif ()
 
 # Optional benchmarks
 if (PASTA_BIT_VECTOR_BUILD_BENCHMARKS)
-  FetchContent_Declare(
-    tlx
-    GIT_REPOSITORY https://github.com/tlx/tlx.git
-    GIT_TAG origin/main
-  )
-  FetchContent_MakeAvailable(tlx)
-
   add_executable(bit_vector_benchmark benchmarks/bit_vector_benchmark.cpp)
 
   target_link_libraries(

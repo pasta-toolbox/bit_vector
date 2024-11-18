@@ -1,0 +1,722 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.12.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image:src" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<!-- END twitter metadata -->
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="pasta::bit_vector" />
+<meta property="og:image" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<meta property="og:image:alt" content="Logo of pasta::bit_vector." />
+<meta property="og:description" content="Fast and highly tuned bit vector implementation including space efficient rank and select support having only 3.51% space overhead." />
+<meta property="og:url" content="https://pasta-toolbox.github.io/bit_vector/" />
+<!-- END opengraph metadata -->
+<title>pasta_bit_vector: pasta::BitVector Class Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<link itemprop="thumbnailUrl" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject"> 
+  <link itemprop="url" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+</span>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/pasta-toolbox/bit_vector" class="github-corner" title="View source on GitHub" target="_blank">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo_pasta_bit_vector.svg"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">pasta_bit_vector
+   &#160;<span id="projectnumber">1.0.1</span>
+   </div>
+   <div id="projectbrief">Bit Vector with Compact and Fast Rank and Select Support</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.12.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classpasta_1_1BitVector.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
+<a href="classpasta_1_1BitVector-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">pasta::BitVector Class Reference<div class="ingroups"><a class="el" href="group__pasta__bit__vector.html">Bit Vectors</a></div></div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Uncompressed, highly tuned, fixed size bit vector.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="bit__vector_8hpp_source.html">bit_vector.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html">Iterator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Custom iterator for <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>.  <a href="structpasta_1_1BitVector_1_1Iterator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a14e9c80c96ea2aed6cad8db630f06a0c" id="r_a14e9c80c96ea2aed6cad8db630f06a0c"><td class="memItemLeft" align="right" valign="top"><a id="a14e9c80c96ea2aed6cad8db630f06a0c" name="a14e9c80c96ea2aed6cad8db630f06a0c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>RawDataType</b> = uint64_t</td></tr>
+<tr class="memdesc:a14e9c80c96ea2aed6cad8db630f06a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type that is used to store the raw data of the bit vector. <br /></td></tr>
+<tr class="separator:a14e9c80c96ea2aed6cad8db630f06a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e9c2f68d72a831430f553665cf13bb3" id="r_a3e9c2f68d72a831430f553665cf13bb3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3e9c2f68d72a831430f553665cf13bb3">RawDataPointer</a> = <a class="el" href="#a14e9c80c96ea2aed6cad8db630f06a0c">RawDataType</a>*</td></tr>
+<tr class="separator:a3e9c2f68d72a831430f553665cf13bb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24e84559e391985cb26bcaa2c6ce0e68" id="r_a24e84559e391985cb26bcaa2c6ce0e68"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a24e84559e391985cb26bcaa2c6ce0e68">RawDataConstAccess</a> = <a class="el" href="#a14e9c80c96ea2aed6cad8db630f06a0c">RawDataType</a> const*</td></tr>
+<tr class="separator:a24e84559e391985cb26bcaa2c6ce0e68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a172dd24213632d89ed0e00bc92222ca7" id="r_a172dd24213632d89ed0e00bc92222ca7"><td class="memItemLeft" align="right" valign="top"><a id="a172dd24213632d89ed0e00bc92222ca7" name="a172dd24213632d89ed0e00bc92222ca7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>BitVector</b> ()=default</td></tr>
+<tr class="memdesc:a172dd24213632d89ed0e00bc92222ca7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default empty constructor. <br /></td></tr>
+<tr class="separator:a172dd24213632d89ed0e00bc92222ca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49ab493ddbe21b1559a03e2a4c2de2a3" id="r_a49ab493ddbe21b1559a03e2a4c2de2a3"><td class="memItemLeft" align="right" valign="top"><a id="a49ab493ddbe21b1559a03e2a4c2de2a3" name="a49ab493ddbe21b1559a03e2a4c2de2a3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>BitVector</b> (<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp;&amp;)=default</td></tr>
+<tr class="memdesc:a49ab493ddbe21b1559a03e2a4c2de2a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default move constructor. <br /></td></tr>
+<tr class="separator:a49ab493ddbe21b1559a03e2a4c2de2a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68ba2a70211c337e01af3d8022fb3353" id="r_a68ba2a70211c337e01af3d8022fb3353"><td class="memItemLeft" align="right" valign="top"><a id="a68ba2a70211c337e01af3d8022fb3353" name="a68ba2a70211c337e01af3d8022fb3353"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>BitVector</b> (<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> const &amp;)=default</td></tr>
+<tr class="memdesc:a68ba2a70211c337e01af3d8022fb3353"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default copy constructor. <br /></td></tr>
+<tr class="separator:a68ba2a70211c337e01af3d8022fb3353"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d0a6f91b1db0434f630a4d6a272a5fb" id="r_a0d0a6f91b1db0434f630a4d6a272a5fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d0a6f91b1db0434f630a4d6a272a5fb">operator=</a> (<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> const &amp;)=delete</td></tr>
+<tr class="separator:a0d0a6f91b1db0434f630a4d6a272a5fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac30592b74afa121e18c6111558ee64ff" id="r_ac30592b74afa121e18c6111558ee64ff"><td class="memItemLeft" align="right" valign="top"><a id="ac30592b74afa121e18c6111558ee64ff" name="ac30592b74afa121e18c6111558ee64ff"></a>
+<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp;&amp;)=default</td></tr>
+<tr class="memdesc:ac30592b74afa121e18c6111558ee64ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default move assignment. <br /></td></tr>
+<tr class="separator:ac30592b74afa121e18c6111558ee64ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad770a78a1e2a1f1ec45013dd39e41ed9" id="r_ad770a78a1e2a1f1ec45013dd39e41ed9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad770a78a1e2a1f1ec45013dd39e41ed9">BitVector</a> (size_t const <a class="el" href="#a3eea8b44f67d09bd156f6c1fe8171dfc">size</a>) noexcept</td></tr>
+<tr class="memdesc:ad770a78a1e2a1f1ec45013dd39e41ed9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Creates a bit vector that holds a specific, fixed number of bits.  <br /></td></tr>
+<tr class="separator:ad770a78a1e2a1f1ec45013dd39e41ed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5679c7a75c8335bed71300f3317bb771" id="r_a5679c7a75c8335bed71300f3317bb771"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5679c7a75c8335bed71300f3317bb771">BitVector</a> (size_t const <a class="el" href="#a3eea8b44f67d09bd156f6c1fe8171dfc">size</a>, bool const init_value) noexcept</td></tr>
+<tr class="memdesc:a5679c7a75c8335bed71300f3317bb771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Creates a bit vector that holds a specific, fixed number of bits set to a default value.  <br /></td></tr>
+<tr class="separator:a5679c7a75c8335bed71300f3317bb771"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af702d458693e03cb40a55f7578fa4237" id="r_af702d458693e03cb40a55f7578fa4237"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpasta_1_1BitAccess.html">BitAccess</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af702d458693e03cb40a55f7578fa4237">operator[]</a> (size_t const index) noexcept</td></tr>
+<tr class="memdesc:af702d458693e03cb40a55f7578fa4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Access operator to read/write to a bit of the bit vector.  <br /></td></tr>
+<tr class="separator:af702d458693e03cb40a55f7578fa4237"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07e9124dbb94ba312e91b1eada5202cb" id="r_a07e9124dbb94ba312e91b1eada5202cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpasta_1_1BitAccess.html">BitAccess</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07e9124dbb94ba312e91b1eada5202cb">operator[]</a> (size_t const index) const noexcept</td></tr>
+<tr class="memdesc:a07e9124dbb94ba312e91b1eada5202cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Access operator to read to a bit of the bit vector.  <br /></td></tr>
+<tr class="separator:a07e9124dbb94ba312e91b1eada5202cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a901a64e33cee94fe11a772e49c2b65b8" id="r_a901a64e33cee94fe11a772e49c2b65b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a901a64e33cee94fe11a772e49c2b65b8">resize</a> (size_t const <a class="el" href="#a3eea8b44f67d09bd156f6c1fe8171dfc">size</a>) noexcept</td></tr>
+<tr class="memdesc:a901a64e33cee94fe11a772e49c2b65b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resize the bit vector to contain <code>size</code> bits.  <br /></td></tr>
+<tr class="separator:a901a64e33cee94fe11a772e49c2b65b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb5911994f5ecaac8571d007c2bd162c" id="r_abb5911994f5ecaac8571d007c2bd162c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb5911994f5ecaac8571d007c2bd162c">resize</a> (size_t const <a class="el" href="#a3eea8b44f67d09bd156f6c1fe8171dfc">size</a>, bool const init_value) noexcept</td></tr>
+<tr class="memdesc:abb5911994f5ecaac8571d007c2bd162c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resize the bit vector to contain <code>size</code> bits and fill new bits with default value.  <br /></td></tr>
+<tr class="separator:abb5911994f5ecaac8571d007c2bd162c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a056dd0e32ff6560fdad4082ce19770e9" id="r_a056dd0e32ff6560fdad4082ce19770e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a056dd0e32ff6560fdad4082ce19770e9">begin</a> () noexcept</td></tr>
+<tr class="memdesc:a056dd0e32ff6560fdad4082ce19770e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get iterator representing the first element of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>.  <br /></td></tr>
+<tr class="separator:a056dd0e32ff6560fdad4082ce19770e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b867867883d5961dcf4a52cc0411d69" id="r_a7b867867883d5961dcf4a52cc0411d69"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html">Iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b867867883d5961dcf4a52cc0411d69">end</a> () noexcept</td></tr>
+<tr class="memdesc:a7b867867883d5961dcf4a52cc0411d69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get iterator representing the end of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>.  <br /></td></tr>
+<tr class="separator:a7b867867883d5961dcf4a52cc0411d69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5f0df2e39b424e512551a3c2b7ff8c8" id="r_ab5f0df2e39b424e512551a3c2b7ff8c8"><td class="memItemLeft" align="right" valign="top">std::span&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5f0df2e39b424e512551a3c2b7ff8c8">data</a> () noexcept</td></tr>
+<tr class="memdesc:ab5f0df2e39b424e512551a3c2b7ff8c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct access to the raw data of the bit vector.  <br /></td></tr>
+<tr class="separator:ab5f0df2e39b424e512551a3c2b7ff8c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a390c33b6195c77526a7471a4ad2f94f4" id="r_a390c33b6195c77526a7471a4ad2f94f4"><td class="memItemLeft" align="right" valign="top">std::span&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a390c33b6195c77526a7471a4ad2f94f4">data</a> () const noexcept</td></tr>
+<tr class="memdesc:a390c33b6195c77526a7471a4ad2f94f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct access to the raw data of the bit vector.  <br /></td></tr>
+<tr class="separator:a390c33b6195c77526a7471a4ad2f94f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5787f75d96812aab2c2be32c4af3ee91" id="r_a5787f75d96812aab2c2be32c4af3ee91"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5787f75d96812aab2c2be32c4af3ee91">data</a> (size_t const index) const noexcept</td></tr>
+<tr class="memdesc:a5787f75d96812aab2c2be32c4af3ee91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct access to one 64-bit element of the raw data of the bit vector.  <br /></td></tr>
+<tr class="separator:a5787f75d96812aab2c2be32c4af3ee91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad58d83432eae686ed023bb7712cd63a6" id="r_ad58d83432eae686ed023bb7712cd63a6"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad58d83432eae686ed023bb7712cd63a6">space_usage</a> () const</td></tr>
+<tr class="memdesc:ad58d83432eae686ed023bb7712cd63a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimate for the space usage.  <br /></td></tr>
+<tr class="separator:ad58d83432eae686ed023bb7712cd63a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3eea8b44f67d09bd156f6c1fe8171dfc" id="r_a3eea8b44f67d09bd156f6c1fe8171dfc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3eea8b44f67d09bd156f6c1fe8171dfc">size</a> () const noexcept</td></tr>
+<tr class="memdesc:a3eea8b44f67d09bd156f6c1fe8171dfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size of the bit vector in bits.  <br /></td></tr>
+<tr class="separator:a3eea8b44f67d09bd156f6c1fe8171dfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a36b24c248cb1c5af71229dbba97795b3" id="r_a36b24c248cb1c5af71229dbba97795b3"><td class="memItemLeft" align="right" valign="top"><a id="a36b24c248cb1c5af71229dbba97795b3" name="a36b24c248cb1c5af71229dbba97795b3"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, <a class="el" href="classpasta_1_1BitVector.html">BitVector</a> const &amp;bv)</td></tr>
+<tr class="memdesc:a36b24c248cb1c5af71229dbba97795b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">formatted output of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code> <br /></td></tr>
+<tr class="separator:a36b24c248cb1c5af71229dbba97795b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Uncompressed, highly tuned, fixed size bit vector. </p>
+<p>The uncompressed bit vector can be used as a replacement for <code>std::vector&lt;bool&gt;</code>, when the size of the vector is known in advance. It provides an access operator.</p>
+<p><b>Important:</b> If you plan on accessing the data directly, note that the bits are stored in reverse order in the 64-bit words. This saves an subtraction, when shifting the bits for access. To be more precise, the bits are stored as follows (for simplicity, we show it for 8-bit words):</p>
+<p>| 7 6 5 4 3 2 1 0 | 15 14 13 12 11 10 9 8 | 23 22 21 20 19 18 17 16 | ...</p>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a24e84559e391985cb26bcaa2c6ce0e68" name="a24e84559e391985cb26bcaa2c6ce0e68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24e84559e391985cb26bcaa2c6ce0e68">&#9670;&#160;</a></span>RawDataConstAccess</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#a24e84559e391985cb26bcaa2c6ce0e68">pasta::BitVector::RawDataConstAccess</a> = <a class="el" href="#a14e9c80c96ea2aed6cad8db630f06a0c">RawDataType</a> const*</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Type that can be used to access constant values of the raw data used to represent the bit vector. </p>
+
+</div>
+</div>
+<a id="a3e9c2f68d72a831430f553665cf13bb3" name="a3e9c2f68d72a831430f553665cf13bb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e9c2f68d72a831430f553665cf13bb3">&#9670;&#160;</a></span>RawDataPointer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#a3e9c2f68d72a831430f553665cf13bb3">pasta::BitVector::RawDataPointer</a> = <a class="el" href="#a14e9c80c96ea2aed6cad8db630f06a0c">RawDataType</a>*</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Pointer to the data type that is used to store the raw data of the bit vector. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ad770a78a1e2a1f1ec45013dd39e41ed9" name="ad770a78a1e2a1f1ec45013dd39e41ed9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad770a78a1e2a1f1ec45013dd39e41ed9">&#9670;&#160;</a></span>BitVector() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pasta::BitVector::BitVector </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>size</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. Creates a bit vector that holds a specific, fixed number of bits. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Number of bits the bit vector contains. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5679c7a75c8335bed71300f3317bb771" name="a5679c7a75c8335bed71300f3317bb771"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5679c7a75c8335bed71300f3317bb771">&#9670;&#160;</a></span>BitVector() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pasta::BitVector::BitVector </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>size</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool const</td>          <td class="paramname"><span class="paramname"><em>init_value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. Creates a bit vector that holds a specific, fixed number of bits set to a default value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Number of bits the bit vector contains. </td></tr>
+    <tr><td class="paramname">init_value</td><td>Value all bits initially are set to. Either 0 (<code>false</code>) or 1 (<code>true</code>). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a056dd0e32ff6560fdad4082ce19770e9" name="a056dd0e32ff6560fdad4082ce19770e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a056dd0e32ff6560fdad4082ce19770e9">&#9670;&#160;</a></span>begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html">Iterator</a> pasta::BitVector::begin </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get iterator representing the first element of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html" title="Custom iterator for BitVector.">Iterator</a> representing the first element of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>. </dd></dl>
+
+</div>
+</div>
+<a id="a390c33b6195c77526a7471a4ad2f94f4" name="a390c33b6195c77526a7471a4ad2f94f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a390c33b6195c77526a7471a4ad2f94f4">&#9670;&#160;</a></span>data() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::span&lt; uint64_t &gt; pasta::BitVector::data </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Direct access to the raw data of the bit vector. </p>
+<p>Note that the raw data does not contain the bits from left to right. A detailed description can be found at the top of this file. </p><dl class="section return"><dt>Returns</dt><dd><code>std::span&lt;uint64_t&gt;</code> pointing to the bit vector's raw data. </dd></dl>
+
+</div>
+</div>
+<a id="ab5f0df2e39b424e512551a3c2b7ff8c8" name="ab5f0df2e39b424e512551a3c2b7ff8c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5f0df2e39b424e512551a3c2b7ff8c8">&#9670;&#160;</a></span>data() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::span&lt; uint64_t &gt; pasta::BitVector::data </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Direct access to the raw data of the bit vector. </p>
+<p>Note that the raw data does not contain the bits from left to right. A detailed description can be found at the top of this file. </p><dl class="section return"><dt>Returns</dt><dd><code>std::span&lt;uint64_t&gt;</code> pointing to the bit vector's raw data. </dd></dl>
+
+</div>
+</div>
+<a id="a5787f75d96812aab2c2be32c4af3ee91" name="a5787f75d96812aab2c2be32c4af3ee91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5787f75d96812aab2c2be32c4af3ee91">&#9670;&#160;</a></span>data() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t pasta::BitVector::data </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>index</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Direct access to one 64-bit element of the raw data of the bit vector. </p>
+<p>Note that the raw data does not contain the bits from left to right. A detailed description can be found at the top of this file. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>Index of the 64-bit bit word that should be returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>index-th 64-bit word of the raw bit vector data. </dd></dl>
+
+</div>
+</div>
+<a id="a7b867867883d5961dcf4a52cc0411d69" name="a7b867867883d5961dcf4a52cc0411d69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b867867883d5961dcf4a52cc0411d69">&#9670;&#160;</a></span>end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html">Iterator</a> pasta::BitVector::end </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get iterator representing the end of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>. </p>
+<p>The <code><a class="el" href="#a7b867867883d5961dcf4a52cc0411d69" title="Get iterator representing the end of the BitVector.">end()</a></code> method returns an iterator that may refers to an invalid memory address. It should never be accessed directly. </p><dl class="section return"><dt>Returns</dt><dd><a class="el" href="structpasta_1_1BitVector_1_1Iterator.html" title="Custom iterator for BitVector.">Iterator</a> representing the end of the <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>. </dd></dl>
+
+</div>
+</div>
+<a id="a0d0a6f91b1db0434f630a4d6a272a5fb" name="a0d0a6f91b1db0434f630a4d6a272a5fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d0a6f91b1db0434f630a4d6a272a5fb">&#9670;&#160;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp; pasta::BitVector::operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpasta_1_1BitVector.html">BitVector</a> const &amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Deleted copy assignment, due to <code>SimpleVector</code> not supporting copy assignment. </p>
+
+</div>
+</div>
+<a id="a07e9124dbb94ba312e91b1eada5202cb" name="a07e9124dbb94ba312e91b1eada5202cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07e9124dbb94ba312e91b1eada5202cb">&#9670;&#160;</a></span>operator[]() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classpasta_1_1BitAccess.html">BitAccess</a> pasta::BitVector::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>index</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Access operator to read to a bit of the bit vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>Index of the bit to be read to in the bit vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code><a class="el" href="classpasta_1_1BitAccess.html" title="Utility class used for the access operator of the BitVector.">BitAccess</a></code> that allows to read access to a single bit. </dd></dl>
+
+</div>
+</div>
+<a id="af702d458693e03cb40a55f7578fa4237" name="af702d458693e03cb40a55f7578fa4237"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af702d458693e03cb40a55f7578fa4237">&#9670;&#160;</a></span>operator[]() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classpasta_1_1BitAccess.html">BitAccess</a> pasta::BitVector::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>index</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Access operator to read/write to a bit of the bit vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>Index of the bit to be read/write to in the bit vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code><a class="el" href="classpasta_1_1BitAccess.html" title="Utility class used for the access operator of the BitVector.">BitAccess</a></code> that allows to access to a single bit. </dd></dl>
+
+</div>
+</div>
+<a id="a901a64e33cee94fe11a772e49c2b65b8" name="a901a64e33cee94fe11a772e49c2b65b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a901a64e33cee94fe11a772e49c2b65b8">&#9670;&#160;</a></span>resize() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void pasta::BitVector::resize </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>size</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Resize the bit vector to contain <code>size</code> bits. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Number of bits the resized bit vector contains. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="abb5911994f5ecaac8571d007c2bd162c" name="abb5911994f5ecaac8571d007c2bd162c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb5911994f5ecaac8571d007c2bd162c">&#9670;&#160;</a></span>resize() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void pasta::BitVector::resize </td>
+          <td>(</td>
+          <td class="paramtype">size_t const</td>          <td class="paramname"><span class="paramname"><em>size</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool const</td>          <td class="paramname"><span class="paramname"><em>init_value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Resize the bit vector to contain <code>size</code> bits and fill new bits with default value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Number of bits the resized bit vector contains. </td></tr>
+    <tr><td class="paramname">init_value</td><td>Value all bits that are appended to the bit vector (if any) will have. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a3eea8b44f67d09bd156f6c1fe8171dfc" name="a3eea8b44f67d09bd156f6c1fe8171dfc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3eea8b44f67d09bd156f6c1fe8171dfc">&#9670;&#160;</a></span>size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t pasta::BitVector::size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the size of the bit vector in bits. </p>
+<dl class="section return"><dt>Returns</dt><dd>Size of the bit vector in bits. </dd></dl>
+
+</div>
+</div>
+<a id="ad58d83432eae686ed023bb7712cd63a6" name="ad58d83432eae686ed023bb7712cd63a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad58d83432eae686ed023bb7712cd63a6">&#9670;&#160;</a></span>space_usage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t pasta::BitVector::space_usage </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Estimate for the space usage. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of bytes used by this data structure. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>include/pasta/bit_vector/<a class="el" href="bit__vector_8hpp_source.html">bit_vector.hpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>pasta</b></li><li class="navelem"><a class="el" href="classpasta_1_1BitVector.html">BitVector</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.12.0 </li>
+  </ul>
+</div>
+</body>
+</html>

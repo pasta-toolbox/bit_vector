@@ -70,19 +70,22 @@ namespace pasta {
 template <OptimizedFor optimized_for = OptimizedFor::DONT_CARE,
           FindL2FlatWith find_with = FindL2FlatWith::LINEAR_SEARCH,
           typename VectorType = BitVector>
-class FlatRankSelect final : public FlatRank<optimized_for> {
+class FlatRankSelect final : public FlatRank<optimized_for, VectorType> {
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using FlatRank<optimized_for>::data_size_;
+  using FlatRank<optimized_for, VectorType>::data_size_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using FlatRank<optimized_for>::data_;
+  using FlatRank<optimized_for, VectorType>::data_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using FlatRank<optimized_for>::l12_;
+  using FlatRank<optimized_for, VectorType>::l12_;
   //! Get access to protected members of base class, as dependent
   //! names are not considered.
-  using FlatRank<optimized_for>::l12_end_;
+  using FlatRank<optimized_for, VectorType>::l12_end_;
+  //! Get access to protected members of base class, as dependent
+  //! names are not considered.
+  using FlatRank<optimized_for, VectorType>::data_access_;
 
   template <typename T>
   using Array = tlx::SimpleVector<T, tlx::SimpleVectorMode::NoInitNoDestroy>;
@@ -365,11 +368,11 @@ public:
                       (FlatRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
-    while ((popcount = pasta::popcount_zeros<1>(data_ + last_pos)) < rank) {
+    while ((popcount = std::popcount(~data_access_[last_pos])) < rank) {
       ++last_pos;
       rank -= popcount;
     }
-    return (last_pos * 64) + select(~data_[last_pos], rank - 1);
+    return (last_pos * 64) + select(~data_access_[last_pos], rank - 1);
   }
 
   /*!
@@ -611,11 +614,11 @@ public:
                       (FlatRankSelectConfig::L1_WORD_SIZE * l1_pos);
     size_t popcount = 0;
 
-    while ((popcount = pasta::popcount<1>(data_ + last_pos)) < rank) {
+    while ((popcount = std::popcount(data_access_[last_pos])) < rank) {
       ++last_pos;
       rank -= popcount;
     }
-    return (last_pos * 64) + select(data_[last_pos], rank - 1);
+    return (last_pos * 64) + select(data_access_[last_pos], rank - 1);
   }
 
   /*!

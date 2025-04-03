@@ -10,7 +10,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: [{cpp: g++-10, c: gcc-10}]
+        version: [11, 12, 13]
+
+    name: Build (GCC ${{ matrix.version }})
 
     runs-on: ${{ matrix.os }}
 
@@ -23,13 +25,12 @@ jobs:
     - name: Prepare build environment
       run: |
         sudo apt update
-        sudo apt-get install ninja-build gcovr
+        sudo apt-get install ninja-build gcovr cmake gcc-${{ matrix.version }} g++-${{ matrix.version }}
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.version }} ${{ matrix.version }}
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.version }} ${{ matrix.version }}
 
     - name: Configure CMake
       run: cmake --preset=debug -DPASTA_BIT_VECTOR_BUILD_TESTS=On -DPASTA_BIT_VECTOR_COVERAGE_REPORTING=On
-      env:
-        CC: gcc-10
-        CXX: g++-10
 
     - name: Build
       run: cmake --build ${{github.workspace}}/debug/

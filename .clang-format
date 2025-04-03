@@ -60,5 +60,8 @@ SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
 Standard: Cpp11
 UseTab: Never
-
+---
+Language: Json
+BasedOnStyle: llvm
+IndentWidth: '4'
 ...

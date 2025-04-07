@@ -37,7 +37,7 @@ if (PROJECT_IS_TOP_LEVEL)
   FetchContent_Declare(
     Format.cmake
     GIT_REPOSITORY https://github.com/TheLartians/Format.cmake
-    GIT_TAG v1.8.1
+    GIT_TAG v1.8.3
   )
   FetchContent_MakeAvailable(Format.cmake)
 

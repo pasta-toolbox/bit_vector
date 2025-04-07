@@ -24,5 +24,10 @@ jobs:
       run: cmake --preset=release
     - name: Check C++ Formatting
       run: cmake --build build --target check-clang-format
+    - name: Print C++ Formatting Problems
+      if: failure()
+      run: |
+        find . -iname '*.cpp' -o -iname '*.hpp' | xargs clang-format -i
+        git diff
     - name: Check CMake Formatting
       run: cmake --build build --target check-cmake-format

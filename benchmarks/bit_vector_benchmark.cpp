@@ -233,10 +233,8 @@ private:
 
     LOG << LOG_PREFIX << "Finished PaStA bit vector benchmark";
 
-    std::cout << "RESULT "
-              << "algo=" << name << " "
-              << "bit_size=" << bit_size_ << " "
-              << "fill_percentage=" << fill_percentage_ << " "
+    std::cout << "RESULT " << "algo=" << name << " " << "bit_size=" << bit_size_
+              << " " << "fill_percentage=" << fill_percentage_ << " "
               << "bv_construction_time=" << bv_construction_time << " "
 #if defined(DNDEBUG)
               << "bv_construction_mem=" << bv_construction_mem.cur_peak << " "

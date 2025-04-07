@@ -87,9 +87,12 @@ class FlatRank {
 protected:
   //! Size of the bit vector the rank support is constructed for.
   size_t data_size_;
-  //! Pointer to the data of the bit vector.
-  VectorType::RawDataConstAccess data_;
-
+  //! Pointer to the data of the uncompressed bit vector. Can be invalid in
+  //! after compressable bit vector is compressed.
+  uint64_t const* data_;
+  //! Pointer to the data of the bit vector. This is mutable to enable caching
+  //! in the compressed bit vector variant.
+  typename VectorType::RawDataConstAccess mutable data_access_;
   //! Array containing the information about the L1- and L2-blocks.
   tlx::SimpleVector<BigL12Type, tlx::SimpleVectorMode::NoInitNoDestroy> l12_;
   //! Number of actual existing BigL12-blocks (important for scanning)
@@ -107,8 +110,15 @@ public:
   FlatRank(VectorType& bv)
       : data_size_(bv.data().size()),
         data_(bv.data().data()),
+        data_access_(),
         l12_((data_size_ / FlatRankSelectConfig::L1_WORD_SIZE) + 1) {
     init();
+    if constexpr (!std::is_same_v<VectorType, BitVector>) {
+      bv.compress();
+      data_access_ = bv.compresed_data();
+    } else {
+      data_access_ = data_;
+    }
   }
 
   /*!
@@ -150,10 +160,10 @@ public:
                  "Trying to access bits that should be "
                  "covered in an L1-block");
     for (size_t i = 0; i < index / 64; ++i) {
-      result += std::popcount(data_[offset++]);
+      result += std::popcount(data_access_[offset++]);
     }
     if (index %= 64; index > 0) [[likely]] {
-      uint64_t const remaining = (data_[offset]) << (64 - index);
+      uint64_t const remaining = (data_access_[offset]) << (64 - index);
       result += std::popcount(remaining);
     }
     return result;

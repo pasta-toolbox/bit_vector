@@ -1,0 +1,18 @@
+<map id="include/pasta/bit_vector/support/popcount.hpp" name="include/pasta/bit_vector/support/popcount.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="321,5,500,45"/>
+<area shape="rect" id="Node000002" href="$flat__rank_8hpp_source.html" title=" " alt="" coords="5,93,184,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="329,52,165,96,163,91,327,46"/>
+<area shape="rect" id="Node000003" href="$flat__rank__select_8hpp_source.html" title=" " alt="" coords="19,181,229,221"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="340,53,293,72,248,96,200,134,146,183,143,179,196,130,245,91,291,67,338,48"/>
+<area shape="rect" id="Node000004" href="$rank_8hpp_source.html" title=" " alt="" coords="259,93,437,133"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="391,58,364,95,360,92,387,55"/>
+<area shape="rect" id="Node000005" href="$rank__select_8hpp_source.html" title=" " alt="" coords="270,181,453,221"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="437,56,454,93,457,114,452,135,430,163,402,183,399,179,426,159,447,132,452,114,449,95,432,58"/>
+<area shape="rect" id="Node000006" href="$wide__rank_8hpp_source.html" title=" " alt="" coords="512,93,691,133"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="466,49,561,91,558,96,464,53"/>
+<area shape="rect" id="Node000007" href="$wide__rank__select_8hpp_source.html" title=" " alt="" coords="554,181,774,221"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="514,34,572,43,628,55,675,71,692,81,705,92,713,115,709,139,697,163,683,183,679,180,693,160,704,138,708,115,700,95,689,85,673,76,627,60,571,48,513,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,146,120,180,115,182,103,147"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="356,146,361,181,356,182,350,147"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="625,143,652,180,648,183,621,146"/>
+</map>

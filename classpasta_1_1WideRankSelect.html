@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.12.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image:src" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<!-- END twitter metadata -->
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="pasta::bit_vector" />
+<meta property="og:image" content="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png" />
+<meta property="og:image:alt" content="Logo of pasta::bit_vector." />
+<meta property="og:description" content="Fast and highly tuned bit vector implementation including space efficient rank and select support having only 3.51% space overhead." />
+<meta property="og:url" content="https://pasta-toolbox.github.io/bit_vector/" />
+<!-- END opengraph metadata -->
+<title>pasta_bit_vector: pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt; Class Template Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<link itemprop="thumbnailUrl" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject"> 
+  <link itemprop="url" href="https://raw.githubusercontent.com/pasta-toolbox/bit_vector/main/docs/images/logo_pasta_bit_vector.png"> 
+</span>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/pasta-toolbox/bit_vector" class="github-corner" title="View source on GitHub" target="_blank">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo_pasta_bit_vector.svg"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">pasta_bit_vector
+   &#160;<span id="projectnumber">1.0.1</span>
+   </div>
+   <div id="projectbrief">Bit Vector with Compact and Fast Rank and Select Support</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.12.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classpasta_1_1WideRankSelect.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classpasta_1_1WideRankSelect-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt; Class Template Reference<div class="ingroups"><a class="el" href="group__pasta__bit__vector__rank__select.html">Select Data Structures</a></div></div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Select support for <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="wide__rank__select_8hpp_source.html">wide_rank_select.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;:</div>
+<div class="dyncontent">
+<div class="center"><img src="classpasta_1_1WideRankSelect__inherit__graph.png" border="0" usemap="#apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_inherit__map" alt="Inheritance graph"/></div>
+<map name="apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_inherit__map" id="apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_inherit__map">
+<area shape="rect" title="Select support for BitVector." alt="" coords="27,93,199,148"/>
+<area shape="rect" href="classpasta_1_1WideRank.html" title=" " alt="" coords="5,5,220,45"/>
+<area shape="poly" title=" " alt="" coords="115,59,115,93,110,93,110,59"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
+<div class="dynheader">
+Collaboration diagram for pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;:</div>
+<div class="dyncontent">
+<div class="center"><img src="classpasta_1_1WideRankSelect__coll__graph.png" border="0" usemap="#apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_coll__map" alt="Collaboration graph"/></div>
+<map name="apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_coll__map" id="apasta_1_1WideRankSelect_3_01optimized__for_00_01find__with_00_01VectorType_01_4_coll__map">
+<area shape="rect" title="Select support for BitVector." alt="" coords="27,93,199,148"/>
+<area shape="rect" href="classpasta_1_1WideRank.html" title=" " alt="" coords="5,5,220,45"/>
+<area shape="poly" title=" " alt="" coords="115,59,115,93,110,93,110,59"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:aa26a99c778800635fb9ba5328a6a7fe6" id="r_aa26a99c778800635fb9ba5328a6a7fe6"><td class="memItemLeft" align="right" valign="top"><a id="aa26a99c778800635fb9ba5328a6a7fe6" name="aa26a99c778800635fb9ba5328a6a7fe6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>WideRankSelect</b> ()=default</td></tr>
+<tr class="memdesc:aa26a99c778800635fb9ba5328a6a7fe6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor w/o parameter. <br /></td></tr>
+<tr class="separator:aa26a99c778800635fb9ba5328a6a7fe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a33a86ee0b198c783d6e98ec5dd1093" id="r_a4a33a86ee0b198c783d6e98ec5dd1093"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4a33a86ee0b198c783d6e98ec5dd1093">WideRankSelect</a> (VectorType &amp;bv)</td></tr>
+<tr class="memdesc:a4a33a86ee0b198c783d6e98ec5dd1093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Creates the auxiliary information for efficient rank and select queries.  <br /></td></tr>
+<tr class="separator:a4a33a86ee0b198c783d6e98ec5dd1093"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0296c155f328b0a91d9de271f566f7fb" id="r_a0296c155f328b0a91d9de271f566f7fb"><td class="memItemLeft" align="right" valign="top"><a id="a0296c155f328b0a91d9de271f566f7fb" name="a0296c155f328b0a91d9de271f566f7fb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>WideRankSelect</b> (<a class="el" href="classpasta_1_1WideRankSelect.html">WideRankSelect</a> &amp;&amp;other)=default</td></tr>
+<tr class="memdesc:a0296c155f328b0a91d9de271f566f7fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default move constructor. <br /></td></tr>
+<tr class="separator:a0296c155f328b0a91d9de271f566f7fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8174ce3471e5f15528940afc825819d" id="r_aa8174ce3471e5f15528940afc825819d"><td class="memItemLeft" align="right" valign="top"><a id="aa8174ce3471e5f15528940afc825819d" name="aa8174ce3471e5f15528940afc825819d"></a>
+<a class="el" href="classpasta_1_1WideRankSelect.html">WideRankSelect</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classpasta_1_1WideRankSelect.html">WideRankSelect</a> &amp;&amp;other)=default</td></tr>
+<tr class="memdesc:aa8174ce3471e5f15528940afc825819d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default move assignment. <br /></td></tr>
+<tr class="separator:aa8174ce3471e5f15528940afc825819d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9040eca0ea82c9080e59ba400754494" id="r_aa9040eca0ea82c9080e59ba400754494"><td class="memItemLeft" align="right" valign="top"><a id="aa9040eca0ea82c9080e59ba400754494" name="aa9040eca0ea82c9080e59ba400754494"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~WideRankSelect</b> ()=default</td></tr>
+<tr class="memdesc:aa9040eca0ea82c9080e59ba400754494"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Deleting manually created arrays. <br /></td></tr>
+<tr class="separator:aa9040eca0ea82c9080e59ba400754494"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5748966572f00cb390bdf1f20d60efcc" id="r_a5748966572f00cb390bdf1f20d60efcc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5748966572f00cb390bdf1f20d60efcc">select0</a> (size_t rank) const</td></tr>
+<tr class="memdesc:a5748966572f00cb390bdf1f20d60efcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get position of specific zero, i.e., select.  <br /></td></tr>
+<tr class="separator:a5748966572f00cb390bdf1f20d60efcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a681c5a2e02a7170fec67231a79e8da5f" id="r_a681c5a2e02a7170fec67231a79e8da5f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a681c5a2e02a7170fec67231a79e8da5f">select1</a> (size_t rank) const</td></tr>
+<tr class="memdesc:a681c5a2e02a7170fec67231a79e8da5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get position of specific one, i.e., select.  <br /></td></tr>
+<tr class="separator:a681c5a2e02a7170fec67231a79e8da5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dcaa7a59341b37bff23fbbc52d1cf76" id="r_a1dcaa7a59341b37bff23fbbc52d1cf76"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1dcaa7a59341b37bff23fbbc52d1cf76">space_usage</a> () const override</td></tr>
+<tr class="memdesc:a1dcaa7a59341b37bff23fbbc52d1cf76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Estimate for the space usage.  <br /></td></tr>
+<tr class="separator:a1dcaa7a59341b37bff23fbbc52d1cf76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classpasta_1_1WideRank"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classpasta_1_1WideRank')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classpasta_1_1WideRank.html">pasta::WideRank&lt; OptimizedFor::DONT_CARE &gt;</a></td></tr>
+<tr class="memitem:abedd356912d5b85190cd2b3ee62c8c0f inherit pub_methods_classpasta_1_1WideRank" id="r_abedd356912d5b85190cd2b3ee62c8c0f"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>WideRank</b> ()=default</td></tr>
+<tr class="memdesc:abedd356912d5b85190cd2b3ee62c8c0f inherit pub_methods_classpasta_1_1WideRank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor w/o parameter. <br /></td></tr>
+<tr class="separator:abedd356912d5b85190cd2b3ee62c8c0f inherit pub_methods_classpasta_1_1WideRank"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f65673fd290469aa9c27eff12325e3b inherit pub_methods_classpasta_1_1WideRank" id="r_a9f65673fd290469aa9c27eff12325e3b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpasta_1_1WideRank.html#a9f65673fd290469aa9c27eff12325e3b">WideRank</a> (<a class="el" href="classpasta_1_1BitVector.html">BitVector</a> &amp;bv)</td></tr>
+<tr class="memdesc:a9f65673fd290469aa9c27eff12325e3b inherit pub_methods_classpasta_1_1WideRank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Creates the auxiliary information for efficient rank queries.  <br /></td></tr>
+<tr class="separator:a9f65673fd290469aa9c27eff12325e3b inherit pub_methods_classpasta_1_1WideRank"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade8bc64ab69579554c8324bf3c289903 inherit pub_methods_classpasta_1_1WideRank" id="r_ade8bc64ab69579554c8324bf3c289903"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpasta_1_1WideRank.html#ade8bc64ab69579554c8324bf3c289903">rank0</a> (size_t index) const</td></tr>
+<tr class="memdesc:ade8bc64ab69579554c8324bf3c289903 inherit pub_methods_classpasta_1_1WideRank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes rank of zeros.  <br /></td></tr>
+<tr class="separator:ade8bc64ab69579554c8324bf3c289903 inherit pub_methods_classpasta_1_1WideRank"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0872f8331b040fcbcde309db8f638543 inherit pub_methods_classpasta_1_1WideRank" id="r_a0872f8331b040fcbcde309db8f638543"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpasta_1_1WideRank.html#a0872f8331b040fcbcde309db8f638543">rank1</a> (size_t index) const</td></tr>
+<tr class="memdesc:a0872f8331b040fcbcde309db8f638543 inherit pub_methods_classpasta_1_1WideRank"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes rank of ones.  <br /></td></tr>
+<tr class="separator:a0872f8331b040fcbcde309db8f638543 inherit pub_methods_classpasta_1_1WideRank"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = OptimizedFor::DONT_CARE, <a class="el" href="group__pasta__bit__vector__configuration.html#gaf62fd8d5706075d5eab7503354131f82">FindL2WideWith</a> find_with = FindL2WideWith::LINEAR_SEARCH, typename VectorType = BitVector&gt;<br />
+class pasta::WideRankSelect&lt; optimized_for, find_with, VectorType &gt;</div><p>Select support for <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code>. </p>
+<p>The rank and select support is based on popcount and described in detail by Zhou et al. <a class="el" href="citelist.html#CITEREF_zhouak2013popcountrankselect">[2]</a>. The data structure consists of three levels (L0, L1, and L2) that contain different information regarding the popcount of the current block or all previous blocks.</p>
+<p>Since the rank data structures used by rank are a strict subset of the data structures required by select, we provide a (ever so slightly) more space-efficient rank only data structure in <code>BitVectorRank</code>.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">OptimizedFor</td><td>Compile time option to optimize data structure for either 0, 1, or no specific type of query. </td></tr>
+    <tr><td class="paramname">VectorType</td><td>Type of the vector the rank and select data structure is constructed for, e.g., plain <code><a class="el" href="classpasta_1_1BitVector.html" title="Uncompressed, highly tuned, fixed size bit vector.">BitVector</a></code> or a compressed bit vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a4a33a86ee0b198c783d6e98ec5dd1093" name="a4a33a86ee0b198c783d6e98ec5dd1093"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a33a86ee0b198c783d6e98ec5dd1093">&#9670;&#160;</a></span>WideRankSelect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = OptimizedFor::DONT_CARE, <a class="el" href="group__pasta__bit__vector__configuration.html#gaf62fd8d5706075d5eab7503354131f82">FindL2WideWith</a> find_with = FindL2WideWith::LINEAR_SEARCH, typename VectorType  = BitVector&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classpasta_1_1WideRankSelect.html">pasta::WideRankSelect</a>&lt; optimized_for, find_with, VectorType &gt;::WideRankSelect </td>
+          <td>(</td>
+          <td class="paramtype">VectorType &amp;</td>          <td class="paramname"><span class="paramname"><em>bv</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. Creates the auxiliary information for efficient rank and select queries. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bv</td><td>Vector of type <code>VectorType</code> the rank and select structure is created for. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5748966572f00cb390bdf1f20d60efcc" name="a5748966572f00cb390bdf1f20d60efcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5748966572f00cb390bdf1f20d60efcc">&#9670;&#160;</a></span>select0()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = OptimizedFor::DONT_CARE, <a class="el" href="group__pasta__bit__vector__configuration.html#gaf62fd8d5706075d5eab7503354131f82">FindL2WideWith</a> find_with = FindL2WideWith::LINEAR_SEARCH, typename VectorType  = BitVector&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t <a class="el" href="classpasta_1_1WideRankSelect.html">pasta::WideRankSelect</a>&lt; optimized_for, find_with, VectorType &gt;::select0 </td>
+          <td>(</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>rank</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get position of specific zero, i.e., select. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rank</td><td><a class="el" href="classpasta_1_1Rank.html" title="Rank support for BitVector.">Rank</a> of zero the position is searched for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Position of the rank-th zero. </dd></dl>
+
+</div>
+</div>
+<a id="a681c5a2e02a7170fec67231a79e8da5f" name="a681c5a2e02a7170fec67231a79e8da5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a681c5a2e02a7170fec67231a79e8da5f">&#9670;&#160;</a></span>select1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = OptimizedFor::DONT_CARE, <a class="el" href="group__pasta__bit__vector__configuration.html#gaf62fd8d5706075d5eab7503354131f82">FindL2WideWith</a> find_with = FindL2WideWith::LINEAR_SEARCH, typename VectorType  = BitVector&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t <a class="el" href="classpasta_1_1WideRankSelect.html">pasta::WideRankSelect</a>&lt; optimized_for, find_with, VectorType &gt;::select1 </td>
+          <td>(</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>rank</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get position of specific one, i.e., select. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rank</td><td><a class="el" href="classpasta_1_1Rank.html" title="Rank support for BitVector.">Rank</a> of one the position is searched for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Position of the rank-th one. </dd></dl>
+
+</div>
+</div>
+<a id="a1dcaa7a59341b37bff23fbbc52d1cf76" name="a1dcaa7a59341b37bff23fbbc52d1cf76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1dcaa7a59341b37bff23fbbc52d1cf76">&#9670;&#160;</a></span>space_usage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="group__pasta__bit__vector__configuration.html#ga153ca8106e9e2ff4333eb77b77f48ddb">OptimizedFor</a> optimized_for = OptimizedFor::DONT_CARE, <a class="el" href="group__pasta__bit__vector__configuration.html#gaf62fd8d5706075d5eab7503354131f82">FindL2WideWith</a> find_with = FindL2WideWith::LINEAR_SEARCH, typename VectorType  = BitVector&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t <a class="el" href="classpasta_1_1WideRankSelect.html">pasta::WideRankSelect</a>&lt; optimized_for, find_with, VectorType &gt;::space_usage </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">nodiscard</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Estimate for the space usage. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of bytes used by this data structure. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classpasta_1_1WideRank.html#ab43ed7b93e8dbbd2cd4f97c3293d7a8a">pasta::WideRank&lt; OptimizedFor::DONT_CARE &gt;</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>include/pasta/bit_vector/support/<a class="el" href="wide__rank__select_8hpp_source.html">wide_rank_select.hpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>pasta</b></li><li class="navelem"><a class="el" href="classpasta_1_1WideRankSelect.html">WideRankSelect</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.12.0 </li>
+  </ul>
+</div>
+</body>
+</html>
